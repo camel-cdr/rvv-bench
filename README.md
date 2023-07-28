@@ -2,7 +2,7 @@
 
 A collection of RISC-V Vector (RVV) benchmarks to help developers write portably performant RVV code.
 
-Benchmark results can be found on a separate repository: TODO
+Benchmark results can be found at: https://camel-cdr.github.io/rvv-bench-results
 
 ## Benchmarks ([./bench/](./bench/))
 
@@ -20,7 +20,7 @@ This currently only supports RVV 0.7.1 and was written for the C906 and C910 pro
 
 Here are some suggestions of things that still need to be done.
 
-* contribute a measurement of a new CPU to: TODO
+* contribute a measurement of a new CPU to: https://github.com/camel-cdr/rvv-bench-results
 * implement non memory bound benchmarks
 * implement more benchmarks
 * cycle count for RVV 1.0
