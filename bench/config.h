@@ -1,3 +1,4 @@
+#define HAS_E64 0
 
 /* the maximum number of bytes to allocate */
 #define MAX_MEM (1024*1024*32)

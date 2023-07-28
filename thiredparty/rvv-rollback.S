@@ -85,18 +85,6 @@
 .macro vsoxei8.v a:vararg
 	vsxb.v \a
 .endm
-.macro vloxseg1e8.v a:vararg
-	vlxseg1b.v \a
-.endm
-.macro vluxseg1e8.v a:vararg
-	vlxseg1b.v \a
-.endm
-.macro vsoxseg1e8.v a:vararg
-	vsxseg1b.v \a
-.endm
-.macro vsuxseg1e8.v a:vararg
-	vsxseg1b.v \a
-.endm
 .macro vfncvt.xu.f.w a:vararg
 	vfncvt.xu.f.v \a
 .endm
@@ -172,6 +160,60 @@
 .macro vfirst.m a:vararg
 	vmfirst.m \a
 .endm
+
+.macro define_for_all_nf prefix suffix prefix2 suffix2
+	.macro \prefix\()2\suffix a:vararg
+		\prefix2\()2\suffix2 \a
+	.endm
+	.macro \prefix\()3\suffix a:vararg
+		\prefix2\()3\suffix2 \a
+	.endm
+	.macro \prefix\()4\suffix a:vararg
+		\prefix2\()4\suffix2 \a
+	.endm
+	.macro \prefix\()5\suffix a:vararg
+		\prefix2\()5\suffix2 \a
+	.endm
+	.macro \prefix\()6\suffix a:vararg
+		\prefix2\()6\suffix2 \a
+	.endm
+	.macro \prefix\()7\suffix a:vararg
+		\prefix2\()7\suffix2 \a
+	.endm
+	.macro \prefix\()8\suffix a:vararg
+		\prefix2\()8\suffix2 \a
+	.endm
+.endm
+define_for_all_nf vlseg e8.v  vlseg b.v
+define_for_all_nf vlseg e16.v vlseg h.v
+define_for_all_nf vlseg e32.v vlseg w.v
+
+define_for_all_nf vsseg e8.v  vsseg b.v
+define_for_all_nf vsseg e16.v vsseg h.v
+define_for_all_nf vsseg e32.v vsseg w.v
+
+define_for_all_nf vlsseg e8.v  vlsseg bu.v
+define_for_all_nf vlsseg e16.v vlsseg hu.v
+define_for_all_nf vlsseg e32.v vlsseg wu.v
+
+define_for_all_nf vssseg e8.v  vssseg b.v
+define_for_all_nf vssseg e16.v vssseg h.v
+define_for_all_nf vssseg e32.v vssseg w.v
+
+define_for_all_nf vloxseg e8.v  vlxseg b.v
+define_for_all_nf vloxseg e16.v vlxseg h.v
+define_for_all_nf vloxseg e32.v vlxseg w.v
+define_for_all_nf vluxseg e8.v  vlxseg b.v
+define_for_all_nf vluxseg e16.v vlxseg h.v
+define_for_all_nf vluxseg e32.v vlxseg w.v
+
+define_for_all_nf vsoxseg e8.v  vsxseg b.v
+define_for_all_nf vsoxseg e16.v vsxseg h.v
+define_for_all_nf vsoxseg e32.v vsxseg w.v
+define_for_all_nf vsuxseg e8.v  vsxseg b.v
+define_for_all_nf vsuxseg e16.v vsxseg h.v
+define_for_all_nf vsuxseg e32.v vsxseg w.v
+
 
 .macro vsetvl0p7 rd, rs1, rs2, T=1, M=1
 	vsetvl \rd, \rs1, \rs2
