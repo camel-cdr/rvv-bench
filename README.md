@@ -18,6 +18,8 @@ This currently only supports RVV 0.7.1 and was written for the C906 and C910 pro
 
 ## Contributing
 
+If you have a rvv 0.7.1 supporting board (which is as of now almoat certain), make sure to use a rvv 0.7.2 compatible toolchain. I've used [this one](https://github.com/brucehoult/riscv-gnu-toolchain) for development.
+
 Here are some suggestions of things that still need to be done.
 
 * contribute a measurement of a new CPU to: https://github.com/camel-cdr/rvv-bench-results
