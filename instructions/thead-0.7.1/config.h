@@ -1,9 +1,4 @@
-#define WARMUP 1000
-
-#define UNROLL 64
-#define LOOP 16
-#define RUNS 1000
-
+/* processor specific configs */
 #if 0
 // C910: e8/16/32/64 f16/32/64
 #define T_A  0b11111111
@@ -22,3 +17,8 @@
 #define T_FN 0b0100111
 #endif
 
+#define WARMUP 1000
+
+#define UNROLL 64
+#define LOOP 16
+#define RUNS 1000

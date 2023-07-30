@@ -1,3 +1,4 @@
+/* processor specific configs */
 #define HAS_E64 0
 #define HAS_F16 1
 
