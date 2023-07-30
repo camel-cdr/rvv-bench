@@ -16,9 +16,27 @@ Measures the cycle count of RVV instructions by unrolling and looping over the g
 
 This currently only supports RVV 0.7.1 and was written for the C906 and C910 processors.
 
-## Contributing
+## Getting started
 
-If you have a rvv 0.7.1 supporting board (which is as of now almoat certain), make sure to use a rvv 0.7.2 compatible toolchain. I've used [this one](https://github.com/brucehoult/riscv-gnu-toolchain) for development.
+Start out by configuring [./config.mk](./config.mk) such that `make` works and optionally [./run.sh](./run.sh), which allows you to compile and run using `make run`.
+
+If you have a rvv 0.7.1 supporting board (which is as of now almost certain), make sure to use a rvv 0.7.1 compatible toolchain. I've used [this one](https://github.com/brucehoult/riscv-gnu-toolchain) for development.
+
+### Running benchmarks ([./bench/](./bench/))
+
+To run the benchmarks, first look through ([./bench/config.h](./bench/config.h)) and adjust it to your processor (e.g. set `HAS_E64`).
+
+Now you can just run the benchmarks using `make run` in the ([./bench/](./bench/)) directory, or `make` to just build the executables.
+
+### Measuring cycle count ([./instructions/](./instructions/))
+
+This is currently only supported for RVV 0.7.1.
+
+To run the cycle count measurement, first configure [instructions/thead-0.7.1/config.h](instructions/thead-0.7.1/config.h) to your processor.
+
+Now you can just run the measurement using `make run` in the ([./instructions/thead-0.7.1/](./instructions/thead-0.7.1/)) directory, or `make` to just build the executables.
+
+## Contributing
 
 Here are some suggestions of things that still need to be done.
 
