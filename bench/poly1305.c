@@ -24,9 +24,9 @@ poly1305_rvv(void const *src, size_t n) {
 typedef void *Func(void const *src, size_t n);
 
 Impl impls[] = {
-	{ "poly1305_boring", &poly1305_boring },
+	{ "boring", &poly1305_boring },
 #if HAS_E64
-	{ "poly1305_rvv", &poly1305_rvv },
+	{ "rvv", &poly1305_rvv },
 #endif
 };
 
