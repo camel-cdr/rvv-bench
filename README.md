@@ -41,7 +41,8 @@ Now you can just run the measurement using `make run` in the ([./instructions/th
 
 Here are some suggestions of things that still need to be done.
 
-* contribute a measurement of a new CPU to: https://github.com/camel-cdr/rvv-bench-results
+* contribute a measurement of a new CPU to: https://github.com/camel-cdr/rvv-bench-results \
+  You can just create an issue with a single json file, which contains all concatinated [./bench/](./bench/) results. (after proper setup, `make run > out.json` should do the trick). \
 * implement non memory bound benchmarks
 * implement more benchmarks
 * cycle count for RVV 1.0
