@@ -12,6 +12,10 @@
 #include <unistd.h>
 #include "config.h"
 
+#ifndef BENCH_NEXT
+#  define BENCH_NEXT NEXT
+#endif
+
 #define MX(f,F) f(F##_m1) f(F##_m2) f(F##_m4) f(F##_m8)
 
 
@@ -119,6 +123,7 @@ main(void)
 
 	init();
 	bench_main();
+	free(mem);
 	return 0;
 }
 
@@ -153,13 +158,13 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 
 		size_t N = b->N;
 		printf("data: [\n[");
-		for (size_t n = 1; n < N; BENCH_NEXT(n))
+		for (size_t n = 1; n < N; n = BENCH_NEXT(n))
 			printf("%zu,", n);
 		printf("],\n");
 
 		for (Impl *i = impls; i != impls + nImpls; ++i) {
 			printf("[");
-			for (size_t n = 1; n < N; BENCH_NEXT(n)) {
+			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
 				uint64_t si, s0;
 
 				RandState seed = randState;

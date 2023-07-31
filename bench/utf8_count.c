@@ -126,7 +126,7 @@ void common(size_t n, size_t off) {
 	randmem(str, n + 9);
 }
 
-BENCH(utf8_count) {
+BENCH(base) {
 	common(n, randu64() & 511);
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
@@ -137,7 +137,7 @@ BENCH(aligned) {
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM - 521, "utf8 count", bench_utf8_count },
+	{ MAX_MEM - 521, "utf8 count", bench_base },
 	{ MAX_MEM - 521, "utf8 count aligned", bench_aligned }
 }; BENCH_MAIN(impls, benches)
 

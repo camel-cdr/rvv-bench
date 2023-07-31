@@ -169,11 +169,11 @@ uint64_t checksum(size_t n) {
 }
 
 void common(size_t n, size_t dOff, size_t sOff) {
-	dest = mem + dOff; src = mem + MAX_MEM/2 + sOff;
+	dest = mem + dOff; src = mem + MAX_MEM/2 + sOff + 9;
 	memset(dest, 0, n+9);
 }
 
-BENCH(memcpy) {
+BENCH(base) {
 	common(n, randu64() & 511, randu64() & 511);
 	TIME last = (uintptr_t)f(dest, src, n);
 } BENCH_END
@@ -184,7 +184,7 @@ BENCH(aligned) {
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM/2 - 521, "memcpy", bench_memcpy },
+	{ MAX_MEM/2 - 521, "memcpy", bench_base },
 	{ MAX_MEM/2 - 521, "memcpy aligned", bench_aligned}
 }; BENCH_MAIN(impls, benches)
 

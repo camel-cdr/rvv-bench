@@ -24,9 +24,10 @@ If you have a rvv 0.7.1 supporting board (which is as of now almost certain), ma
 
 ### Running benchmarks ([./bench/](./bench/))
 
-To run the benchmarks, first look through ([./bench/config.h](./bench/config.h)) and adjust it to your processor (e.g. set `HAS_E64`).
+To run the benchmarks, first look through ([./bench/config.h](./bench/config.h)) and adjust it to your processor (e.g. set `HAS_E64`). If it takes to long to execute, try lowering `MAX_MEM`, which is used to scale the benchmark, and play around with the other constants until it executes in a reasonable amount of time and gives a relatively smooth graph.
 
 Now you can just run the benchmarks using `make run` in the ([./bench/](./bench/)) directory, or `make` to just build the executables.
+
 
 ### Measuring cycle count ([./instructions/](./instructions/))
 

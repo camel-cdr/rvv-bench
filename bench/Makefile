@@ -2,15 +2,12 @@
 
 include ../config.mk
 
-EXECS=memcpy memset utf8_count strlen mergelines mandelbrot
+EXECS=memcpy memset utf8_count strlen mergelines mandelbrot chacha20 poly1305
 
 all: ${EXECS}
 
-.c: $@.S template.S config.h
-	$(CC) $(CFLAGS) -o $@ $< -DINC=$@.S template.S -lm
-
-thead-0.7.1: main.S main.c common.h
-	${CC} ${CFLAGS} main.S main.c -o $@
+.c: $@.S template.S config.h bench.h
+	${CC} ${CFLAGS} -o $@ $< -DINC=$@.S template.S -lm
 
 clean:
 	rm -f ${EXECS}

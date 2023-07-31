@@ -1,0 +1,3 @@
+[submodule "bench/rvv-chacha-poly"]
+	path = bench/rvv-chacha-poly
+	url = https://github.com/edre/rvv-chacha-poly

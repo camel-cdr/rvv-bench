@@ -64,7 +64,7 @@ void init(void) { memset(mem, 0, MAX_MEM); dest = (uint32_t*)mem; }
 /* disabled, because of rounding errors, please independently verify */
 uint64_t checksum(size_t n) { return 0; }
 
-BENCH(mandelbrot) {
+BENCH(base) {
 	n = sqrt(n);
 	TIME f(n, mandelbrot_ITER, dest);
 } BENCH_END
@@ -73,7 +73,7 @@ Bench benches[] = {
 	{
 		SCALE_mandelbrot(MAX_MEM / 4),
 		"mandelbrot "STR(mandelbrot_ITER),
-		bench_mandelbrot
+		bench_base
 	},
 }; BENCH_MAIN(impls, benches)
 

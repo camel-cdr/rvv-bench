@@ -54,7 +54,7 @@ void init(void) {
 
 uint64_t checksum(size_t n) { return last; }
 
-BENCH(strlen) {
+BENCH(base) {
 	char *p = (char*)mem + (randu64() % 511);
 	p[n] = 0;
 	TIME last = f(p);
@@ -62,6 +62,6 @@ BENCH(strlen) {
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM - 521, "strlen", bench_strlen },
+	{ MAX_MEM - 521, "strlen", bench_base },
 }; BENCH_MAIN(impls, benches)
 
