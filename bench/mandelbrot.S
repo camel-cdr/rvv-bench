@@ -93,7 +93,7 @@ MX(rvv_f32_6):
 	vmv.v.i v16, 0
 	vmv.v.i v20, 0
 MX(rvv_f32_7):
-#ifdef HAS_RVV_1_0
+#if HAS_RVV_1_0
 	vsetvli zero, a4, e8, mf2, ta, ma
 #else
 	vsetvli zero, a4, e8, m1, ta, ma

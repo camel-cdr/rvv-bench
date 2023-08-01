@@ -1,13 +1,13 @@
 #if 0
 void *memcpy_rvv(void *restrict dest, void const *restrict src, size_t n) {
-	unsigned char *d = dst;
-	unsigned char *s = src;
+	unsigned char *d = dest;
+	unsigned char const *s = src;
 	for (size_t vl; n > 0; n -= vl, s += vl, d += vl) {
 		vl = __riscv_vsetvl_e8m8(n);
 		vuint8m8_t vec_src = __riscv_vle8_v_u8m8(s, vl);
 		__riscv_vse8_v_u8m8(d, vec_src, vl);
 	}
-	return dst;
+	return dest;
 }
 #endif
 
@@ -31,7 +31,7 @@ MX(memcpy_rvv_):
 .global MX(memcpy_rvv_align_dest_)
 MX(memcpy_rvv_align_dest_):
 	mv a3, a0
-#ifdef HAS_RVV_1_0
+#if HAS_RVV_1_0
 	csrr    t0, vlenb
 #else
 	vsetvli t0, zero, e8, m1, ta, ma # vlenb
@@ -56,7 +56,7 @@ MX(memcpy_rvv_align_dest_):
 .global MX(memcpy_rvv_align_src_)
 MX(memcpy_rvv_align_src_):
 	mv a3, a0
-#ifdef HAS_RVV_1_0
+#if HAS_RVV_1_0
 	csrr    t0, vlenb
 #else
 	vsetvli t0, zero, e8, m1, ta, ma # vlen
@@ -82,7 +82,7 @@ MX(memcpy_rvv_align_src_):
 .global MX(memcpy_rvv_align_dest_hybrid_)
 MX(memcpy_rvv_align_dest_hybrid_):
 	mv a3, a0
-#ifdef HAS_RVV_1_0
+#if HAS_RVV_1_0
 	csrr t0, vlenb
 #else
 	vsetvli t0, zero, e8, m1, ta, ma # vlen

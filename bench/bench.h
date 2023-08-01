@@ -165,15 +165,17 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 		for (Impl *i = impls; i != impls + nImpls; ++i) {
 			printf("[");
 			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
-				uint64_t si, s0;
+				uint64_t si = 0, s0 = 0;
 
-				RandState seed = randState;
-				(void)b->func(i->func, n);
-				si = checksum(n);
+				if (i != impls) {
+					RandState seed = randState;
+					(void)b->func(i->func, n);
+					si = checksum(n);
 
-				randState = seed;
-				(void)b->func(impls[0].func, n);
-				s0 = checksum(n);
+					randState = seed;
+					(void)b->func(impls[0].func, n);
+					s0 = checksum(n);
+				}
 
 				if (si != s0) {
 					printf("ERROR: %s in %s at %zu",
