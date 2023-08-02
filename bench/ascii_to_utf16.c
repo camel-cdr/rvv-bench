@@ -35,6 +35,8 @@ uint64_t checksum(size_t n) {
 void common(size_t n, size_t dOff, size_t sOff) {
 	dest = ((uint16_t*)mem) + dOff/2;
 	src = (uint8_t*)(dest + 9 + MAX_MEM/3) + sOff;
+	for (size_t i = 0; i < MAX_MEM/3; ++i)
+		src[i] |= 0x7F;
 	memset(dest, 1, (n+9)*2);
 }
 
