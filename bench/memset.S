@@ -28,11 +28,7 @@ MX(memset_rvv_):
 
 .global MX(memset_rvv_align_)
 MX(memset_rvv_align_):
-#if HAS_RVV_1_0
-	csrr    t0, vlenb
-#else
 	vsetvli t0, zero, e8, m1, ta, ma # vlen
-#endif
 	vmv.v.x v8, a1
 	mv a1, a0
 	vsetvli t0, zero, e8, MX(), ta, ma # vlen
