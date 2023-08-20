@@ -1,4 +1,4 @@
-// this is build for the C906/C910
+// this is build for the C906/C920
 #define vl s0
 
 #include "config.h"

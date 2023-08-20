@@ -44,11 +44,19 @@ mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 	}
 }
 
+#if HAS_F16
+# define IMPLS_F16(f) f(rvv_f16_m1) f(rvv_f16_m2)
+#else
+# define IMPLS_F16(f)
+#endif
+
 #define IMPLS(f) \
 	f(scalar_f32) \
 	f(scalar_f64) \
+	IMPLS_F16(f) \
 	f(rvv_f32_m1) \
 	f(rvv_f32_m2) \
+	f(rvv_f64_m2) \
 
 typedef void Func(size_t width, size_t maxIter, uint32_t *res);
 

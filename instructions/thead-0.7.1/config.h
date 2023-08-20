@@ -1,6 +1,6 @@
 /* processor specific configs */
-#if 0
-// C906 (some boards, e.g. BL808)/C910: e8/16/32/64 f16/32/64
+#if 1
+// C920/C906 (some boards, e.g. BL808): e8/16/32/64 f16/32/64
 #define T_A  0b11111111
 #define T_W  0b01110111
 #define T_N  0b01110111

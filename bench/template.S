@@ -3,6 +3,7 @@
 #else
 # define HAS_RVV_1_0 1
 #endif
+#include "config.h"
 .text
 .balign 8
 

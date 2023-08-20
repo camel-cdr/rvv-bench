@@ -14,7 +14,7 @@ RVV code is currently only written in assembly, and uses [`./thiredparty/rvv-rol
 
 Measures the cycle count of RVV instructions by unrolling and looping over the given instruction repeatedly.
 
-This currently only supports RVV 0.7.1 and was written for the C906 and C910 processors.
+This currently only supports RVV 0.7.1 and was written for the C906 and C920 processors.
 
 ## Getting started
 
