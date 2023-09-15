@@ -5,10 +5,16 @@ memcpy_scalar(void *restrict dest, void const *restrict src, size_t n)
 {
 	unsigned char *d = dest;
 	unsigned char const *s = src;
-	while (n--) {
-		*d++ = *s++;
-		BENCH_CLOBBER();
-	}
+	while (n--) *d++ = *s++, BENCH_CLOBBER();
+	return dest;
+}
+
+void *
+memcpy_scalar_autovec(void *restrict dest, void const *restrict src, size_t n)
+{
+	unsigned char *d = dest;
+	unsigned char const *s = src;
+	while (n--) *d++ = *s++;
 	return dest;
 }
 
@@ -141,6 +147,7 @@ memcpy_musl(void *restrict dest, void const *restrict src, size_t n)
 	f(libc) \
 	f(musl) \
 	f(scalar) \
+	f(scalar_autovec) \
 	MX(f, rvv) \
 	MX(f, rvv_align_dest) \
 	MX(f, rvv_align_src) \

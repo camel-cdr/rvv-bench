@@ -4,10 +4,15 @@ void *
 memset_scalar(void *dest, int c, size_t n)
 {
 	unsigned char *d = dest;
-	while (n--) {
-		*d++ = c;
-		BENCH_CLOBBER();
-	}
+	while (n--) *d++ = c, BENCH_CLOBBER();
+	return dest;
+}
+
+void *
+memset_scalar_autovec(void *dest, int c, size_t n)
+{
+	unsigned char *d = dest;
+	while (n--) *d++ = c;
 	return dest;
 }
 
@@ -95,10 +100,7 @@ memset_musl(void *dest, int c, size_t n)
 	}
 #else
 	/* Pure C fallback with no aliasing violations. */
-	while (n--) {
-		*s++ = c;
-		BENCH_CLOBBER();
-	}
+	while (n--) *s++ = c;
 #endif
 
 	return dest;
@@ -110,6 +112,7 @@ memset_musl(void *dest, int c, size_t n)
 	f(libc) \
 	f(musl) \
 	f(scalar) \
+	f(scalar_autovec) \
 	MX(f, rvv) \
 	MX(f, rvv_align) \
 	MX(f, rvv_tail) \

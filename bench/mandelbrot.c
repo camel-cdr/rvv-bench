@@ -17,6 +17,7 @@ mandelbrot_scalar_f32(size_t width, size_t maxIter, uint32_t *res)
 			zxS = zx*zx;
 			zyS = zy*zy;
 			++iter;
+			BENCH_CLOBBER();
 		}
 		*res++ = iter;
 	}

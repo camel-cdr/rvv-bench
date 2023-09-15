@@ -3,11 +3,17 @@
 void
 ascii_to_utf32_scalar(uint32_t *restrict dest, uint8_t const *restrict src, size_t len)
 {
+	while (len--) *dest++ = *src++, BENCH_CLOBBER();
+}
+
+void
+ascii_to_utf32_scalar_autovec(uint32_t *restrict dest, uint8_t const *restrict src, size_t len)
+{
 	while (len--) *dest++ = *src++;
 }
 
 #define IMPLS(f) \
-	f(scalar) \
+	f(scalar) f(scalar_autovec) \
 	f(rvv_ext_m1) f(rvv_ext_m2) \
 	f(rvv_vsseg_m1) f(rvv_vsseg_m2) \
 	f(rvv_vss_m1) f(rvv_vss_m2) \

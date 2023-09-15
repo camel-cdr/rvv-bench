@@ -11,6 +11,7 @@ mergelines_scalar(char *str, size_t len)
 			src += 2, len -= 2;
 		else
 			*dest++ = *src++, --len;
+		BENCH_CLOBBER();
 	}
 	if (len > 0)
 		*dest++ = *src++;

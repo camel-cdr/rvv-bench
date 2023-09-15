@@ -5,10 +5,20 @@ utf8_count_scalar(char const *str, size_t len)
 {
 	uint8_t const *p = (uint8_t const*)str;
 	size_t count = 0;
-	while (len--) count += (*p++ & 0xC0) != 0x80;
+	while (len--) count += (*p++ & 0xc0) != 0x80, BENCH_CLOBBER();
 	return count;
 }
 
+size_t
+utf8_count_scalar_autovec(char const *str, size_t len)
+{
+	uint8_t const *p = (uint8_t const*)str;
+	size_t count = 0;
+	while (len--) count += (*p++ & 0xc0) != 0x80;
+	return count;
+}
+
+#if __riscv_zbb
 size_t
 utf8_count_SWAR_popc(char const *str, size_t len)
 {
@@ -42,6 +52,10 @@ skip:
 		count += (*u8++ & 0xC0) != 0x80;
 	return count;
 }
+#define POPC(f) f(SWAR_POPC)
+#else
+#define POPC(f)
+#endif
 
 static inline int
 popcnt64(uint64_t x)
@@ -96,9 +110,11 @@ skip:
 	return count;
 }
 
+
 #define IMPLS(f) \
 	f(scalar) \
-	f(SWAR_popc) \
+	f(scalar_autovec) \
+	POPC(f) \
 	f(SWAR_popc_bithack) \
 	MX(f, rvv) \
 	MX(f, rvv_align) \

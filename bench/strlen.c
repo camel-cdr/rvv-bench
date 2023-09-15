@@ -4,7 +4,15 @@ size_t
 strlen_scalar(char const *s)
 {
 	char const *a = s;
-	while (*s) { ++s; BENCH_CLOBBER(); }
+	while (*s) ++s, BENCH_CLOBBER();
+	return s - a;
+}
+
+size_t
+strlen_scalar_autovec(char const *s)
+{
+	char const *a = s;
+	while (*s) ++s;
 	return s - a;
 }
 
@@ -30,10 +38,11 @@ strlen_musl(char const *s)
 #define strlen_libc strlen
 
 #define IMPLS(f) \
-	f(libc) \
-	MX(f, rvv_page_aligned) \
-	f(musl) \
 	f(scalar) \
+	f(scalar_autovec) \
+	f(libc) \
+	f(musl) \
+	MX(f, rvv_page_aligned) \
 	MX(f, rvv) \
 
 
