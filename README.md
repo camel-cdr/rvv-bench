@@ -8,7 +8,7 @@ Benchmark results can be found at: https://camel-cdr.github.io/rvv-bench-results
 
 Contains a bunch of benchmark of different implementations of certain algorithms.
 
-RVV code is currently only written in assembly, and uses [`./thiredparty/rvv-rollback.S`](./thiredparty/rvv-rollback.S) to support RVV 0.7.1 and RVV 1.0, because there currently isn't any RVV 1.0 hardware easily available.
+RVV code is currently only written in assembly, and uses [`./thirdparty/rvv-rollback.S`](./thirdparty/rvv-rollback.S) to support RVV 0.7.1 and RVV 1.0, because there currently isn't any RVV 1.0 hardware easily available.
 
 ## Instruction cycle count ([./instructions/](./instructions/))
 
@@ -24,7 +24,7 @@ If you have a rvv 0.7.1 supporting board (which is as of now almost certain), ma
 
 ### Running benchmarks ([./bench/](./bench/))
 
-To run the benchmarks, first look through ([./bench/config.h](./bench/config.h)) and adjust it to your processor (e.g. set `HAS_E64`). If it takes to long to execute, try lowering `MAX_MEM`, which is used to scale the benchmark, and play around with the other constants until it executes in a reasonable amount of time and gives a relatively smooth graph.
+To run the benchmarks, first look through ([./bench/config.h](./bench/config.h)) and adjust it to your processor (e.g. set `HAS_E64`). If it takes too long to execute, try lowering `MAX_MEM`, which is used to scale the benchmark, and play around with the other constants until it executes in a reasonable amount of time and gives a relatively smooth graph.
 
 Now you can just run the benchmarks using `make run` in the ([./bench/](./bench/)) directory, or `make` to just build the executables.
 
@@ -42,7 +42,7 @@ Now you can just run the measurement using `make run` in the ([./instructions/th
 Here are some suggestions of things that still need to be done.
 
 * contribute a measurement of a new CPU to: https://github.com/camel-cdr/rvv-bench-results \
-  You can just create an issue with a single json file, which contains all concatinated [./bench/](./bench/) results. (after proper setup, `make run > out.json` should do the trick). \
+  You can just create an issue with a single json file, which contains all concatenated [./bench/](./bench/) results. (after proper setup, `make run > out.json` should do the trick). \
 * implement non memory bound benchmarks
 * implement more benchmarks
 * cycle count for RVV 1.0
