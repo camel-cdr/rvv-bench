@@ -9,7 +9,7 @@
 
 /* minimum number of repeats, to sample median from */
 #define MIN_REPEATS 10
-/* maxium number of repeats, executed until more then STOP_TIME has elapsed */
+/* maxium number of repeats, executed until more than STOP_TIME has elapsed */
 #define MAX_REPEATS 64
 
 /* stop repeats early afer this many seconds have elapsed */
