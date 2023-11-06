@@ -1,5 +1,5 @@
 #include "bench.h"
-#include "rvv-chacha-poly/boring.h"
+#include "../thirdparty/boring.h"
 
 uint8_t *dest, *src;
 uint8_t key[32], nonce[12];
@@ -51,4 +51,4 @@ Bench benches[] = {
 }; BENCH_MAIN(impls, benches)
 
 
-#include "rvv-chacha-poly/boring.c"
+#include "../thirdparty/boring.c"

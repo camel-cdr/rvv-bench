@@ -38,7 +38,7 @@ void init(void) { }
 uint64_t checksum(size_t n) { return last; }
 
 void common(size_t n, char const *chars, size_t nChars) {
-	str = (char*)mem + (randu64() & 511);
+	str = (char*)mem + (randu64() & 255);
 	for (size_t i = 0; i < n; ++i)
 		str[i] = chars[randu64() % nChars];
 }
@@ -59,13 +59,13 @@ BENCH(2_32) {
 } BENCH_END
 
 BENCH(2_256) {
-	str = (char*)mem + (randu64() & 511);
+	str = (char*)mem + (randu64() & 255);
 	for (size_t i = 0; i < n; ++i)
 		str[i] = randu64() & 0xff;
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
 
-#define COUNT SCALE_mergelines(MAX_MEM) - 512
+#define COUNT SCALE_mergelines(MAX_MEM) - 256
 Bench benches[] = {
 	{ COUNT, "mergelines 2/3", bench_2_3 },
 	{ COUNT, "mergelines 2/16", bench_2_16 },

@@ -1,36 +1,19 @@
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#include <fcntl.h>
-#include <unistd.h>
 #include "config.h"
+#include "../nolibc.h"
 
 #ifndef BENCH_NEXT
 #  define BENCH_NEXT NEXT
 #endif
 
 #define MX(f,F) f(F##_m1) f(F##_m2) f(F##_m4) f(F##_m8)
-
-
-#define ARR_LEN(a) (sizeof a / sizeof *a)
-#define ROTL(x,n) ((x << (n)) | (x >> (8*sizeof(x) - (n))))
-
 #define STR(x) STR_(x)
 #define STR_(x) #x
-#define OPEN(...) __VA_ARGS__
-#define FX(f,...) f(__VA_ARGS__)
+
+#define ROTL(x,n) ((x << (n)) | (x >> (8*sizeof(x) - (n))))
 
 #if defined(__clang__) || defined(__GNUC__) || defined(__INTEL_COMPILER)
 
-/* artificial use of all of memory */
 # define BENCH_CLOBBER() ({__asm volatile("":::"memory");})
-/* artificial dependency of x on all of memory and all of memory on x */
 # define BENCH_VOLATILE(x) ({__asm volatile("" : "+g"(x) : "g"(x) : "memory");})
 # define BENCH_VOLATILE_REG(x) ({__asm volatile("" : "+r"(x) : "r"(x) : "memory");})
 # define BENCH_VOLATILE_MEM(x) ({__asm volatile("" : "+m"(x) : "m"(x) : "memory");})
@@ -57,11 +40,12 @@ rv_cycles(void)
 static int
 compare_u64(void const *a, void const *b)
 {
-	return *(clock_t*)a - *(clock_t*)b;
+	uint64_t A = *(uint64_t*)a, B = *(uint64_t*)b;
+	return A < B ? -1 : A > B ? 1 : 0;
 }
 
 typedef struct { uint64_t x, y; } RandState;
-static RandState randState = {123, 456};
+static RandState randState = { 123, 456 };
 
 /* RomuDuoJr, see https://romu-random.org/ */
 static uint64_t
@@ -72,18 +56,6 @@ randu64(void)
 	randState.y = randState.y - xp;  randState.y = ROTL(randState.y, 27);
 	return xp;
 }
-
-static uint64_t
-hash64(uint64_t x)
-{
-	x ^= x >> 32;
-	x *= 0xd6e8feb86659fd93U;
-	x ^= x >> 32;
-	x *= 0xd6e8feb86659fd93U;
-	x ^= x >> 32;
-	return x;
-}
-
 
 typedef struct {
 	char const *name; void *func;
@@ -108,21 +80,33 @@ randmem(void *ptr, size_t n)
 		p[i] = randu64();
 }
 
+#if __STDC_HOSTED__
+# include <stdlib.h>
+#else
+static uint64_t heap[1 + MAX_MEM / sizeof(uint64_t)];
+#endif
+
+
 int
 main(void)
 {
-	/* no idea why, but fopen doesn't seem to work with my toolchain */
-	int fd = open("/dev/urandom", O_RDONLY);
-	read(fd, &randState, sizeof randState);
-	close(fd);
+	size_t x;
+	randState.x ^= rv_cycles()*7;
+	randState.y += rv_cycles() ^ (uintptr_t)&x + 666*(uintptr_t)heap;
 
 	/* initialize memory */
+#if __STDC_HOSTED__
 	mem = malloc(MAX_MEM);
+#else
+	mem = (unsigned char*)heap;
+#endif
 	randmem(mem, MAX_MEM);
 
 	init();
 	bench_main();
+#if __STDC_HOSTED__
 	free(mem);
+#endif
 	return 0;
 }
 
@@ -130,12 +114,10 @@ static double
 bench_time(size_t n, Impl impl, Bench bench)
 {
 	static uint64_t arr[MAX_REPEATS];
-	clock_t beg = clock();
-	size_t repeats = 0;
+	size_t total = 0, repeats = 0;
 	for (; repeats < MAX_REPEATS; ++repeats) {
-		arr[repeats] = bench.func(impl.func, n);
-		if (repeats > MIN_REPEATS &&
-		    clock() - beg > CLOCKS_PER_SEC * STOP_TIME)
+		total += arr[repeats] = bench.func(impl.func, n);
+		if (repeats > MIN_REPEATS && total > STOP_CYCLES)
 			break;
 	}
 	qsort(arr, repeats, sizeof *arr, compare_u64);
@@ -149,20 +131,21 @@ static void
 bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 {
 	for (Bench *b = benches; b != benches + nBenches; ++b) {
-		printf("{\ntitle: \"%s\",\n", b->name);
-		printf("labels: [\"0\",");
+		print("{\ntitle: \"")(s,b->name)("\",\n");
+		print("labels: [\"0\",");
 		for (size_t i = 0; i < nImpls; ++i)
-			printf("\"%s\",", impls[i].name);
-		printf("],\n");
+			print("\"")(s,impls[i].name)("\",");
+		print("],\n");
 
 		size_t N = b->N;
-		printf("data: [\n[");
+		print("data: [\n[");
 		for (size_t n = 1; n < N; n = BENCH_NEXT(n))
-			printf("%zu,", n);
-		printf("],\n");
+			print(u,n)(",");
+		print("],\n");
+		flush();
 
 		for (Impl *i = impls; i != impls + nImpls; ++i) {
-			printf("[");
+			print("[");
 			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
 				uint64_t si = 0, s0 = 0;
 
@@ -177,17 +160,17 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 				}
 
 				if (si != s0) {
-					printf("ERROR: %s in %s at %zu",
-					       i->name, b->name, n);
+					print("ERROR: ")(s,i->name)(" in ")(s,b->name)(" at ")(u,n);
+					flush();
 					exit(EXIT_FAILURE);
 				}
 
-				printf("%f,", bench_time(n, *i, *b));
-				fflush(stdout);
+				print(f,bench_time(n, *i, *b))(",");
 			}
-			printf("],\n");
+			print("],\n");
+			flush();
 		}
-		printf("]\n},\n");
+		print("]\n},\n");
 	}
 }
 
@@ -204,5 +187,4 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 	void bench_main(void) { \
 		bench_run(ARR_LEN(impls), impls, ARR_LEN(benches), benches); \
 	}
-
 

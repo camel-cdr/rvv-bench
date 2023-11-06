@@ -74,7 +74,7 @@ void init(void) { memset(mem, 0, MAX_MEM); dest = (uint32_t*)mem; }
 uint64_t checksum(size_t n) { return 0; }
 
 BENCH(base) {
-	n = sqrt(n);
+	n = u64sqrt(n);
 	TIME f(n, mandelbrot_ITER, dest);
 } BENCH_END
 

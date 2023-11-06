@@ -1,4 +1,3 @@
-// this is build for the C906/C920
 #define vl s0
 
 #include "config.h"
@@ -49,7 +48,7 @@ vmseq.vx v8, v0, t0
 
 .macro m_mask f name type setup code:vararg
 	\f \name\(),  \type, \setup, \code
-	\f \name\()m, \type, \setup, \code , v0.t
+	\f \name\()m, \type, \setup, \code, v0.t
 .endm
 
 .macro m_bench_vx f t name
@@ -104,10 +103,22 @@ vmseq.vx v8, v0, t0
 	m_mask \f bench_\()\name\()wf, \t, m_nop, \name\().wf v8, v16, ft0
 .endm
 
+.macro m_bench_wxi f t name
+	m_mask \f bench_\()\name\()wv, \t, m_nop, \name\().wv v8, v16, v24
+	m_mask \f bench_\()\name\()wx, \t, m_nop, \name\().wx v8, v16, t0
+	m_mask \f bench_\()\name\()wi, \t, m_nop, \name\().wi v8, v16, 13
+.endm
 
 .macro m_mod_v24_e8_vl
 	csrr t1, vtype
-	vsetvli t0, x0, e8, m8
+	vsetvli t0, x0, e8, m8, ta, ma
+	vremu.vx v24, v24, vl
+	vsetvl x0, vl, t1
+.endm
+
+.macro m_mod_v24_e16_vl
+	csrr t1, vtype
+	vsetvli t0, x0, e16, m8, ta, ma
 	vremu.vx v24, v24, vl
 	vsetvl x0, vl, t1
 .endm
@@ -115,6 +126,9 @@ vmseq.vx v8, v0, t0
 .macro m_mod_t0_vl
 	remu t0, t0, vl
 .endm
+
+
+
 
 .macro m_benchmarks_all f
 	\f bench_add, T_A, m_nop, add t0, t1, t2
@@ -130,13 +144,15 @@ vmseq.vx v8, v0, t0
 	m_bench_vxi \f, T_A, vor
 	m_bench_vxi \f, T_A, vxor
 
-	m_mask \f bench_vrgathervv,   T_A, m_mod_v24_e8_vl, vrgather.vv   v8, v16, v24
-	m_mask \f bench_vrgathervx,   T_A, m_mod_t0_vl,     vrgather.vx   v8, v16, t0
-	m_mask \f bench_vrgathervi,   T_A, m_nop,           vrgather.vi   v8, v16, 3
-	m_mask \f bench_vslideupvx,   T_A, m_mod_t0_vl,     vslideup.vx   v8, v16, t0
-	m_mask \f bench_vslideupvi,   T_A, m_nop,           vslideup.vi   v8, v16, 3
-	m_mask \f bench_vslidedownvx, T_A, m_mod_t0_vl,     vslidedown.vx v8, v16, t0
-	m_mask \f bench_vslidedownvi, T_A, m_nop,           vslidedown.vi v8, v16, 3
+	m_mask \f bench_vrgathervv,     T_A, m_mod_v24_e8_vl,  vrgather.vv     v8, v16, v24
+	m_mask \f bench_vrgathervx,     T_A, m_mod_t0_vl,      vrgather.vx     v8, v16, t0
+	m_mask \f bench_vrgathervi,     T_A, m_nop,            vrgather.vi     v8, v16, 3
+	m_mask \f bench_vslideupvx,     T_A, m_mod_t0_vl,      vslideup.vx     v8, v16, t0
+	m_mask \f bench_vslideupvi,     T_A, m_nop,            vslideup.vi     v8, v16, 3
+	m_mask \f bench_vrgatherei16vv, T_N8, m_mod_v24_e16_vl, vrgatherei16.vv v8, v16, v24
+
+	m_mask \f bench_vslidedownvx, T_A, m_mod_t0_vl,  vslidedown.vx v8, v16, t0
+	m_mask \f bench_vslidedownvi, T_A, m_nop,        vslidedown.vi v8, v16, 3
 
 	m_mask \f bench_vredsumvs,  T_A, m_nop, vredsum.vs  v8, v16, v24
 	m_mask \f bench_vredandvs,  T_A, m_nop, vredand.vs  v8, v16, v24
@@ -147,9 +163,13 @@ vmseq.vx v8, v0, t0
 	m_mask \f bench_vredmaxuvs, T_A, m_nop, vredmaxu.vs v8, v16, v24
 	m_mask \f bench_vredmaxvs,  T_A, m_nop, vredmax.vs  v8, v16, v24
 
-	\f bench_vextxv,        T_A, m_mod_t0_vl, vext.x.v       t1, v8,  t0
-	m_mask \f bench_vslide1upvx,   T_A, m_nop,       vslide1up.vx   v8, v16, t0
-	m_mask \f bench_vslide1downvx, T_A, m_nop,       vslide1down.vx v8, v16, t0
+	m_bench_vx \f, T_A, vaaddu
+	m_bench_vx \f, T_A, vaadd
+	m_bench_vx \f, T_A, vasubu
+	m_bench_vx \f, T_A, vasub
+
+	m_mask \f bench_vslide1upvx,   T_A, m_nop, vslide1up.vx   v8, v16, t0
+	m_mask \f bench_vslide1downvx, T_A, m_nop, vslide1down.vx v8, v16, t0
 
 	m_bench_vxim \f, T_A, vadc
 	m_bench_vxim \f, T_A, vmadc
@@ -169,37 +189,31 @@ vmseq.vx v8, v0, t0
 	m_bench_xi  \f, T_A, vmsgtu
 	m_bench_xi  \f, T_A, vmsgt
 
-	m_mask \f bench_vmpopcm,  T_A, m_nop,  vmpopc.m  t0, v8
-	m_mask \f bench_vmfirstm, T_A, m_1bit, vmfirst.m t0, v8
-	m_mask \f bench_vmsbfm,   T_A, m_1bit, vmsbf.m   v8, v16
-	m_mask \f bench_vmsofm,   T_A, m_1bit, vmsof.m   v8, v16
-	m_mask \f bench_vmsifm,   T_A, m_1bit, vmsif.m   v8, v16
-	m_mask \f bench_viotam,   T_A, m_nop,  viota.m   v8, v16
-	m_mask \f bench_vidv,     T_A, m_nop,  vid.v     v8
-
 	\f bench_vcompressvm, T_A, m_nop, vcompress.vm v0, v8, v16
 
-	\f bench_vmandnotmm, T_A, m_nop, vmandnot.mm v0, v8, v16
-	\f bench_vmandmm,    T_A, m_nop, vmand.mm    v0, v8, v16
-	\f bench_vmormm,     T_A, m_nop, vmor.mm     v0, v8, v16
-	\f bench_vmxormm,    T_A, m_nop, vmxor.mm    v0, v8, v16
-	\f bench_vmornotmm,  T_A, m_nop, vmornot.mm  v0, v8, v16
-	\f bench_vmnandmm,   T_A, m_nop, vmnand.mm   v0, v8, v16
-	\f bench_vmnormm,    T_A, m_nop, vmnor.mm    v0, v8, v16
-	\f bench_vmxnormm,   T_A, m_nop, vmxnor.mm   v0, v8, v16
+	\f bench_vmandnmm, T_A, m_nop, vmandn.mm v0, v8, v16
+	\f bench_vmandmm,  T_A, m_nop, vmand.mm  v0, v8, v16
+	\f bench_vmormm,   T_A, m_nop, vmor.mm   v0, v8, v16
+	\f bench_vmxormm,  T_A, m_nop, vmxor.mm  v0, v8, v16
+	\f bench_vmornmm,  T_A, m_nop, vmorn.mm  v0, v8, v16
+	\f bench_vmnandmm, T_A, m_nop, vmnand.mm v0, v8, v16
+	\f bench_vmnormm,  T_A, m_nop, vmnor.mm  v0, v8, v16
+	\f bench_vmxnormm, T_A, m_nop, vmxnor.mm v0, v8, v16
+
 
 	m_bench_vxi \f, T_A, vsaddu
 	m_bench_vxi \f, T_A, vsadd
 	m_bench_vx  \f, T_A, vssubu
 	m_bench_vx  \f, T_A, vssub
-	m_bench_vxi \f, T_A, vaadd
 	m_bench_vxi \f, T_A, vsll
-	m_bench_vx  \f, T_A, vasub
 	m_bench_vx  \f, T_A, vsmul
+	\f bench_vmv1rv, T_A, m_nop, vmv1r.v v8, v16
+	\f bench_vmv2rv, T_A, m_nop, vmv2r.v v8, v16
+	\f bench_vmv4rv, T_A, m_nop, vmv4r.v v8, v16
+	\f bench_vmv8rv, T_A, m_nop, vmv8r.v v8, v16
 	m_bench_vxi \f, T_A, vsrl
 	m_bench_vxi \f, T_A, vsra
 	m_bench_vxi \f, T_A, vssrl
-	m_bench_vxi \f, T_A, vssra
 
 	m_bench_vx \f, T_A, vdivu
 	m_bench_vx \f, T_A, vdiv
@@ -212,85 +226,69 @@ vmseq.vx v8, v0, t0
 	m_bench_xv \f, T_A, vmadd
 	m_bench_xv \f, T_A, vmacc
 
-	m_bench_vxi \f, T_N, vnsra
-	m_bench_vxi \f, T_N, vnclipu
-	m_bench_vxi \f, T_N, vnclip
+	m_bench_wxi \f, T_N, vnsrl
+	m_bench_wxi \f, T_N, vnsra
+	m_bench_wxi \f, T_N, vnclipu
+	m_bench_wxi \f, T_N, vnclip
 	m_bench_xv  \f, T_N, vnmsub
 	m_bench_xv  \f, T_N, vnmsac
 
-	m_mask \f bench_vwredsumuvs,  T_W, m_nop, vwredsumu.vs  v8, v16, v24
-	m_mask \f bench_vwredsumvs,  T_W, m_nop, vwredsum.vs  v8, v16, v24
-
-	m_bench_xv \f, T_W, vwsmaccu
-	m_bench_xv \f, T_W, vwsmacc
-	m_bench_xv \f, T_W, vwsmaccsu
 
 	m_bench_vx \f, T_W, vwaddu
 	m_bench_vx \f, T_W, vwadd
 	m_bench_vx \f, T_W, vwsub
-	m_bench_wx  \f, T_W, vwaddu
-	m_bench_wx  \f, T_W, vwadd
-	m_bench_wx  \f, T_W, vwsub
-	m_bench_vx  \f, T_W, vwmulu
-	m_bench_vx  \f, T_W, vwmulsu
-	m_bench_vx  \f, T_W, vwmul
-	m_bench_xv  \f, T_W, vwmaccu
-	m_bench_xv  \f, T_W, vwmacc
-	m_bench_xv  \f, T_W, vwmaccsu
+	m_bench_wx \f, T_W, vwaddu
+	m_bench_wx \f, T_W, vwadd
+	m_bench_wx \f, T_W, vwsub
+	m_bench_vx \f, T_W, vwmulu
+	m_bench_vx \f, T_W, vwmulsu
+	m_bench_vx \f, T_W, vwmul
+	m_bench_xv \f, T_W, vwmaccu
+	m_bench_xv \f, T_W, vwmacc
+	m_bench_xv \f, T_W, vwmaccsu
 	m_mask \f bench_vwmaccusvx,  T_W, m_nop, vwmaccus.vx  v8, t0, v16
 
 	m_bench_vf \f, T_F, vfadd
 	m_bench_vf \f, T_F, vfsub
-	m_bench_vf \f, T_F, vfmul
-	m_bench_vf \f, T_F, vfdiv
 	m_bench_vf \f, T_F, vfmin
 	m_bench_vf \f, T_F, vfmax
 	m_bench_vf \f, T_F, vfsgnj
 	m_bench_vf \f, T_F, vfsgnjn
 	m_bench_vf \f, T_F, vfsgnjx
+	m_mask \f bench_vfslide1upvf,   T_F, m_nop, vfslide1up.vf   v8, v16, ft0
+	m_mask \f bench_vfslide1downvf, T_F, m_nop, vfslide1down.vf v8, v16, ft0
 
-	m_mask \f bench_vfredsumvs,  T_F, m_nop, vfredsum.vs  v8, v16, v24
+	m_mask \f bench_vfredusumvs, T_F, m_nop, vfredusum.vs v8, v16, v24
 	m_mask \f bench_vfredosumvs, T_F, m_nop, vfredosum.vs v8, v16, v24
 	m_mask \f bench_vfredminvs,  T_F, m_nop, vfredmin.vs  v8, v16, v24
 	m_mask \f bench_vfredmaxvs,  T_F, m_nop, vfredmax.vs  v8, v16, v24
 
-	\f bench_vfmvfs,     T_F, m_nop, vfmv.f.s    ft0, v8
-	\f bench_vfmvsf,     T_F, m_nop, vfmv.s.f    v8,  ft0
 	\f bench_vfmergevfm, T_F, m_nop, vfmerge.vfm v8,  v16, ft0, v0
 	\f bench_vfmvvf,     T_F, m_nop, vfmv.v.f    v8,  ft0
 
 	m_bench_vf \f, T_F, vmfeq
 	m_bench_vf \f, T_F, vmfle
-	m_bench_vf \f, T_F, vmford
 	m_bench_vf \f, T_F, vmflt
 	m_bench_vf \f, T_F, vmfne
 	m_bench_vf \f, T_F, vmfgt
 	m_bench_vf \f, T_F, vmfge
 
-	m_mask \f bench_vfrdivvf,   T_F,  m_nop, vfrdiv.vf     v8, v16, ft0
-	m_mask \f bench_vfcvtxufv,  T_F,  m_nop, vfcvt.xu.f.v  v8, v16
-	m_mask \f bench_vfcvtxfv,   T_F,  m_nop, vfcvt.x.f.v   v8, v16
-	m_mask \f bench_vfcvtfxuv,  T_F,  m_nop, vfcvt.f.xu.v  v8, v16
-	m_mask \f bench_vfcvtfxv,   T_F,  m_nop, vfcvt.f.x.v   v8, v16
+	m_bench_vf \f, T_F, vfdiv
+	m_mask \f bench_vfrdivvf, T_F, m_nop, vfrdiv.vf v8, v16, ft0
+	m_bench_vf \f, T_F, vfmul
+	m_mask \f bench_vfrsubvf, T_F, m_nop, vfrsub.vf v8, v16, ft0
+	m_bench_fv \f, T_F, vfmadd
+	m_bench_fv \f, T_F, vfmsub
+	m_bench_fv \f, T_F, vfmacc
+	m_bench_fv \f, T_F, vfmsac
 
-	m_mask \f bench_vfsqrtv,  T_F, m_nop, vfsqrt.v v8, v16
-	m_mask \f bench_vfclassv,  T_F, m_nop, vfclass.v v8, v16
+	m_bench_fv \f, T_FN, vfnmsac
+	m_bench_fv \f, T_FN, vfnmacc
+	m_bench_fv \f, T_FN, vfnmsub
+	m_bench_fv \f, T_FN, vfnmadd
 
-	m_mask \f bench_vfncvtxufv, T_FN, m_nop, vfncvt.xu.f.v v8, v16
-	m_mask \f bench_vfncvtxfv,  T_FN, m_nop, vfncvt.x.f.v  v8, v16
-	m_mask \f bench_vfncvtfxuv, T_FN, m_nop, vfncvt.f.xu.v v8, v16
-	m_mask \f bench_vfncvtfxv,  T_FN, m_nop, vfncvt.f.x.v  v8, v16
-	m_mask \f bench_vfncvtffv,  T_FN, m_nop, vfncvt.f.f.v  v8, v16
-
-	m_mask \f bench_vfwcvtxufv,   T_FW, m_nop, vfwcvt.xu.f.v v8, v16
-	m_mask \f bench_vfwcvtxfv,    T_FW, m_nop, vfwcvt.x.f.v  v8, v16
-	m_mask \f bench_vfwcvtfxuv,   T_FW, m_nop, vfwcvt.f.xu.v v8, v16
-	m_mask \f bench_vfwcvtfxv,    T_FW, m_nop, vfwcvt.f.x.v  v8, v16
-	m_mask \f bench_vfwcvtffv,    T_FW, m_nop, vfwcvt.f.f.v  v8, v16
-	m_mask \f bench_vfwredsumvs,  T_FW, m_nop, vfwredsum.vs  v8, v16, v24
-	m_mask \f bench_vfwredosumvs, T_FW, m_nop, vfwredosum.vs v8, v16, v24
-	m_mask \f bench_vfwmsacvv,    T_FW, m_nop, vfwmsac.vv    v8, v16, v24
-	m_mask \f bench_vfwnmsacvf,   T_FW, m_nop, vfwnmsac.vf   v8, ft0, v16
+	m_mask \f bench_vwredsumuvs,  T_W, m_nop, vwredsumu.vs  v8, v16, v24
+	m_mask \f bench_vwredsumvs,  T_W, m_nop, vwredsum.vs  v8, v16, v24
 
 	m_bench_vf \f, T_FW, vfwadd
 	m_bench_vf \f, T_FW, vfwsub
@@ -299,12 +297,67 @@ vmseq.vx v8, v0, t0
 	m_bench_vf \f, T_FW, vfwmul
 	m_bench_fv \f, T_FW, vfwmacc
 	m_bench_fv \f, T_FW, vfwnmacc
+	m_bench_fv \f, T_FW, vfwmsac
+	m_bench_fv \f, T_FW, vfwnmsac
+
+	m_mask \f bench_vfwredosumvs,  T_FW, m_nop, vfwredosum.vs v8, v16, v24
+	m_mask \f bench_vfwredusumvs, T_FW, m_nop,  vfwredusum.vs v8, v16, v24
+
+	\f bench_vmvsx, T_A, m_nop, vmv.s.x v8, t0
+	\f bench_vmvxs, T_A, m_nop, vmv.x.s t0, v8
+
+	m_mask \f bench_vcpopm,   T_A,  m_nop,  vcpop.m   t0, v8
+	m_mask \f bench_vfirstm,  T_A,  m_1bit, vfirst.m  t0, v8
+	m_mask \f bench_vzextvf2, T_E2, m_1bit, vzext.vf2 v8, v16
+	m_mask \f bench_vsextvf2, T_E2, m_1bit, vsext.vf2 v8, v16
+	m_mask \f bench_vzextvf4, T_E4, m_1bit, vzext.vf4 v8, v16
+	m_mask \f bench_vsextvf4, T_E4, m_1bit, vsext.vf4 v8, v16
+	m_mask \f bench_vzextvf8, T_E8, m_1bit, vzext.vf8 v8, v16
+	m_mask \f bench_vsextvf8, T_E8, m_1bit, vsext.vf8 v8, v16
+
+	\f bench_vfmvfs, T_F, m_nop, vfmv.f.s ft0, v8
+	\f bench_vfmvsf, T_F, m_nop, vfmv.s.f v8,  ft0
+
+	m_mask \f bench_vfcvtxufv,    T_F, m_nop, vfcvt.xu.f.v     v8, v16
+	m_mask \f bench_vfcvtxfv,     T_F, m_nop, vfcvt.x.f.v      v8, v16
+	m_mask \f bench_vfcvtfxuv,    T_F, m_nop, vfcvt.f.xu.v     v8, v16
+	m_mask \f bench_vfcvtfxv,     T_F, m_nop, vfcvt.f.x.v      v8, v16
+	m_mask \f bench_vfcvtrtzxfv,  T_F, m_nop, vfcvt.rtz.x.f.v  v8, v16
+	m_mask \f bench_vfcvtrtzxufv, T_F, m_nop, vfcvt.rtz.xu.f.v v8, v16
+
+	m_mask \f bench_vfwcvtxufv,    T_FW, m_nop, vfwcvt.xu.f.v     v8, v16
+	m_mask \f bench_vfwcvtxfv,     T_FW, m_nop, vfwcvt.x.f.v      v8, v16
+	m_mask \f bench_vfwcvtfxuv,    T_FW, m_nop, vfwcvt.f.xu.v     v8, v16
+	m_mask \f bench_vfwcvtfxv,     T_FW, m_nop, vfwcvt.f.x.v      v8, v16
+	m_mask \f bench_vfwcvtffv,     T_FW, m_nop, vfwcvt.f.f.v      v8, v16
+	m_mask \f bench_vfwcvtrtzxufv, T_FW, m_nop, vfwcvt.rtz.xu.f.v v8, v16
+	m_mask \f bench_vfwcvtrtzxfv,  T_FW, m_nop, vfwcvt.rtz.x.f.v  v8, v16
+
+	m_mask \f bench_vfncvtxufw,       T_FN, m_nop, vfncvt.xu.f.w     v8, v16
+	m_mask \f bench_vfncvtxfw,        T_FN, m_nop, vfncvt.x.f.w      v8, v16
+	m_mask \f bench_vfncvtfxuw,       T_FN, m_nop, vfncvt.f.xu.w     v8, v16
+	m_mask \f bench_vfncvtfxw,        T_FN, m_nop, vfncvt.f.x.w      v8, v16
+	m_mask \f bench_vfncvtffw,        T_FN, m_nop, vfncvt.f.f.w      v8, v16
+	m_mask \f bench_vfncvtrtzxfw,     T_FN, m_nop, vfncvt.rtz.x.f.w  v8, v16
+	m_mask \f bench_vfncvtrtzxufw,    T_FN, m_nop, vfncvt.rtz.xu.f.w v8, v16
+	m_mask \f bench_vfncvt.rod.f.f.w, T_FN, m_nop, vfncvt.rod.f.f.w  v8, v16
+
+
+	m_mask \f bench_vfsqrtv,  T_F, m_nop, vfsqrt.v v8, v16
+	m_mask \f bench_vfrsqrt7v,  T_F, m_nop, vfrsqrt7.v v8, v16
+	m_mask \f bench_vfrec7v,  T_F, m_nop, vfrec7.v v8, v16
+	m_mask \f bench_vfclassv,  T_F, m_nop, vfclass.v v8, v16
+
+	m_mask \f bench_vmsbfm,   T_A, m_1bit, vmsbf.m   v8, v16
+	m_mask \f bench_vmsofm,   T_A, m_1bit, vmsof.m   v8, v16
+	m_mask \f bench_vmsifm,   T_A, m_1bit, vmsif.m   v8, v16
+	m_mask \f bench_viotam,   T_A, m_nop,  viota.m   v8, v16
+	m_mask \f bench_vidv,     T_A, m_nop,  vid.v     v8
+
 .endm
 
 
-
 .data
-
 
 
 .global benchmarks
@@ -324,19 +377,12 @@ m_benchmarks_all gen_types
 
 
 .macro gen_strings name type setup code:vararg
-\name\()_str:
 	.string "\code"
 .endm
 
-.macro gen_string_arr name type setup code:vararg
-	.quad \name\()_str
-.endm
-
-m_benchmarks_all gen_strings
-
 .global benchmark_names
 benchmark_names:
-m_benchmarks_all gen_string_arr
+m_benchmarks_all gen_strings
 
 
 .text
@@ -366,24 +412,21 @@ m_benchmarks_all gen_string_arr
 m_benchmarks_all m_gen_benchname
 
 
-
-
-
 randomize:
 	li a1, 0xa0761d6485ebca6b
 	li a2, 0x78bd642fc2b2ae35
 	li a3, 0xe7037ed17feb352d
 
-	vsetvli a4, x0, e8, m8
+	vsetvli a4, x0, e8, m8, ta, ma
 	vid.v v0
-	vsetvli a4, x0, e16, m8
+	vsetvli a4, x0, e16, m8, ta, ma
 	vmul.vx v0, v0, a3
 	vid.v v8
 	vadd.vv v0, v0, v8
 	vxor.vx v0, v0, a0
 
 	# murmurhash32 finalizer
-	vsetvli a4, x0, e32, m8
+	vsetvli a4, x0, e32, m8, ta, ma
 
 	vsrl.vi v8, v8, 16
 	vxor.vv v0, v0, v8
@@ -403,7 +446,7 @@ randomize:
 
 
 	# zero floating point exponent bit to avoid NaN/Inf
-	vsetvli a4, x0, e16, m8
+	vsetvli a4, x0, e16, m8, ta, ma
 	li a4, ~0x4000000040004000 # zero upper f16/f32/f64 exponent bit
 	vand.vx v0, v0, a4
 	vand.vx v8, v8, a4

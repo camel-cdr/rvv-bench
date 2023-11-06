@@ -136,7 +136,6 @@ uint64_t last;
 void init(void) { }
 uint64_t checksum(size_t n) { return last; }
 
-
 void common(size_t n, size_t off) {
 	str = (char*)mem + off;
 	randmem(str, n + 9);

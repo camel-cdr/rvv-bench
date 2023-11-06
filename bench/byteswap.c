@@ -69,8 +69,7 @@ uint64_t checksum(size_t n) {
 }
 
 BENCH(base) {
-	for (size_t i = 0; i < n; ++i)
-		ptr[i] = ((i*i)+i)^i;
+	randmem(ptr, n * sizeof *ptr);
 	TIME f(ptr, n);
 } BENCH_END
 
