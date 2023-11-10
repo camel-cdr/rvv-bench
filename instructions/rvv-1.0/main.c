@@ -57,19 +57,19 @@ main(void)
 	seed ^= (uintptr_t)&x;
 
 	u64 vlarr[] = { 0, 1 };
-	for (u64 i = 0; i < 4; ++i) {
-		for (u64 j = 0; j < 2; ++j) {
+	for (u64 i = 0; i < 2; ++i) {
+		for (u64 j = 0; j < 4; ++j) {
 			print("\n");
-			if (vlarr[j] != 0)
-				print("vl=")(u,vlarr[j]);
+			if (vlarr[i] != 0)
+				print("vl=")(u,vlarr[i]);
 			else
 				print("vl=VLMAX");
-			print(s,i & 3 ? " ta" : "")(s,i & 1 ? " ma" : "")("\n\n");
+			print(s,j & 2 ? " ta" : " tu")(s,j & 1 ? " ma" : " mu")("\n\n");
 			u64 (**it)(void) = &benchmarks;
 			char const *name = &benchmark_names;
 			u64 *types = &benchmark_types;
 			while (*it) {
-				run_all_types(name, *it, *types, vlarr[j], i >> 1, i & 1);
+				run_all_types(name, *it, *types, vlarr[j], j >> 1, j & 1);
 				++it;
 				while (*name++);
 				++types;

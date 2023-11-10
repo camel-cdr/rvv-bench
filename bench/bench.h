@@ -18,6 +18,8 @@
 # define BENCH_VOLATILE_REG(x) ({__asm volatile("" : "+r"(x) : "r"(x) : "memory");})
 # define BENCH_VOLATILE_MEM(x) ({__asm volatile("" : "+m"(x) : "m"(x) : "memory");})
 
+#define BENCH_MAY_ALIAS __attribute__((__may_alias__))
+
 #else
 
 # define BENCH_CLOBBER()
@@ -25,6 +27,8 @@
 # define BENCH_CLOBBER_WITH_REG(x) (bench__use_ptr(&(x)), BENCH_CLOBBER())
 # define BENCH_CLOBBER_WITH_MEM(x) (bench__use_ptr(&(x)), BENCH_CLOBBER())
 static void bench_use_ptr(char const volatile *x) {}
+
+#define BENCH_MAY_ALIAS
 
 #endif
 
@@ -166,6 +170,7 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 				}
 
 				print(f,bench_time(n, *i, *b))(",");
+				flush();
 			}
 			print("],\n");
 			flush();
