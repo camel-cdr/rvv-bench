@@ -10,10 +10,12 @@ mandelbrot_scalar_f32(size_t width, size_t maxIter, uint32_t *res)
 		size_t iter = 0;
 		float zx = 0, zy = 0, zxS = 0, zyS = 0;
 
+		BENCH_VOLATILE_REG(cy);
 		while (zxS + zyS <= 4 && iter < maxIter) {
 			zxS = zxS - zyS + cx;
 			zy = 2 * zx * zy + cy;
 			zx = zxS;
+			BENCH_VOLATILE_REG(zx);
 			zxS = zx*zx;
 			zyS = zy*zy;
 			++iter;
@@ -33,10 +35,12 @@ mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 		size_t iter = 0;
 		double zx = 0, zy = 0, zxS = 0, zyS = 0;
 
+		BENCH_VOLATILE_REG(cy);
 		while (zxS + zyS <= 4 && iter < maxIter) {
 			zxS = zxS - zyS + cx;
 			zy = 2 * zx * zy + cy;
 			zx = zxS;
+			BENCH_VOLATILE_REG(zx);
 			zxS = zx*zx;
 			zyS = zy*zy;
 			++iter;
