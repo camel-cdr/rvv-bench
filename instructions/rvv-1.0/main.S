@@ -287,8 +287,8 @@ vmseq.vx v8, v0, t0
 	m_bench_fv \f, T_FN, vfnmsub
 	m_bench_fv \f, T_FN, vfnmadd
 
-	m_mask \f bench_vwredsumuvs,  T_W, m_nop, vwredsumu.vs  v8, v16, v24
-	m_mask \f bench_vwredsumvs,  T_W, m_nop, vwredsum.vs  v8, v16, v24
+	m_mask \f bench_vwredsumuvs, T_WR, m_nop, vwredsumu.vs v8, v16, v24
+	m_mask \f bench_vwredsumvs,  T_WR, m_nop, vwredsum.vs  v8, v16, v24
 
 	m_bench_vf \f, T_FW, vfwadd
 	m_bench_vf \f, T_FW, vfwsub
@@ -300,8 +300,8 @@ vmseq.vx v8, v0, t0
 	m_bench_fv \f, T_FW, vfwmsac
 	m_bench_fv \f, T_FW, vfwnmsac
 
-	m_mask \f bench_vfwredosumvs,  T_FW, m_nop, vfwredosum.vs v8, v16, v24
-	m_mask \f bench_vfwredusumvs, T_FW, m_nop,  vfwredusum.vs v8, v16, v24
+	m_mask \f bench_vfwredosumvs, T_FWR, m_nop, vfwredosum.vs v8, v16, v24
+	m_mask \f bench_vfwredusumvs, T_FWR, m_nop, vfwredusum.vs v8, v16, v24
 
 	\f bench_vmvsx, T_A, m_nop, vmv.s.x v8, t0
 	\f bench_vmvxs, T_A, m_nop, vmv.x.s t0, v8
