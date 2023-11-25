@@ -14,6 +14,7 @@ static void flush(void);
 #include <stdlib.h>
 #include <stdio.h>
 
+#define IFHOSTED(...) __VA_ARGS__
 
 int nolibc_main(void);
 
@@ -32,6 +33,7 @@ int main(void) {
 
 #else
 
+#define IFHOSTED(...)
 #define NDEBUG
 
 #define EXIT_FAILURE 1

@@ -94,16 +94,18 @@ static uint64_t heap[1 + MAX_MEM / sizeof(uint64_t)];
 int
 main(void)
 {
-	size_t x;
-	randState.x ^= rv_cycles()*7;
-	randState.y += rv_cycles() ^ (uintptr_t)&x + 666*(uintptr_t)heap;
 
-	/* initialize memory */
 #if __STDC_HOSTED__
 	mem = malloc(MAX_MEM);
 #else
 	mem = (unsigned char*)heap;
 #endif
+
+	size_t x;
+	randState.x ^= rv_cycles()*7;
+	randState.y += rv_cycles() ^ (uintptr_t)&x + 666*(uintptr_t)mem;
+
+	/* initialize memory */
 	randmem(mem, MAX_MEM);
 
 	init();

@@ -40,7 +40,7 @@ strlen_musl(char const *s)
 #define IMPLS(f) \
 	f(scalar) \
 	f(scalar_autovec) \
-	f(libc) \
+	IFHOSTED(f(libc)) \
 	f(musl) \
 	MX(f, rvv_page_aligned) \
 	MX(f, rvv) \

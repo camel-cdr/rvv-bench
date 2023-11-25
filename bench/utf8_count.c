@@ -96,6 +96,7 @@ GEN_SWAR(SWAR_popc_bithack_autovec,popcnt64,(void)0)
 	MX(f, rvv_tail) \
 	MX(f, rvv_128) \
 	MX(f, rvv_4x) \
+	MX(f, rvv_4x_tail) \
 
 typedef size_t Func(char const *str, size_t len);
 

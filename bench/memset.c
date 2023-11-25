@@ -109,7 +109,7 @@ memset_musl(void *dest, int c, size_t n)
 #define memset_libc memset
 
 #define IMPLS(f) \
-	f(libc) \
+	IFHOSTED(f(libc)) \
 	f(musl) \
 	f(scalar) \
 	f(scalar_autovec) \

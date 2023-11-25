@@ -144,6 +144,67 @@ MX(utf8_count_rvv_4x_):
 	bnez a1, 1b
 	ret
 
+// gcc generated from unrolled intrinsics implementation:
+// https://godbolt.org/z/q75c6r3Ta
+.global MX(utf8_count_rvv_4x_tail_)
+MX(utf8_count_rvv_4x_tail_):
+	vsetvli a5, zero, e8, MX(), ta, ma
+	slli t3, a5, 2
+	add a1, a0, a1
+	add a2, a0, t3
+	mv a4, a0
+	bltu a1, a2, 5f
+	slli t4, a5, 1
+	add t5, t4, a5
+	li a0, 0
+	li a6, -65
+1:
+	add a3, a5, a4
+	vsetvli zero, zero, e8, MX(), ta, ma
+	add a7, t4, a4
+	vle8.v v8, (a4)
+	vle8.v v16, (a3)
+	vmsgt.vx v8, v8, a6
+	vmsgt.vx v16, v16, a6
+	vcpop.m a3, v8
+	vcpop.m t1, v16
+	add a3, a3, t1
+	vle8.v v8, (a7)
+	add a4, t5, a4
+	vmsgt.vx v8, v8, a6
+	vcpop.m a7, v8
+	add a3, a3, a7
+	vle8.v v8, (a4)
+	mv a4, a2
+	vmsgt.vx v8, v8, a6
+	add a2, a2, t3
+	vcpop.m a7, v8
+	add a3, a3, a7
+	add a0, a0, a3
+	bgeu a1, a2, 1b
+2:
+	sub a3, a1, a4
+	beq a1, a4, 4f
+	li a2, 0
+	li a1, -65
+3:
+	vsetvli a5, a3, e8, MX(), ta, ma
+	sub a3, a3, a5
+	vle8.v v8, (a4)
+	add a4, a4, a5
+	vmsgt.vx v8, v8, a1
+	vcpop.m a5, v8
+	add a2, a2, a5
+	bne a3, zero, 3b
+	add a0, a0, a2
+4:
+	ret
+5:
+	li a0, 0
+	j 2b
+
+
+
 
 #endif
 

@@ -144,7 +144,7 @@ memcpy_musl(void *restrict dest, void const *restrict src, size_t n)
 #define memcpy_libc memcpy
 
 #define IMPLS(f) \
-	f(libc) \
+	IFHOSTED(f(libc)) \
 	f(musl) \
 	f(scalar) \
 	f(scalar_autovec) \
