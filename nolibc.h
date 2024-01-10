@@ -24,6 +24,12 @@ memwrite(void const *ptr, size_t len)
 	fwrite(ptr, 1, len, stdout);
 }
 
+static size_t
+memread(void *ptr, size_t len)
+{
+	return fread(ptr, 1, len, stdin);
+}
+
 int main(void) {
 	int x = nolibc_main();
 	flush();
@@ -65,6 +71,25 @@ memwrite(void const *ptr, size_t len)
 	);
 }
 
+static size_t
+memread(void *ptr, size_t len)
+{
+	size_t ret;
+	__asm volatile(
+		"li a0, 0\n"
+		"mv a1, %1\n"
+		"mv a2, %2\n"
+		"li a7, 63\n"
+		"ecall\n"
+		"mv %0, a0\n"
+	: "=r"(ret)
+	: "r"(ptr), "r"(len)
+	: "a0", "a1", "a2", "a7"
+	);
+	return ret;
+}
+
+
 int main(void);
 
 void _start(void) {
@@ -76,6 +101,14 @@ void _start(void) {
 #endif
 
 /* utils */
+
+static inline uint64_t
+rv_cycles(void)
+{
+	uint64_t cycle;
+	__asm volatile ("rdcycle %0" : "=r"(cycle));
+	return cycle;
+}
 
 static void
 memswap(void *a, void *b, size_t size)
@@ -233,6 +266,30 @@ print_u(uint64_t val)
 	if (printEnd - printIt < U64TOA_MAX)
 		flush();
 	printIt += u64toa(printIt, val);
+}
+
+static void
+print_h(uint64_t val, size_t n)
+{
+	if ((n << 2) >= sizeof printBuffer)
+		return;
+	if ((size_t)(printEnd - printIt) < n)
+		flush();
+	while (n--) {
+		*printIt++ = "0123456789abcdef"[(val >> (n << 2)) & 0xf];
+	}
+}
+
+static void
+print_b(uint64_t val, size_t n)
+{
+	if (n >= sizeof printBuffer)
+		return;
+	if ((size_t)(printEnd - printIt) < n)
+		flush();
+	while (n--) {
+		*printIt++ = ((val >> n) & 1) + '0';
+	}
 }
 
 static void

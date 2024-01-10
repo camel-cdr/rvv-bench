@@ -235,67 +235,6 @@ define_for_all_nf vsuxseg e32.v vsxseg w.v
 #define vsetvli vsetvli0p7
 
 
-.macro vzext.vf2 vd, vs, vm
-.ifb \vm
-	vwaddu.vx \vd, \vs, x0
-.else
-	vwaddu.vx \vd, \vs, x0, \vm
-.endif
-.endm
-
-.macro vzext.vf4 vd, vs, vm
-.ifb \vm
-	vwaddu.vx \vd, \vs, x0
-	vwaddu.vx \vd, \vd, x0
-.else
-	vwaddu.vx \vd, \vs, x0, \vm
-	vwaddu.vx \vd, \vd, x0, \vm
-.endif
-.endm
-
-.macro vzext.vf8 vd, vs, vm
-.ifb \vm
-	vwaddu.vx \vd, \vs, x0
-	vwaddu.vx \vd, \vd, x0
-	vwaddu.vx \vd, \vd, x0
-.else
-	vwaddu.vx \vd, \vs, x0, \vm
-	vwaddu.vx \vd, \vd, x0, \vm
-	vwaddu.vx \vd, \vd, x0, \vm
-.endif
-.endm
-
-
-.macro vsext.vf2 vd, vs, vm
-.ifb \vm
-	vwaddu.vx \vd, \vs, x0
-.else
-	vwaddu.vx \vd, \vs, x0, \vm
-.endif
-.endm
-
-.macro vsext.vf4 vd, vs, vm
-.ifb \vm
-	vwaddu.vx \vd, \vs, x0
-	vwaddu.vx \vd, \vd, x0
-.else
-	vwaddu.vx \vd, \vs, x0, \vm
-	vwaddu.vx \vd, \vd, x0, \vm
-.endif
-.endm
-
-.macro vsext.vf8 vd, vs, vm
-.ifb \vm
-	vwaddu.vx \vd, \vs, x0
-	vwaddu.vx \vd, \vd, x0
-	vwaddu.vx \vd, \vd, x0
-.else
-	vwaddu.vx \vd, \vs, x0, \vm
-	vwaddu.vx \vd, \vd, x0, \vm
-	vwaddu.vx \vd, \vd, x0, \vm
-.endif
-.endm
-
 
 # Copyright (c) 2023 Olaf Berstein
 # Permission is hereby granted, free of charge, to any person obtaining a copy

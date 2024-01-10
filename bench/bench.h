@@ -33,14 +33,6 @@ static void bench_use_ptr(char const volatile *x) {}
 #endif
 
 
-static inline uint64_t
-rv_cycles(void)
-{
-	uint64_t cycle;
-	__asm volatile ("rdcycle %0" : "=r"(cycle));
-	return cycle;
-}
-
 static int
 compare_u64(void const *a, void const *b)
 {
