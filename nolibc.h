@@ -102,6 +102,7 @@ void _start(void) {
 
 /* utils */
 
+#if __riscv
 static inline uint64_t
 rv_cycles(void)
 {
@@ -109,6 +110,15 @@ rv_cycles(void)
 	__asm volatile ("rdcycle %0" : "=r"(cycle));
 	return cycle;
 }
+#elif defined(__x86_64__)
+uint64_t rv_cycles(void)
+{
+	unsigned int lo,hi;
+	__asm volatile ("rdtsc" : "=a"(lo), "=d"(hi));
+	return ((uint64_t)hi << 32) | lo;
+}
+#endif
+
 
 static void
 memswap(void *a, void *b, size_t size)

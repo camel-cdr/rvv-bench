@@ -1,21 +1,26 @@
 #include <riscv_vector.h>
 
-size_t utf16_to_utf8_scalar(const uint16_t *src, size_t count, char *dest);
+size_t utf16_to_utf8_scalar(uint16_t const *src, size_t count, char *dest);
 
 size_t
-utf16_to_utf8_rvv(const uint16_t *src, size_t count, char *dest)
+utf16_to_utf8_rvv(uint16_t const *src, size_t count, char *dest)
 {
 	size_t n = count;
-	char *destBeg = dest;
+	char *const destBeg = dest;
 
 	for (size_t vl, vlOut; n > 0; ) {
 
 		vl = __riscv_vsetvl_e16m2(n);
 
 		vuint16m2_t v0 = __riscv_vle16_v_u16m2(src, vl);
+#if 0
 		uint64_t max = __riscv_vmv_x_s_u16m1_u16(__riscv_vredmaxu_vs_u16m2_u16m1(v0, __riscv_vmv_s_x_u16m1(0, vl), vl));
 
 		if (max < 0x80) { /* 1 byte utf8 */
+#else
+
+		if (__riscv_vfirst(__riscv_vmsgtu(v0, 0x7f, vl),vl) < 0) { /* 1 byte utf8 */
+#endif
 			vlOut = vl;
 			__riscv_vse8_v_u8m1((uint8_t*)dest, __riscv_vncvt_x_x_w_u8m1(v0, vlOut), vlOut);
 			n -= vl, src += vl, dest += vlOut;

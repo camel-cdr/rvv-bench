@@ -72,8 +72,14 @@ static void
 randmem(void *ptr, size_t n)
 {
 	unsigned char *p = ptr;
-	for (size_t i = 0; i < n; ++i)
-		p[i] = randu64();
+#ifdef __GNUC__
+	typedef uint64_t __attribute__((__may_alias__)) u64;
+	for (; n && (uintptr_t)p % 4; --n) *p++ = randu64();
+	u64 *p64 = (u64*)p;
+	for (; n > 8; n -= 8) *p64++ = randu64();
+	p = (unsigned char*)p64;
+#endif
+	while (n--) *p++ = randu64();
 }
 
 #if __STDC_HOSTED__
