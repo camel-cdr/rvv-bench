@@ -69,7 +69,7 @@ main(void)
 			char const *name = &benchmark_names;
 			u64 *types = &benchmark_types;
 			while (*it) {
-				run_all_types(name, *it, *types, vlarr[j], j >> 1, j & 1);
+				run_all_types(name, *it, *types, vlarr[i], j >> 1, j & 1);
 				++it;
 				while (*name++);
 				++types;
