@@ -38,31 +38,17 @@
 .endm
 
 .macro m_benchmarks_all f
-	# Shifts
-	\f bench_sll, m_nop, sll t0, t1, t2
-	\f bench_slli, m_nop, slli t0, t1, 0x1
-	\f bench_srl, m_nop, srl t0, t1, t2
-	\f bench_srli, m_nop, srli t0, t1, 0x1
-	\f bench_sra, m_nop, sra t0, t1, t2
-	\f bench_srai, m_nop, srai t0, t1, 0x1
-	# Arithmetic
-	\f bench_add, m_nop, add t0, t1, t2
-	\f bench_addi, m_nop, addi t0, t1, 0x1
-	\f bench_sub, m_nop, sub t0, t1, t2
-	\f bench_lui, m_nop, lui t0, 0x1
-	\f bench_auipc, m_nop, auipc t0, 0x1
-	# Logical
-	\f bench_xor, m_nop, xor t0, t1, t2
-	\f bench_xori, m_nop, xori t0, t1, 0x1
-	\f bench_or, m_nop, or t0, t1, t2
-	\f bench_ori, m_nop, ori t0, t1, 0x1
-	\f bench_and, m_nop, and t0, t1, t2
-	\f bench_andi, m_nop, andi t0, t1, 0x1
-	# Compare
-	\f bench_slt, m_nop, slt t0, t1, t2
-	\f bench_slti, m_nop, slti t0, t1, 0x1
-	\f bench_sltu, m_nop, sltu t0, t1, t2
-	\f bench_sltiu, m_nop, sltiu t0, t1, 0x1
+	# Multiply
+	\f bench_mul, m_nop, mul t0, t1, t2
+	\f bench_mulh, m_nop, mulh t0, t1, t2
+	\f bench_mulhsu, m_nop, mulhsu t0, t1, t2
+	\f bench_mulhu, m_nop, mulhu t0, t1, t2
+	# Divide
+	\f bench_div, m_nop, div t0, t1, t2
+	\f bench_divu, m_nop, divu t0, t1, t2
+	# Remainder
+	\f bench_rem, m_nop, rem t0, t1, t2
+	\f bench_remu, m_nop, remu t0, t1, t2
 .endm
 
 
