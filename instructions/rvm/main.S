@@ -37,6 +37,11 @@
 .macro m_nop
 .endm
 
+.macro m_full_bits
+not t1, x0
+not t2, x0
+.endm
+
 .macro m_benchmarks_all f
 	# Multiply
 	\f bench_mul, m_nop, mul t0, t1, t2
@@ -44,11 +49,11 @@
 	\f bench_mulhsu, m_nop, mulhsu t0, t1, t2
 	\f bench_mulhu, m_nop, mulhu t0, t1, t2
 	# Divide
-	\f bench_div, m_nop, div t0, t1, t2
-	\f bench_divu, m_nop, divu t0, t1, t2
+	\f bench_div, m_full_bits, div t0, t1, t2
+	\f bench_divu, m_full_bits, divu t0, t1, t2
 	# Remainder
-	\f bench_rem, m_nop, rem t0, t1, t2
-	\f bench_remu, m_nop, remu t0, t1, t2
+	\f bench_rem, m_full_bits, rem t0, t1, t2
+	\f bench_remu, m_full_bits, remu t0, t1, t2
 .endm
 
 
