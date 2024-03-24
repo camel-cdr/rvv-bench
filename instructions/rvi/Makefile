@@ -4,7 +4,7 @@ include ../../config.mk
 
 all: rvi
 
-rvi: main.S main.c config.h
+rvi: main.S main.c ../common/config.h
 	${CC} ${CFLAGS} main.S main.c -o $@
 
 clean:

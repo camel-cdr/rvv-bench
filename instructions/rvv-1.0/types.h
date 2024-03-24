@@ -14,8 +14,3 @@
 #define T_E4 0b11001100 // extend 4
 #define T_E8 0b10001000 // extend 8
 #define T_N8 0b11110111 // no m8
-
-#define WARMUP 1000
-#define UNROLL 64
-#define LOOP 16
-#define RUNS 1000

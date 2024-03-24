@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include "config.h"
+#include "types.h"
+#include "../common/config.h"
 
 #include <fcntl.h>
 #include <unistd.h>
