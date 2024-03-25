@@ -16,9 +16,3 @@
 #define T_FW 0b0100111
 #define T_FN 0b0100111
 #endif
-
-#define WARMUP 1000
-
-#define UNROLL 64
-#define LOOP 16
-#define RUNS 1000

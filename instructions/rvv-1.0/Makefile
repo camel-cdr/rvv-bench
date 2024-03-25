@@ -4,7 +4,7 @@ include ../../config.mk
 
 all: rvv-1.0
 
-rvv-1.0: main.S main.c config.h
+rvv-1.0: main.S main.c types.h ../common/config.h
 	${CC} ${CFLAGS} main.S main.c -o $@
 
 clean:

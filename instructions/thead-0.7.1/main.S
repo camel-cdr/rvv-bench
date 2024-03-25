@@ -1,7 +1,8 @@
 // this is build for the C906/C920
 #define vl s0
 
-#include "config.h"
+#include "types.h"
+#include "../common/config.h"
 
 .macro multiline xs:vararg
 	multiline_ \xs, nl

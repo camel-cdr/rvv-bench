@@ -1,5 +1,6 @@
 #include "../../nolibc.h"
-#include "config.h"
+#include "../common/config.h"
+#include "types.h"
 
 typedef uint64_t u64;
 

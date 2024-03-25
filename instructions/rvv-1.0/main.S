@@ -1,6 +1,7 @@
 #define vl s0
 
-#include "config.h"
+#include "../common/config.h"
+#include "types.h"
 
 .macro multiline xs:vararg
 	multiline_ \xs, nl
