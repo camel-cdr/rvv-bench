@@ -95,7 +95,7 @@ fabs.d  fa0,fa0
 
 
 	# RV64M
-#if HAS_M
+#if __riscv_m
 	\f bench_mul,    m_nop, mul    t0, t1, t2
 	\f bench_mulh,   m_nop, mulh   t0, t1, t2
 	\f bench_mulhsu, m_nop, mulhsu t0, t1, t2
@@ -107,7 +107,7 @@ fabs.d  fa0,fa0
 #endif
 
 	# RV64A
-#if HAS_A
+#if __riscv_a
 	\f bench_lrw,      m_nop, lr.w      t0, (ptr)
 	\f bench_lrd,      m_nop, lr.d      t0, (ptr)
 	\f bench_scw,      m_nop, sc.w      t0, t1, (ptr)
@@ -134,7 +134,7 @@ fabs.d  fa0,fa0
 
 
 	# RV64F
-#if HAS_F
+#if __riscv_f
 	\f bench_fmvwx,     m_nop, fmv.w.x   ft0, t0
 	\f bench_fmvxw,     m_nop, fmv.x.w   t0,  ft0
 	\f bench_fcvt_w_s,  m_nop, fcvt.w.s  t0, ft0
@@ -173,7 +173,7 @@ fabs.d  fa0,fa0
 
 
 	# RV64D
-#if HAS_D
+#if __riscv_d
 	\f bench_fmvdx,   m_nop, fmv.d.x   ft0, t0
 	\f bench_fmvxd,   m_nop, fmv.x.d   t0,  ft0
 	\f bench_fcvtwd,  m_nop, fcvt.w.d  t0,  ft0
@@ -210,7 +210,7 @@ fabs.d  fa0,fa0
 	\f bench_fclassd, m_nop, fclass.d t0, ft0
 #endif
 
-#if HAS_Zba
+#if __riscv_zba
 	\f bench_adduw,    m_nop, add.uw    t0, t1, t2
 	\f bench_sh1add,   m_nop, sh1add    t0, t1, t2
 	\f bench_sh1adduw, m_nop, sh1add.uw t0, t1, t2
@@ -222,7 +222,7 @@ fabs.d  fa0,fa0
 	\f bench_zextw,    m_nop, zext.w    t0, t1
 #endif
 
-#if HAS_Zbb
+#if __riscv_zbb
 	\f bench_andn, m_nop, andn t0, t1, t2
 	\f bench_orn,  m_nop, orn  t0, t1, t2
 	\f bench_xnor, m_nop, xnor t0, t1, t2
@@ -255,13 +255,13 @@ fabs.d  fa0,fa0
 	\f bench_rev8, m_nop, rev8  t0, t1
 #endif
 
-#if HAS_Zbc
+#if __riscv_zbc
 	\f bench_clmul,  m_nop, clmul  t0, t1, t2
 	\f bench_clmulh, m_nop, clmulh t0, t1, t2
 	\f bench_clmulr, m_nop, clmulr t0, t1, t2
 #endif
 
-#if HAS_Zbs
+#if __riscv_zbs
 	\f bench_bclr,  m_nop, bclr  t0, t1, t2
 	\f bench_bclri, m_nop, bclri t0, t1, 13
 	\f bench_bext,  m_nop, bext  t0, t1, t2
