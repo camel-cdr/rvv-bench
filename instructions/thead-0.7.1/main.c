@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include "types.h"
-#include "../common/config.h"
+#include "config.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -36,15 +35,15 @@ run_all_types(char const *name, u64 (*bench)(void), u64 types, u64 vl) {
 			continue;
 		}
 
-		for (u64 i = 0; i < RUNS; ++i)
+		for (u64 i = 0; i < RUNS; ++i) {
 			arr[i] = run_bench(bench, vtype, vl, seed);
+			seed = seed*7 + 13;
+		}
 		qsort(arr, RUNS, sizeof *arr, compare_u64);
 		u64 sum = 0, count = 0;
 		for (u64 i = RUNS * 0.2f; i < RUNS * 0.8f; ++i, ++count)
 			sum += arr[i];
 		printf("<td>%2.1f</td>", sum * 1.0/(UNROLL*LOOP*count));
-
-		seed = seed*7 + 13;
 	}
 	puts("</tr>");
 }

@@ -1,41 +1,6 @@
 #define vl s0
 
-#include "../common/config.h"
-#include "types.h"
-
-.macro multiline xs:vararg
-	multiline_ \xs, nl
-.endm
-.macro multiline_ a b c d e f xs:vararg
-	.ifc \a, nl
-		multiline_ \b \c \d \e \f \xs
-	.else
-	.ifc \b, nl
-		\a
-		multiline_ \c \d \e \f \xs
-	.else
-	.ifc \c, nl
-		\a \b
-		multiline_ \d \e \f \xs
-	.else
-	.ifc \d, nl
-		\a \b, \c
-		multiline_ \e \f \xs
-	.else
-	.ifc \e, nl
-		\a \b, \c, \d
-		multiline_ \f \xs
-	.else
-	.ifc \f, nl
-		\a \b, \c, \d, \e
-		multiline_ \xs
-	.endif
-	.endif
-	.endif
-	.endif
-	.endif
-	.endif
-.endm
+#include "config.h"
 
 .macro m_nop
 .endm
@@ -45,7 +10,6 @@ vid.v v0
 remu t0, t0, vl
 vmseq.vx v8, v0, t0
 .endm
-
 
 .macro m_mask f name type setup code:vararg
 	\f \name\(),  \type, \setup, \code

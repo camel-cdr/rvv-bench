@@ -1,3 +1,8 @@
+#define WARMUP 1000
+#define UNROLL 64
+#define LOOP 16
+#define RUNS 1000
+
 /* processor specific configs */
 #if 1
 // C920/C906 (some boards, e.g. BL808): e8/16/32/64 f16/32/64

@@ -1,3 +1,8 @@
+#define WARMUP 1000
+#define UNROLL 64
+#define LOOP 16
+#define RUNS 1000
+
 /* processor specific configs */
 
 // e64/e32/e16/e8 m8/m4/m2/m1
