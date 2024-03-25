@@ -1,40 +1,11 @@
 #include "../common/config.h"
 
-.macro multiline xs:vararg
-	multiline_ \xs, nl
-.endm
-.macro multiline_ a b c d e f xs:vararg
-	.ifc \a, nl
-		multiline_ \b \c \d \e \f \xs
-	.else
-	.ifc \b, nl
-		\a
-		multiline_ \c \d \e \f \xs
-	.else
-	.ifc \c, nl
-		\a \b
-		multiline_ \d \e \f \xs
-	.else
-	.ifc \d, nl
-		\a \b, \c
-		multiline_ \e \f \xs
-	.else
-	.ifc \e, nl
-		\a \b, \c, \d
-		multiline_ \f \xs
-	.else
-	.ifc \f, nl
-		\a \b, \c, \d, \e
-		multiline_ \xs
-	.endif
-	.endif
-	.endif
-	.endif
-	.endif
-	.endif
+.macro m_nop
 .endm
 
-.macro m_nop
+.macro m_full_bits
+not t1, x0
+not t2, x0
 .endm
 
 .macro m_benchmarks_all f
@@ -63,6 +34,17 @@
 	\f bench_slti, m_nop, slti t0, t1, 0x1
 	\f bench_sltu, m_nop, sltu t0, t1, t2
 	\f bench_sltiu, m_nop, sltiu t0, t1, 0x1
+	# Multiply
+	\f bench_mul, m_nop, mul t0, t1, t2
+	\f bench_mulh, m_nop, mulh t0, t1, t2
+	\f bench_mulhsu, m_nop, mulhsu t0, t1, t2
+	\f bench_mulhu, m_nop, mulhu t0, t1, t2
+	# Divide
+	\f bench_div, m_full_bits, div t0, t1, t2
+	\f bench_divu, m_full_bits, divu t0, t1, t2
+	# Remainder
+	\f bench_rem, m_full_bits, rem t0, t1, t2
+	\f bench_remu, m_full_bits, remu t0, t1, t2
 .endm
 
 
