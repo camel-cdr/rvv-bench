@@ -27,8 +27,15 @@ test(size_t maxlen32, size_t bitFlipCount)
 
 	if (len32 != lenOut) {
 		print("ERROR: length mismatch, expected ")(u,len32)(" got ")(u,lenOut)("\n");
+		print("\nin:  ");
 		for (size_t i = 0; i < lenIn; ++i)
 			print(b8,in[i])(" ");
+		print("\nout: ");
+		for (size_t i = 0; i < lenOut; ++i)
+			print(b32,out[i])(" ");
+		print("\ntar: ");
+		for (size_t i = 0; i < len32; ++i)
+			print(b32,utf32[i])(" ");
 		flush();exit(0);
 		return;
 	}

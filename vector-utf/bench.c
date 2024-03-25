@@ -11,7 +11,7 @@ size_t utf16_to_utf8_rvv(const uint16_t *src, size_t count, char *dest);
 static uint64_t in[MAX_IN];
 static uint64_t out[MAX_IN * 4];
 
-#define NUM_REPEATS 3000
+#define NUM_REPEATS 30000
 
 #define PCAT(a,b) a##b
 #define CAT(a,b) PCAT(a,b)

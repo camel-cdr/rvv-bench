@@ -30,6 +30,15 @@ test(size_t length, size_t bitFlipCount)
 		print("ERROR: length mismatch, expected ")(u,lenGolden)(" got ")(u,lenOut)(" from ")(u,origLen)("\n");
 		for (size_t i = 0; i < lenIn; ++i)
 			print(b8,in[i])(" ");
+		print("\nin:  ");
+		for (size_t i = 0; i < lenIn; ++i)
+			print(b8,in[i])(" ");
+		print("\nout: ");
+		for (size_t i = 0; i < lenOut; ++i)
+			print(b16,out[i])(" ");
+		print("\ntar: ");
+		for (size_t i = 0; i < lenGolden; ++i)
+			print(b16,golden[i])(" ");
 		flush();exit(0);
 		return;
 	}

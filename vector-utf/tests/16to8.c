@@ -27,16 +27,32 @@ test(size_t length, size_t bitFlipCount)
 	size_t lenOut = utf16_to_utf8_rvv(in, lenIn, (char*)out);
 
 	if (lenGolden != lenOut) {
-		print("ERROR: length mismatch, expected ")(u,lenGolden)(" got ")(u,lenOut)(" from ")(u,origLen)("\n");
+		print("ERROR: length mismatch, expected ")(u,lenGolden)(" got ")(u,lenOut)(" from ")(u,origLen);
+		print("\nin:  ");
 		for (size_t i = 0; i < lenIn; ++i)
 			print(b16,in[i])(" ");
+		print("\nout: ");
+		for (size_t i = 0; i < lenOut; ++i)
+			print(b8,out[i])(" ");
+		print("\ntar: ");
+		for (size_t i = 0; i < lenGolden; ++i)
+			print(b8,golden[i])(" ");
 		flush();exit(0);
 		return;
 	}
 	for (size_t i = 0; i < lenGolden; ++i) {
 		if (golden[i] != out[i]) {
 			print("ERROR: at ")(u,i)("/")(u,lenGolden)(" expected ")(u,golden[i])(" got ")(u,out[i])("\n");
-			return;
+		print("\nin:  ");
+		for (size_t i = 0; i < lenIn; ++i)
+			print(b16,in[i])(" ");
+		print("\nout: ");
+		for (size_t i = 0; i < lenOut; ++i)
+			print(b8,out[i])(" ");
+		print("\ntar: ");
+		for (size_t i = 0; i < lenGolden; ++i)
+			print(b8,golden[i])(" ");
+		flush();exit(0);
 		}
 	}
 }
