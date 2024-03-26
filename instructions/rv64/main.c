@@ -3,12 +3,12 @@
 
 typedef uint64_t u64;
 
-static uint64_t mem[1024];
-static u64 seed = 128;
+static u64 mem[128];
+static u64 seed = 123456;
 
 extern char const benchmark_names;
 extern u64 (*benchmarks)(void);
-extern u64 run_bench(u64 (*bench)(void), void *mem, u64 seed);
+extern u64 run_bench(u64 (*bench)(void), void *ptr, u64 seed);
 
 
 static int

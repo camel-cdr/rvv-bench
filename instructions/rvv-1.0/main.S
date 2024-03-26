@@ -1,4 +1,5 @@
-#define vl s0
+#define VL s3
+#define PTR s4
 
 #include "config.h"
 
@@ -7,7 +8,7 @@
 
 .macro m_1bit
 vid.v v0
-remu t0, t0, vl
+remu t0, t0, VL
 vmseq.vx v8, v0, t0
 .endm
 
@@ -74,25 +75,54 @@ vmseq.vx v8, v0, t0
 	m_mask \f bench_\()\name\()wi, \t, m_nop, \name\().wi v8, v16, 13
 .endm
 
+// TODO: mask SEW and LMUL thogether
+.macro m_bench_ls f setup pre suf args:vararg
+	m_mask \f bench_vl\()\pre\()8\()\suf\()v,  T_A,  \setup, vl\pre\()8\()\suf\().v \args
+	m_mask \f bench_vs\()\pre\()8\()\suf\()v,  T_A,  \setup, vl\pre\()8\()\suf\().v \args
+	m_mask \f bench_vl\()\pre\()16\()\suf\()v, T_E2, \setup, vl\pre\()16\()\suf\().v \args
+	m_mask \f bench_vs\()\pre\()16\()\suf\()v, T_E2, \setup, vl\pre\()16\()\suf\().v \args
+	m_mask \f bench_vl\()\pre\()32\()\suf\()v, T_E4, \setup, vl\pre\()32\()\suf\().v \args
+	m_mask \f bench_vs\()\pre\()32\()\suf\()v, T_E4, \setup, vl\pre\()32\()\suf\().v \args
+	m_mask \f bench_vl\()\pre\()64\()\suf\()v, T_E8, \setup, vl\pre\()64\()\suf\().v \args
+	m_mask \f bench_vs\()\pre\()64\()\suf\()v, T_E8, \setup, vl\pre\()64\()\suf\().v \args
+.endm
+
+.macro m_bench_vlnre f n
+	\f bench_vl\()\n\()re8v,  T_A, m_nop, vl\()\n\()re8.v v8, (PTR)
+	\f bench_vs\()\n\()re8v,  T_A, m_nop, vl\()\n\()re8.v v8, (PTR)
+	\f bench_vl\()\n\()re16v, T_A, m_nop, vl\()\n\()re16.v v8, (PTR)
+	\f bench_vs\()\n\()re16v, T_A, m_nop, vl\()\n\()re16.v v8, (PTR)
+	\f bench_vl\()\n\()re32v, T_A, m_nop, vl\()\n\()re32.v v8, (PTR)
+	\f bench_vs\()\n\()re32v, T_A, m_nop, vl\()\n\()re32.v v8, (PTR)
+	\f bench_vl\()\n\()re64v, T_A, m_nop, vl\()\n\()re64.v v8, (PTR)
+	\f bench_vs\()\n\()re64v, T_A, m_nop, vl\()\n\()re64.v v8, (PTR)
+.endm
+
 .macro m_mod_v24_e8_vl
 	csrr t1, vtype
 	vsetvli t0, x0, e8, m8, ta, ma
-	vremu.vx v24, v24, vl
-	vsetvl x0, vl, t1
+	vremu.vx v24, v24, VL
+	vsetvl x0, VL, t1
 .endm
 
 .macro m_mod_v24_e16_vl
 	csrr t1, vtype
 	vsetvli t0, x0, e16, m8, ta, ma
-	vremu.vx v24, v24, vl
-	vsetvl x0, vl, t1
+	vremu.vx v24, v24, VL
+	vsetvl x0, VL, t1
+.endm
+
+.macro m_mod_v16_vl
+	vremu.vx v16, v16, VL
 .endm
 
 .macro m_mod_t0_vl
-	remu t0, t0, vl
+	remu t0, t0, VL
 .endm
 
-
+.macro m_mod_t0_8
+	andi t0, t0, 7
+.endm
 
 
 .macro m_benchmarks_all f
@@ -114,6 +144,7 @@ vmseq.vx v8, v0, t0
 	m_mask \f bench_vrgathervi,     T_A, m_nop,            vrgather.vi     v8, v16, 3
 	m_mask \f bench_vslideupvx,     T_A, m_mod_t0_vl,      vslideup.vx     v8, v16, t0
 	m_mask \f bench_vslideupvi,     T_A, m_nop,            vslideup.vi     v8, v16, 3
+	// TODO: mask SEW and LMUL thogether
 	m_mask \f bench_vrgatherei16vv, T_N8, m_mod_v24_e16_vl, vrgatherei16.vv v8, v16, v24
 
 	m_mask \f bench_vslidedownvx, T_A, m_mod_t0_vl,  vslidedown.vx v8, v16, t0
@@ -197,7 +228,6 @@ vmseq.vx v8, v0, t0
 	m_bench_wxi \f, T_N, vnclip
 	m_bench_xv  \f, T_N, vnmsub
 	m_bench_xv  \f, T_N, vnmsac
-
 
 	m_bench_vx \f, T_W, vwaddu
 	m_bench_vx \f, T_W, vwadd
@@ -308,10 +338,10 @@ vmseq.vx v8, v0, t0
 	m_mask \f bench_vfncvt.rod.f.f.w, T_FN, m_nop, vfncvt.rod.f.f.w  v8, v16
 
 
-	m_mask \f bench_vfsqrtv,  T_F, m_nop, vfsqrt.v v8, v16
-	m_mask \f bench_vfrsqrt7v,  T_F, m_nop, vfrsqrt7.v v8, v16
-	m_mask \f bench_vfrec7v,  T_F, m_nop, vfrec7.v v8, v16
-	m_mask \f bench_vfclassv,  T_F, m_nop, vfclass.v v8, v16
+	m_mask \f bench_vfsqrtv,   T_F, m_nop, vfsqrt.v   v8, v16
+	m_mask \f bench_vfrsqrt7v, T_F, m_nop, vfrsqrt7.v v8, v16
+	m_mask \f bench_vfrec7v,   T_F, m_nop, vfrec7.v   v8, v16
+	m_mask \f bench_vfclassv,  T_F, m_nop, vfclass.v  v8, v16
 
 	m_mask \f bench_vmsbfm,   T_A, m_1bit, vmsbf.m   v8, v16
 	m_mask \f bench_vmsofm,   T_A, m_1bit, vmsof.m   v8, v16
@@ -319,6 +349,19 @@ vmseq.vx v8, v0, t0
 	m_mask \f bench_viotam,   T_A, m_nop,  viota.m   v8, v16
 	m_mask \f bench_vidv,     T_A, m_nop,  vid.v     v8
 
+	m_bench_ls \f, m_nop,        e,    ,   v8, (PTR)
+	m_bench_ls \f, m_nop,        e,    ff, v8, (PTR)
+	// TODO: fix this
+	// m_bench_ls \f, m_mod_t0_8,   se,   ,   v8, (PTR), t0
+	// m_bench_ls \f, m_mod_v16_vl, uxei, ,   v8, (PTR), v16
+	// m_bench_ls \f, m_mod_v16_vl, oxei, ,   v8, (PTR), v16
+
+	m_bench_vlnre \f, 1
+	m_bench_vlnre \f, 2
+	m_bench_vlnre \f, 4
+	m_bench_vlnre \f, 8
+
+	// TODO: segmented load/store
 .endm
 
 
@@ -435,31 +478,34 @@ randomize:
 
 	ret
 
-# u64 f(u64 (*bench)(void), u64 type, u64 vl, u64 seed)
+# u64 f(u64 (*bench)(void), u64 type, u64 vl, void *ptr, u64 seed)
 .global run_bench
 run_bench:
-	addi sp, sp, -48
+	addi sp, sp, -56
 	sd ra, 8(sp)
-	sd vl, 16(sp)
+	sd VL, 16(sp)
 	sd s1, 24(sp)
 	sd s2, 32(sp)
-	sd s3, 40(sp)
+	sd VL, 40(sp)
+	sd PTR, 48(sp)
 
 	mv s1, a0
 	mv s2, a1 # type
-	mv s3, a2 # vl
-	mv a0, a3 # seed
+	mv VL, a2
+	mv PTR, a3
+	mv a0, a4 # seed
 	call randomize
-	vsetvl vl, s3, s2
-	bnez s3, 1f
-	vsetvl vl, x0, s2
+	vsetvl VL, VL, s2
+	bnez VL, 1f
+	vsetvl VL, x0, s2
 	1:
 	jalr s1
 
 	ld ra, 8(sp)
-	ld vl, 16(sp)
+	ld VL, 16(sp)
 	ld s1, 24(sp)
 	ld s2, 32(sp)
-	ld s3, 40(sp)
-	addi sp, sp, 48
+	ld VL, 40(sp)
+	ld PTR, 48(sp)
+	addi sp, sp, 56
 	ret

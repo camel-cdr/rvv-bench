@@ -3,12 +3,13 @@
 
 typedef uint64_t u64;
 
-static u64 seed = 128;
+static u64 mem[65536/sizeof(u64)];
+static u64 seed = 123456;
 
 extern char const benchmark_names;
 extern u64 benchmark_types;
 extern u64 (*benchmarks)(void);
-extern u64 run_bench(u64 (*bench)(void), u64 type, u64 vl, u64 seed);
+extern u64 run_bench(u64 (*bench)(void), u64 type, u64 vl, void *ptr, u64 seed);
 
 
 static int
@@ -35,7 +36,7 @@ run_all_types(char const *name, u64 (*bench)(void), u64 types, u64 vl, int ta, i
 		}
 
 		for (u64 i = 0; i < RUNS; ++i) {
-			arr[i] = run_bench(bench, vtype | (!!ta << 6) | (!!ma << 7), vl, seed);
+			arr[i] = run_bench(bench, vtype | (!!ta << 6) | (!!ma << 7), vl, mem, seed);
 			seed = seed*7 + 13;
 		}
 		qsort(arr, RUNS, sizeof *arr, compare_u64);
