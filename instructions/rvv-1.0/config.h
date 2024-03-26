@@ -10,10 +10,10 @@
 #define T_W   0b01110111 // widen
 #define T_WR  0b01111111 // widen reduction
 #define T_N   0b01110111 // narrow
-#define T_F   0b11101111 // float
-#define T_FW  0b01100111 // float widen
-#define T_FWR 0b01101111 // float widen reduction
-#define T_FN  0b01100111 // float narrow
+#define T_F   0b11001111 // float
+#define T_FW  0b01000111 // float widen
+#define T_FWR 0b01001111 // float widen reduction
+#define T_FN  0b01000111 // float narrow
 
 #define T_E2 0b11101110 // extend 2
 #define T_E4 0b11001100 // extend 4
