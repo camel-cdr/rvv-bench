@@ -39,10 +39,17 @@ run_all_types(char const *name, u64 (*bench)(void), u64 types, u64 vl) {
 			arr[i] = run_bench(bench, vtype, vl, seed);
 			seed = seed*7 + 13;
 		}
+
+#if RUNS > 4
 		qsort(arr, RUNS, sizeof *arr, compare_u64);
 		u64 sum = 0, count = 0;
 		for (u64 i = RUNS * 0.2f; i < RUNS * 0.8f; ++i, ++count)
 			sum += arr[i];
+#else
+		u64 sum = 0, count = RUNS;
+		for (u64 i = 0; i < RUNS; ++i)
+			sum += arr[i];
+#endif
 		printf("<td>%2.1f</td>", sum * 1.0/(UNROLL*LOOP*count));
 	}
 	puts("</tr>");

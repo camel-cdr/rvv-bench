@@ -39,11 +39,16 @@ run_all_types(char const *name, u64 (*bench)(void), u64 types, u64 vl, int ta, i
 			arr[i] = run_bench(bench, vtype | (!!ta << 6) | (!!ma << 7), vl, mem, seed);
 			seed = seed*7 + 13;
 		}
+#if RUNS > 4
 		qsort(arr, RUNS, sizeof *arr, compare_u64);
-
 		u64 sum = 0, count = 0;
 		for (u64 i = RUNS * 0.2f; i < RUNS * 0.8f; ++i, ++count)
 			sum += arr[i];
+#else
+		u64 sum = 0, count = RUNS;
+		for (u64 i = 0; i < RUNS; ++i)
+			sum += arr[i];
+#endif
 		print("<td>")(fn,1,sum * 1.0/(UNROLL*LOOP*count))("</td>");
 	}
 	print("</tr>\n");

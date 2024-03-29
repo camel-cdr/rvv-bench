@@ -17,6 +17,8 @@
 # define BENCH_VOLATILE(x) ({__asm volatile("" : "+g"(x) : "g"(x) : "memory");})
 # define BENCH_VOLATILE_REG(x) ({__asm volatile("" : "+r"(x) : "r"(x) : "memory");})
 # define BENCH_VOLATILE_MEM(x) ({__asm volatile("" : "+m"(x) : "m"(x) : "memory");})
+# define BENCH_FENCE() ({__asm volatile("fence.i");})
+
 
 #define BENCH_MAY_ALIAS __attribute__((__may_alias__))
 
@@ -124,10 +126,16 @@ bench_time(size_t n, Impl impl, Bench bench)
 		if (repeats > MIN_REPEATS && total > STOP_CYCLES)
 			break;
 	}
+#if MAX_REPEATS > 4
 	qsort(arr, repeats, sizeof *arr, compare_u64);
 	uint64_t sum = 0, count = 0;
 	for (size_t i = repeats * 0.2f; i < repeats * 0.8f; ++i, ++count)
 		sum += arr[i];
+#else
+	uint64_t sum = 0, count = repeats;
+	for (size_t i = 0; i < repeats; ++i)
+		sum += arr[i];
+#endif
 	return n / ((double)sum / count);
 }
 
@@ -181,7 +189,8 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 
 #define TIME \
 	for (uint64_t beg = rv_cycles(), _once = 1; _once; \
-	     _cycles += rv_cycles() - beg, _once = 0)
+	       BENCH_FENCE(), \
+	       _cycles += rv_cycles() - beg, _once = 0)
 
 #define BENCH(name) \
 	uint64_t bench_##name(void *_func, size_t n) { \

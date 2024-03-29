@@ -323,6 +323,7 @@ m_benchmarks_all gen_string_arr
 	.endr
 		addi a0, a0, -1
 		bnez a0, 1b
+		fence.i
 		rdcycle a0
 		sub a0, a0, a1
 	ret
