@@ -76,7 +76,7 @@ randmem(void *ptr, size_t n)
 	unsigned char *p = ptr;
 #ifdef __GNUC__
 	typedef uint64_t __attribute__((__may_alias__)) u64;
-	for (; n && (uintptr_t)p % 4; --n) *p++ = randu64();
+	for (; n && (uintptr_t)p % 8; --n) *p++ = randu64();
 	u64 *p64 = (u64*)p;
 	for (; n > 8; n -= 8) *p64++ = randu64();
 	p = (unsigned char*)p64;
