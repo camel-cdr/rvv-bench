@@ -6,6 +6,18 @@
 #include <stddef.h>
 #include <float.h>
 
+#if __riscv_xlen == 32
+typedef uint32_t ux;
+typedef float fx;
+#define IF64(...)
+#elif __riscv_xlen == 64
+typedef uint64_t ux;
+typedef double fx;
+#define IF64(...) __VA_ARGS__
+#else
+#error "unsupported XLEN"
+#endif
+
 
 static void flush(void);
 
@@ -102,22 +114,13 @@ void _start(void) {
 
 /* utils */
 
-#if __riscv
-static inline uint64_t
+static inline ux
 rv_cycles(void)
 {
-	uint64_t cycle;
+	ux cycle;
 	__asm volatile ("rdcycle %0" : "=r"(cycle));
 	return cycle;
 }
-#elif defined(__x86_64__)
-uint64_t rv_cycles(void)
-{
-	unsigned int lo,hi;
-	__asm volatile ("rdtsc" : "=a"(lo), "=d"(hi));
-	return ((uint64_t)hi << 32) | lo;
-}
-#endif
 
 
 static void
@@ -177,38 +180,54 @@ qsort(void *base, size_t len, size_t size, int (*cmp)(const void *, const void *
 #endif
 
 
-static uint64_t
-u64sqrt(uint64_t y)
+static ux
+usqrt(ux y)
 {
-	uint64_t L = 0, R = y + 1;
+	ux L = 0, R = y + 1;
 	while (L != R - 1) {
-		uint64_t M = (L + R) / 2;
+		ux M = (L + R) / 2;
 		if (M * M <= y) L = M;
 		else            R = M;
 	}
 	return L;
 }
 
-static uint64_t
-hash64(uint64_t x)
+static ux
+uhash(ux x)
 {
-	x ^= x >> 32;
-	x *= 0xd6e8feb86659fd93U;
-	x ^= x >> 32;
-	x *= 0xd6e8feb86659fd93U;
-	x ^= x >> 32;
+#if __riscv_xlen == 32
+	/* MurmurHash3 32-bit finalizer */
+	x ^= x >> 16;
+	x *= 0x85ebca6b;
+	x ^= x >> 13;
+	x *= 0xc2b2ae35;
+	x ^= x >> 16;
+#else
+	/* splitmix64 finalizer */
+	x ^= x >> 30;
+	x *= 0xbf58476d1ce4e5b9U;
+	x ^= x >> 27;
+	x *= 0x94d049bb133111ebU;
+	x ^= x >> 31;
+#endif
 	return x;
 }
 
 
 /* string conversions */
 
-#define U64TOA_MAX 20
+#if __riscv_xlen == 32
+#define UTOA_MAX 20
+#elif __riscv_xlen == 64
+#define UTOA_MAX 10
+#else
+#error "unsupported XLEN"
+#endif
 
 static size_t
-u64toa(char *str, uint64_t val)
+utoa(char *str, ux val)
 {
-	char buf[U64TOA_MAX], *end = buf + sizeof buf, *it = end;
+	char buf[UTOA_MAX], *end = buf + sizeof buf, *it = end;
 	do *--it = (val % 10) + '0'; while ((val /= 10));
 	val = end - it;
 	memcpy(str, it, val);
@@ -219,9 +238,9 @@ u64toa(char *str, uint64_t val)
 #define FTOA_MAX (20+9+2)
 
 static inline size_t
-ftoa(char *str, double val, size_t prec)
+ftoa(char *str, fx val, size_t prec)
 {
-	static const double pow10[] = {
+	static const fx pow10[] = {
 		1, 10, 100, 1000, 10000, 100000, 1000000,
 		10000000, 100000000, 1000000000
 	};
@@ -231,7 +250,7 @@ ftoa(char *str, double val, size_t prec)
 	if (val != val) return memcpy(buf, "NaN", 3), 3;
 	if (val < 0) val = -val, *--it = '-';
 
-	uint64_t ival = val, frac = (val-ival) * pow10[prec];
+	ux ival = val, frac = (val-ival) * pow10[prec];
 	do *--it = frac % 10 + '0'; while ((frac /= 10, --prec));
 	*--it = '.';
 	do *--it = ival % 10 + '0'; while ((ival /= 10));
@@ -271,15 +290,15 @@ print_raw(const char *s, size_t len)
 static void print_s(const char *s) { print_raw(s, strlen(s)); }
 
 static void
-print_u(uint64_t val)
+print_u(ux val)
 {
-	if (printEnd - printIt < U64TOA_MAX)
+	if (printEnd - printIt < UTOA_MAX)
 		flush();
-	printIt += u64toa(printIt, val);
+	printIt += utoa(printIt, val);
 }
 
 static void
-print_h(uint64_t val, size_t n)
+print_h(ux val, size_t n)
 {
 	if ((n << 2) >= sizeof printBuffer)
 		return;
@@ -291,7 +310,7 @@ print_h(uint64_t val, size_t n)
 }
 
 static void
-print_b(uint64_t val, size_t n)
+print_b(ux val, size_t n)
 {
 	if (n >= sizeof printBuffer)
 		return;
@@ -303,14 +322,14 @@ print_b(uint64_t val, size_t n)
 }
 
 static void
-print_fn(size_t prec, double val)
+print_fn(size_t prec, fx val)
 {
 	if (printEnd - printIt < FTOA_MAX)
 		flush();
 	printIt += ftoa(printIt, val, prec);
 }
 
-static void print_f(double val) { print_fn(7, val); }
+static void print_f(fx val) { print_fn(7, val); }
 
 
 #define ARR_LEN(x) (sizeof x / sizeof *(x))

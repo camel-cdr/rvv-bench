@@ -56,7 +56,7 @@ MX(mandelbrot_rvv_f16_):
 	beqz a0, MX(rvv_f16_13)
 	beqz a1, MX(rvv_f16_9)
 	li a7, 0
-	fcvt.s.lu fa2, a0
+	fcvt.s.wu fa2, a0
 	lui a3, 262144
 	fmv.w.x fa1, a3
 	la a3, MX(rvv_f16_m1p5)
@@ -74,7 +74,7 @@ MX(rvv_f16_3):
 	add a2, a2, a6
 	beq a7, a0, MX(rvv_f16_13)
 MX(rvv_f16_4):
-	fcvt.s.lu fa1, a7
+	fcvt.s.wu fa1, a7
 	fcvt.h.s fa1, fa1
 	mv t0, a0
 	j MX(rvv_f16_6)
@@ -124,7 +124,7 @@ MX(rvv_f16_7):
 	vsetvli zero, zero, e32, MX2(), ta, ma
 	vmerge.vxm v8, v8, a4, v0
 	addi a3, a3, -1
-	addiw a4, a4, 1
+	addi a4, a4, 1
 #if HAS_RVV_1_0
 	vmv2r.v v20, v24
 #else
@@ -158,7 +158,7 @@ MX(mandelbrot_rvv_f32_):
 	beqz a0, MX(rvv_f32_13)
 	beqz a1, MX(rvv_f32_9)
 	li a7, 0
-	fcvt.s.lu fa5, a0
+	fcvt.s.wu fa5, a0
 	lui a3, 262144
 	fmv.w.x fa4, a3
 	fdiv.s fa5, fa4, fa5
@@ -175,7 +175,7 @@ MX(rvv_f32_3):
 	add a2, a2, a6
 	beq a7, a0, MX(rvv_f32_13)
 MX(rvv_f32_4):
-	fcvt.s.lu fa1, a7
+	fcvt.s.wu fa1, a7
 	mv t0, a0
 	j MX(rvv_f32_6)
 MX(rvv_f32_5):
@@ -222,7 +222,7 @@ MX(rvv_f32_7):
 	vfmul.vv v20, v14, v14
 	vmerge.vxm v8, v8, a3, v0
 	addi a5, a5, -1
-	addiw a3, a3, 1
+	addi a3, a3, 1
 	vmv.v.v v18, v22
 	bnez a5, MX(rvv_f32_7)
 	j MX(rvv_f32_5)
@@ -259,7 +259,7 @@ MX(mandelbrot_rvv_f64_):
 	beqz a0, MX(rvv_f64_13)
 	beqz a1, MX(rvv_f64_9)
 	li a7, 0
-	fcvt.s.lu fa2, a0
+	fcvt.s.wu fa2, a0
 	lui a3, 262144
 	fmv.w.x fa1, a3
 	la a3, MX(rvv_f64_m1p5)
@@ -277,7 +277,7 @@ MX(rvv_f64_3):
 	add a2, a2, a6
 	beq a7, a0, MX(rvv_f64_13)
 MX(rvv_f64_4):
-	fcvt.d.lu fa1, a7
+	fcvt.d.wu fa1, a7
 	mv t0, a0
 	j MX(rvv_f64_6)
 MX(rvv_f64_5):
@@ -326,7 +326,7 @@ MX(rvv_f64_7):
 	vsetvli zero, zero, e32, m1, ta, ma
 	vmerge.vxm v8, v8, a4, v0
 	addi a3, a3, -1
-	addiw a4, a4, 1
+	addi a4, a4, 1
 #if HAS_RVV_1_0
 	vmv2r.v v18, v22
 #else

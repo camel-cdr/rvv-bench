@@ -1,5 +1,5 @@
 /* processor specific configs */
-#define HAS_E64 1
+#define HAS_E64 (__riscv_v_elen >= 64)
 #define HAS_F16 0
 
 /* the maximum number of bytes to allocate, minimum of 4096 */
@@ -24,4 +24,3 @@
 
 /* benchmark specific configurations */
 #define mandelbrot_ITER 100
-

@@ -54,20 +54,20 @@ IMPLS(DECLARE)
 #define EXTRACT(f) { #f, &strlen_##f },
 Impl impls[] = { IMPLS(EXTRACT) };
 
-uint64_t last;
+ux last;
 
 void init(void) {
 	for (size_t i = 0; i < MAX_MEM; ++i)
 		mem[i] += !mem[i]; // remove null bytes
 }
 
-uint64_t checksum(size_t n) { return last; }
+ux checksum(size_t n) { return last; }
 
 BENCH(base) {
-	char *p = (char*)mem + (randu64() % 511);
+	char *p = (char*)mem + (urand() % 511);
 	p[n] = 0;
 	TIME last = f(p);
-	p[n] = randu64() | 1;
+	p[n] = urand() | 1;
 } BENCH_END
 
 Bench benches[] = {

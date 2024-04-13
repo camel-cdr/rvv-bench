@@ -37,16 +37,16 @@ uint8_t *ptr;
 
 void init(void) { ptr = (uint8_t*)mem; }
 
-uint64_t checksum(size_t n) {
-	uint64_t sum = 0;
+ux checksum(size_t n) {
+	ux sum = 0;
 	for (size_t i = 0; i < n; ++i)
-		sum = hash64(sum) + ptr[i];
+		sum = uhash(sum) + ptr[i];
 	return sum;
 }
 
 BENCH(base) {
-	static uint64_t lut[2] = { 0xb8ce2de04564907f, 0xa048aa9fc0f7adf8 };
-	randmem(ptr, n * sizeof *ptr);
+	static uint32_t lut[4] = { 0x4564907f, 0xb8ce2de0, 0xc0f7adf8, 0xa048aa9f };
+	memrand(ptr, n * sizeof *ptr);
 	TIME f((uint8_t*)lut, ptr, n);
 } BENCH_END
 

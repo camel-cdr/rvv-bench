@@ -25,6 +25,7 @@ mandelbrot_scalar_f32(size_t width, size_t maxIter, uint32_t *res)
 	}
 }
 
+#if __riscv_xlen >= 64
 void
 mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 {
@@ -48,6 +49,7 @@ mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 		*res++ = iter;
 	}
 }
+#endif
 
 #if HAS_F16
 # define IMPLS_F16(f) f(rvv_f16_m1) f(rvv_f16_m2)
@@ -57,11 +59,11 @@ mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 
 #define IMPLS(f) \
 	f(scalar_f32) \
-	f(scalar_f64) \
+	IF64(f(scalar_f64)) \
 	IMPLS_F16(f) \
 	f(rvv_f32_m1) \
 	f(rvv_f32_m2) \
-	f(rvv_f64_m2) \
+	IF64(f(rvv_f64_m2)) \
 
 typedef void Func(size_t width, size_t maxIter, uint32_t *res);
 
@@ -75,10 +77,10 @@ uint32_t *dest;
 void init(void) { memset(mem, 0, MAX_MEM); dest = (uint32_t*)mem; }
 
 /* disabled, because of rounding errors, please independently verify */
-uint64_t checksum(size_t n) { return 0; }
+ux checksum(size_t n) { return 0; }
 
 BENCH(base) {
-	n = u64sqrt(n);
+	n = usqrt(n);
 	TIME f(n, mandelbrot_ITER, dest);
 } BENCH_END
 

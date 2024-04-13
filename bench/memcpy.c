@@ -164,14 +164,14 @@ IMPLS(DECLARE)
 Impl impls[] = { IMPLS(EXTRACT) };
 
 uint8_t *dest, *src;
-uint64_t last;
+ux last;
 
 void init(void) { }
 
-uint64_t checksum(size_t n) {
-	uint64_t sum = last;
+ux checksum(size_t n) {
+	ux sum = last;
 	for (size_t i = 0; i < n+9; ++i)
-		sum = hash64(sum) + dest[i];
+		sum = uhash(sum) + dest[i];
 	return sum;
 }
 
@@ -181,7 +181,7 @@ void common(size_t n, size_t dOff, size_t sOff) {
 }
 
 BENCH(base) {
-	common(n, randu64() & 255, randu64() & 255);
+	common(n, urand() & 255, urand() & 255);
 	TIME last = (uintptr_t)f(dest, src, n);
 } BENCH_END
 

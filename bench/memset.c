@@ -17,6 +17,7 @@ memset_scalar_autovec(void *dest, int c, size_t n)
 }
 
 /* https://git.musl-libc.org/cgit/musl/tree/src/string/memset.c */
+#if __riscv_xlen >= 64
 void *
 memset_musl(void *dest, int c, size_t n)
 {
@@ -105,12 +106,13 @@ memset_musl(void *dest, int c, size_t n)
 
 	return dest;
 }
+#endif
 
 #define memset_libc memset
 
 #define IMPLS(f) \
 	IFHOSTED(f(libc)) \
-	f(musl) \
+	IF64(f(musl)) \
 	f(scalar) \
 	f(scalar_autovec) \
 	MX(f, rvv) \
@@ -127,15 +129,15 @@ IMPLS(DECLARE)
 Impl impls[] = { IMPLS(EXTRACT) };
 
 uint8_t *dest;
-uint64_t last;
+ux last;
 char c;
 
-void init(void) { c = randu64(); }
+void init(void) { c = urand(); }
 
-uint64_t checksum(size_t n) {
-	uint64_t sum = last;
+ux checksum(size_t n) {
+	ux sum = last;
 	for (size_t i = 0; i < n+9; ++i)
-		sum = hash64(sum) + dest[i];
+		sum = uhash(sum) + dest[i];
 	return sum;
 }
 
@@ -145,7 +147,7 @@ void common(size_t n, size_t off) {
 }
 
 BENCH(base) {
-	common(n, randu64() & 511);
+	common(n, urand() & 511);
 	TIME last = (uintptr_t)f(dest, c, n);
 } BENCH_END
 

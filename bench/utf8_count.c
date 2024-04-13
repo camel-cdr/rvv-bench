@@ -22,32 +22,32 @@ utf8_count_scalar_autovec(char const *str, size_t len)
 	size_t \
 	utf8_count_##name(char const *str, size_t len) \
 	{ \
-		uint64_t const BENCH_MAY_ALIAS *u64; \
+		ux const BENCH_MAY_ALIAS *u; \
 		size_t count = 0, tail = 0; \
 \
 		uint8_t const *u8 = (uint8_t const*)str; \
-		if (len < sizeof *u64) { \
+		if (len < sizeof *u) { \
 			tail = len; \
 			goto skip; \
 		} \
 \
-		tail = sizeof *u64 - (uintptr_t)str % sizeof *u64; \
+		tail = sizeof *u - (uintptr_t)str % sizeof *u; \
 \
 		len -= tail; \
 		while (tail--) \
 			count += (*u8++ & 0xC0) != 0x80, clobber; \
 \
-		u64 = (uint64_t const*)u8; \
-		tail = len % sizeof *u64; \
+		u = (ux const*)u8; \
+		tail = len % sizeof *u; \
 \
-		for (len /= sizeof *u64; len--; ++u64) { \
-			uint64_t b1 =  ~*u64 & 0x8080808080808080; \
-			uint64_t b2 =  *u64 & 0x4040404040404040; \
+		for (len /= sizeof *u; len--; ++u) { \
+			ux b1 =  ~*u & (ux)0x8080808080808080; \
+			ux b2 =  *u & (ux)0x4040404040404040; \
 			count += popc((b1 >> 1) | b2); \
 			clobber; \
 		} \
 \
-		u8 = (uint8_t const*)u64; \
+		u8 = (uint8_t const*)u; \
 	skip: \
 		while (tail--) \
 			count += (*u8++ & 0xC0) != 0x80, clobber; \
@@ -63,26 +63,26 @@ GEN_SWAR(SWAR_popc_autovec,__builtin_popcountll,(void)0)
 #endif
 
 static inline int
-popcnt64(uint64_t x)
+upopcnt(ux x)
 {
 	/* 2-bit sums */
-	x -= (x >> 1) & (-(uint64_t)1/3);
+	x -= (x >> 1) & (-(ux)1/3);
 	/* 4-bit sums */
-	x = (x & (-(uint64_t)1/15*3)) + ((x >> 2) & (-(uint64_t)1/15*3));
+	x = (x & (-(ux)1/15*3)) + ((x >> 2) & (-(ux)1/15*3));
 	/* 8-bit sums */
-	x = (x + (x >> 4)) & (-(uint64_t)1/255*15);
+	x = (x + (x >> 4)) & (-(ux)1/255*15);
 	BENCH_VOLATILE_REG(x);
 	/* now we can just add the sums together, because can't overflow,
 	 * since there can't be more than 255 bits set */
 	x += (x >>  8); /* 16-bit sums */
 	x += (x >> 16); /* sum 16-bit sums */
-	x += (x >> 32); /* sum 32-bit sums */
+	IF64(x += (x >> 32)); /* sum 32-bit sums */
 	return x & 127;
 }
 
 
-GEN_SWAR(SWAR_popc_bithack,popcnt64,BENCH_CLOBBER())
-GEN_SWAR(SWAR_popc_bithack_autovec,popcnt64,(void)0)
+GEN_SWAR(SWAR_popc_bithack,upopcnt,BENCH_CLOBBER())
+GEN_SWAR(SWAR_popc_bithack_autovec,upopcnt,(void)0)
 
 
 #define IMPLS(f) \
@@ -107,18 +107,18 @@ IMPLS(DECLARE)
 Impl impls[] = { IMPLS(EXTRACT) };
 
 char *str;
-uint64_t last;
+ux last;
 
 void init(void) { }
-uint64_t checksum(size_t n) { return last; }
+ux checksum(size_t n) { return last; }
 
 void common(size_t n, size_t off) {
 	str = (char*)mem + off;
-	randmem(str, n + 9);
+	memrand(str, n + 9);
 }
 
 BENCH(base) {
-	common(n, randu64() & 511);
+	common(n, urand() & 511);
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
 

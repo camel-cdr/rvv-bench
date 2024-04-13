@@ -1,4 +1,5 @@
 #include "bench.h"
+#if __riscv_xlen >= 64
 #include "../thirdparty/boring.h"
 
 uint8_t *dest, *src;
@@ -29,15 +30,15 @@ Impl impls[] = {
 };
 
 void init(void) {
-	randmem(key, sizeof key);
-	randmem(nonce, sizeof nonce);
+	memrand(key, sizeof key);
+	memrand(nonce, sizeof nonce);
 	counter = 0;
 }
 
-uint64_t checksum(size_t n) {
-	uint64_t sum = 0;
+ux checksum(size_t n) {
+	ux sum = 0;
 	for (size_t i = 0; i < n+16; ++i)
-		sum = hash64(sum) + mem[i];
+		sum = uhash(sum) + mem[i];
 	return sum;
 }
 
@@ -52,3 +53,9 @@ Bench benches[] = {
 
 
 #include "../thirdparty/boring.c"
+#else
+void init(void) {}
+Impl impls[] = {};
+Bench benches[] = {};
+BENCH_MAIN(impls, benches)
+#endif

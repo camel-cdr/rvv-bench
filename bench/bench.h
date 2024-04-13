@@ -9,7 +9,7 @@
 #define STR(x) STR_(x)
 #define STR_(x) #x
 
-#define ROTL(x,n) ((x << (n)) | (x >> (8*sizeof(x) - (n))))
+#define ROTL(x,n) (((x) << (n)) | ((x) >> (8*sizeof(x) - (n))))
 
 #if defined(__clang__) || defined(__GNUC__) || defined(__INTEL_COMPILER)
 
@@ -36,22 +36,29 @@ static void bench_use_ptr(char const volatile *x) {}
 
 
 static int
-compare_u64(void const *a, void const *b)
+compare_ux(void const *a, void const *b)
 {
-	uint64_t A = *(uint64_t*)a, B = *(uint64_t*)b;
+	ux A = *(ux*)a, B = *(ux*)b;
 	return A < B ? -1 : A > B ? 1 : 0;
 }
 
-typedef struct { uint64_t x, y; } RandState;
-static RandState randState = { 123, 456 };
+typedef struct { ux x, y, z; } RandState;
+static RandState randState = { 123, 456, 789 };
 
 /* RomuDuoJr, see https://romu-random.org/ */
-static uint64_t
-randu64(void)
+static ux
+urand(void)
 {
-	uint64_t xp = randState.x;
-	randState.x = 15241094284759029579u * randState.y;
-	randState.y = randState.y - xp;  randState.y = ROTL(randState.y, 27);
+	ux xp = randState.x, yp = randState.y, zp = randState.z;
+#if __riscv_xlen == 32
+	randState.x = 3323815723u * zp;
+	randState.y = ROTL(yp - xp, 6);
+	randState.z = ROTL(zp - yp, 22);
+#else
+	randState.x = 15241094284759029579u * zp;
+	randState.y = ROTL(yp - xp, 12);
+	randState.z = ROTL(zp - yp, 44);
+#endif
 	return xp;
 }
 
@@ -61,33 +68,33 @@ typedef struct {
 typedef struct {
 	size_t N;
 	char const *name;
-	uint64_t (*func)(void *, size_t);
+	ux (*func)(void *, size_t);
 } Bench;
 
 static unsigned char *mem = 0;
 
 void bench_main(void);
-uint64_t checksum(size_t n);
+ux checksum(size_t n);
 void init(void);
 
 static void
-randmem(void *ptr, size_t n)
+memrand(void *ptr, size_t n)
 {
 	unsigned char *p = ptr;
 #ifdef __GNUC__
-	typedef uint64_t __attribute__((__may_alias__)) u64;
-	for (; n && (uintptr_t)p % 8; --n) *p++ = randu64();
-	u64 *p64 = (u64*)p;
-	for (; n > 8; n -= 8) *p64++ = randu64();
-	p = (unsigned char*)p64;
+	typedef ux __attribute__((__may_alias__)) uxa;
+	for (; n && (uintptr_t)p % sizeof(uxa); --n) *p++ = urand();
+	uxa *px = (uxa*)p;
+	for (; n > sizeof(ux); n -= sizeof(ux)) *px++ = urand();
+	p = (unsigned char*)px;
 #endif
-	while (n--) *p++ = randu64();
+	while (n--) *p++ = urand();
 }
 
 #if __STDC_HOSTED__
 # include <stdlib.h>
 #else
-static uint64_t heap[1 + MAX_MEM / sizeof(uint64_t)];
+static ux heap[1 + MAX_MEM / sizeof(ux)];
 #endif
 
 
@@ -106,7 +113,7 @@ main(void)
 	randState.y += rv_cycles() ^ (uintptr_t)&x + 666*(uintptr_t)mem;
 
 	/* initialize memory */
-	randmem(mem, MAX_MEM);
+	memrand(mem, MAX_MEM);
 
 	init();
 	bench_main();
@@ -116,10 +123,10 @@ main(void)
 	return 0;
 }
 
-static double
+static fx
 bench_time(size_t n, Impl impl, Bench bench)
 {
-	static uint64_t arr[MAX_REPEATS];
+	static ux arr[MAX_REPEATS];
 	size_t total = 0, repeats = 0;
 	for (; repeats < MAX_REPEATS; ++repeats) {
 		total += arr[repeats] = bench.func(impl.func, n);
@@ -127,16 +134,16 @@ bench_time(size_t n, Impl impl, Bench bench)
 			break;
 	}
 #if MAX_REPEATS > 4
-	qsort(arr, repeats, sizeof *arr, compare_u64);
-	uint64_t sum = 0, count = 0;
+	qsort(arr, repeats, sizeof *arr, compare_ux);
+	ux sum = 0, count = 0;
 	for (size_t i = repeats * 0.2f; i < repeats * 0.8f; ++i, ++count)
 		sum += arr[i];
 #else
-	uint64_t sum = 0, count = repeats;
+	ux sum = 0, count = repeats;
 	for (size_t i = 0; i < repeats; ++i)
 		sum += arr[i];
 #endif
-	return n / ((double)sum / count);
+	return n / ((fx)sum / count);
 }
 
 static void
@@ -159,7 +166,7 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 		for (Impl *i = impls; i != impls + nImpls; ++i) {
 			print("[");
 			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
-				uint64_t si = 0, s0 = 0;
+				ux si = 0, s0 = 0;
 
 				if (i != impls) {
 					RandState seed = randState;
@@ -188,13 +195,13 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 }
 
 #define TIME \
-	for (uint64_t beg = rv_cycles(), _once = 1; _once; \
+	for (ux beg = rv_cycles(), _once = 1; _once; \
 	       BENCH_FENCE(), \
 	       _cycles += rv_cycles() - beg, _once = 0)
 
 #define BENCH(name) \
-	uint64_t bench_##name(void *_func, size_t n) { \
-		Func *f = _func; uint64_t _cycles = 0;
+	ux bench_##name(void *_func, size_t n) { \
+		Func *f = _func; ux _cycles = 0;
 #define BENCH_END return _cycles; }
 
 #define BENCH_MAIN(impls, benches) \

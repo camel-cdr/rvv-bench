@@ -32,15 +32,15 @@ IMPLS(DECLARE)
 Impl impls[] = { IMPLS(EXTRACT) };
 
 char *str;
-uint64_t last;
+ux last;
 
 void init(void) { }
-uint64_t checksum(size_t n) { return last; }
+ux checksum(size_t n) { return last; }
 
 void common(size_t n, char const *chars, size_t nChars) {
-	str = (char*)mem + (randu64() & 255);
+	str = (char*)mem + (urand() & 255);
 	for (size_t i = 0; i < n; ++i)
-		str[i] = chars[randu64() % nChars];
+		str[i] = chars[urand() % nChars];
 }
 
 BENCH(2_3) {
@@ -59,9 +59,9 @@ BENCH(2_32) {
 } BENCH_END
 
 BENCH(2_256) {
-	str = (char*)mem + (randu64() & 255);
+	str = (char*)mem + (urand() & 255);
 	for (size_t i = 0; i < n; ++i)
-		str[i] = randu64() & 0xff;
+		str[i] = urand() & 0xff;
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
 

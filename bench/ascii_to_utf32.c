@@ -31,23 +31,23 @@ uint8_t *src;
 
 void init(void) { }
 
-uint64_t checksum(size_t n) {
-	uint64_t sum = 0;
+ux checksum(size_t n) {
+	ux sum = 0;
 	for (size_t i = 0; i < n+9; ++i)
-		sum = hash64(sum) + dest[i];
+		sum = uhash(sum) + dest[i];
 	return sum;
 }
 
 void common(size_t n, size_t dOff, size_t sOff) {
 	dest = (uint32_t*)mem + dOff/4;
 	src = (uint8_t*)(dest + 9 + MAX_MEM/5) + sOff;
-	randmem(src, n+9);
+	memrand(src, n+9);
 	for (size_t i = 0; i < n+9; ++i) src[i] |= 0x7F;
 	memset(dest, 1, (n+9)*4);
 }
 
 BENCH(base) {
-	common(n, randu64() & 255, randu64() & 255);
+	common(n, urand() & 255, urand() & 255);
 	TIME f(dest, src, n);
 } BENCH_END
 

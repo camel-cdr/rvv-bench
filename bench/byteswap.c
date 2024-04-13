@@ -61,15 +61,15 @@ uint32_t *ptr;
 
 void init(void) { ptr = (uint32_t*)mem; }
 
-uint64_t checksum(size_t n) {
-	uint64_t sum = 0;
+ux checksum(size_t n) {
+	ux sum = 0;
 	for (size_t i = 0; i < n; ++i)
-		sum = hash64(sum) + ptr[i];
+		sum = uhash(sum) + ptr[i];
 	return sum;
 }
 
 BENCH(base) {
-	randmem(ptr, n * sizeof *ptr);
+	memrand(ptr, n * sizeof *ptr);
 	TIME f(ptr, n);
 } BENCH_END
 
