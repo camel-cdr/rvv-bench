@@ -1,4 +1,4 @@
-#ifndef __riscv_v
+#ifndef __riscv_vector
 # include "../thirdparty/rvv-rollback.S"
 #else
 # define HAS_RVV_1_0 1

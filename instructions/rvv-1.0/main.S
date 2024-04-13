@@ -1,6 +1,16 @@
 #define VL s3
 #define PTR s4
 
+#if __riscv_xlen >= 64
+#define IF64(...) __VA_ARGS__
+#define lx ld
+#define sx sd
+#else
+#define IF64(...)
+#define lx lw
+#define sx sw
+#endif
+
 #include "config.h"
 
 .macro m_nop
@@ -83,8 +93,8 @@ vmseq.vx v8, v0, t0
 	m_mask \f bench_vs\()\pre\()16\()\suf\()v, T_E2, \setup, vl\pre\()16\()\suf\().v \args
 	m_mask \f bench_vl\()\pre\()32\()\suf\()v, T_E4, \setup, vl\pre\()32\()\suf\().v \args
 	m_mask \f bench_vs\()\pre\()32\()\suf\()v, T_E4, \setup, vl\pre\()32\()\suf\().v \args
-	m_mask \f bench_vl\()\pre\()64\()\suf\()v, T_E8, \setup, vl\pre\()64\()\suf\().v \args
-	m_mask \f bench_vs\()\pre\()64\()\suf\()v, T_E8, \setup, vl\pre\()64\()\suf\().v \args
+	IF64(m_mask \f bench_vl\()\pre\()64\()\suf\()v, T_E8, \setup, vl\pre\()64\()\suf\().v \args)
+	IF64(m_mask \f bench_vs\()\pre\()64\()\suf\()v, T_E8, \setup, vl\pre\()64\()\suf\().v \args)
 .endm
 
 .macro m_bench_vlnre f n
@@ -94,8 +104,8 @@ vmseq.vx v8, v0, t0
 	\f bench_vs\()\n\()re16v, T_A, m_nop, vl\()\n\()re16.v v8, (PTR)
 	\f bench_vl\()\n\()re32v, T_A, m_nop, vl\()\n\()re32.v v8, (PTR)
 	\f bench_vs\()\n\()re32v, T_A, m_nop, vl\()\n\()re32.v v8, (PTR)
-	\f bench_vl\()\n\()re64v, T_A, m_nop, vl\()\n\()re64.v v8, (PTR)
-	\f bench_vs\()\n\()re64v, T_A, m_nop, vl\()\n\()re64.v v8, (PTR)
+	IF64(\f bench_vl\()\n\()re64v, T_A, m_nop, vl\()\n\()re64.v v8, (PTR))
+	IF64(\f bench_vs\()\n\()re64v, T_A, m_nop, vl\()\n\()re64.v v8, (PTR))
 .endm
 
 .macro m_mod_v24_e8_vl
@@ -368,18 +378,24 @@ vmseq.vx v8, v0, t0
 .data
 
 
+#if __riscv_xlen == 32
+#define defptr .word
+#else
+#define defptr .dword
+#endif
+
 .global benchmarks
 benchmarks:
 .macro gen_function_pointers name type setup code:vararg
-	.quad \name
+	defptr \name
 .endm
 m_benchmarks_all gen_function_pointers
-.quad 0 # zero termination
+defptr 0 # zero termination
 
 .global benchmark_types
 benchmark_types:
 .macro gen_types name type setup code:vararg
-	.quad \type
+	defptr \type
 .endm
 m_benchmarks_all gen_types
 
@@ -422,9 +438,15 @@ m_benchmarks_all m_gen_benchname
 
 
 randomize:
+#if __riscv_xlen >= 64
 	li a1, 0xa0761d6485ebca6b
 	li a2, 0x78bd642fc2b2ae35
 	li a3, 0xe7037ed17feb352d
+#else
+	li a1, 0x85ebca6b
+	li a2, 0xc2b2ae35
+	li a3, 0x7feb352d
+#endif
 
 	vsetvli a4, x0, e8, m8, ta, ma
 	vid.v v0
@@ -456,7 +478,11 @@ randomize:
 
 	# zero floating point exponent bit to avoid NaN/Inf
 	vsetvli a4, x0, e16, m8, ta, ma
+#if __riscv_xlen >= 64
 	li a4, ~0x4000000040004000 # zero upper f16/f32/f64 exponent bit
+#else
+	li a4, ~0x40004000 # zero upper f16/f32/f64 exponent bit
+#endif
 	vand.vx v0, v0, a4
 	vand.vx v8, v8, a4
 	vand.vx v16, v16, a4
@@ -483,12 +509,12 @@ randomize:
 .global run_bench
 run_bench:
 	addi sp, sp, -56
-	sd ra, 8(sp)
-	sd VL, 16(sp)
-	sd s1, 24(sp)
-	sd s2, 32(sp)
-	sd VL, 40(sp)
-	sd PTR, 48(sp)
+	sx ra, 8(sp)
+	sx VL, 16(sp)
+	sx s1, 24(sp)
+	sx s2, 32(sp)
+	sx VL, 40(sp)
+	sx PTR, 48(sp)
 
 	mv s1, a0
 	mv s2, a1 # type
@@ -502,11 +528,11 @@ run_bench:
 	1:
 	jalr s1
 
-	ld ra, 8(sp)
-	ld VL, 16(sp)
-	ld s1, 24(sp)
-	ld s2, 32(sp)
-	ld VL, 40(sp)
-	ld PTR, 48(sp)
+	lx ra, 8(sp)
+	lx VL, 16(sp)
+	lx s1, 24(sp)
+	lx s2, 32(sp)
+	lx VL, 40(sp)
+	lx PTR, 48(sp)
 	addi sp, sp, 56
 	ret
