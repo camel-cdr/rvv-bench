@@ -21,6 +21,7 @@ typedef double fx;
 
 static void flush(void);
 
+
 #if __STDC_HOSTED__
 #include <string.h>
 #include <stdlib.h>
@@ -56,6 +57,27 @@ int main(void) {
 
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
+
+#if NOLIBC_CUSTOM_HOST
+/* customize me */
+static void
+exit(int x) { __asm volatile("unimp\n"); }
+
+static void
+memwrite(void const *ptr, size_t len) { }
+
+// static size_t /* only needed for vector-utf/bench.c */
+// memread(void *ptr, size_t len) { }
+
+int main(void);
+
+void _start(void) {
+	int x = main();
+	flush();
+	exit(x);
+}
+#else
+
 static void
 exit(int x)
 {
@@ -101,7 +123,6 @@ memread(void *ptr, size_t len)
 	return ret;
 }
 
-
 int main(void);
 
 void _start(void) {
@@ -110,6 +131,7 @@ void _start(void) {
 	exit(x);
 }
 
+#endif
 #endif
 
 /* utils */
