@@ -31,11 +31,7 @@ MX(memcpy_rvv_):
 .global MX(memcpy_rvv_align_dest_)
 MX(memcpy_rvv_align_dest_):
 	mv a3, a0
-#if HAS_RVV_1_0
-	csrr    t0, vlenb
-#else
-	vsetvli t0, zero, e8, m1, ta, ma # vlenb
-#endif
+	vsetvli t0, zero, e8, MX(), ta, ma # vlenb
 	bltu a2, t0, 2f # len < vlenb
 	# align dest to vlenb
 	sub t1, zero, a0
@@ -56,11 +52,7 @@ MX(memcpy_rvv_align_dest_):
 .global MX(memcpy_rvv_align_src_)
 MX(memcpy_rvv_align_src_):
 	mv a3, a0
-#if HAS_RVV_1_0
-	csrr    t0, vlenb
-#else
-	vsetvli t0, zero, e8, m1, ta, ma # vlen
-#endif
+	vsetvli t0, zero, e8, MX(), ta, ma # vlen
 	bltu a2, t0, 2f # len < vlen
 	# align src to vlen
 	sub t1, zero, a1
@@ -82,11 +74,7 @@ MX(memcpy_rvv_align_src_):
 .global MX(memcpy_rvv_align_dest_hybrid_)
 MX(memcpy_rvv_align_dest_hybrid_):
 	mv a3, a0
-#if HAS_RVV_1_0
-	csrr t0, vlenb
-#else
-	vsetvli t0, zero, e8, m1, ta, ma # vlen
-#endif
+	vsetvli t0, zero, e8, MX(), ta, ma # vlen
 	slli t1, t0, 8 # skip costly division for more values
 	bltu a2, t1, 2f # len < vlen
 	sub t1, zero, a0

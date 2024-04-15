@@ -28,14 +28,15 @@ MX(memset_rvv_):
 
 .global MX(memset_rvv_align_)
 MX(memset_rvv_align_):
-	vsetvli t0, zero, e8, m1, ta, ma # vlen
+	vsetvli t0, zero, e8, MX(), ta, ma # vlen
 	vmv.v.x v8, a1
 	mv a1, a0
 	vsetvli t0, zero, e8, MX(), ta, ma # vlen
 	bltu a2, t0, 2f # len < vlen
 	# align dest to vlen
 	sub t1, zero, a0
-	remu t1, t1, t0 # align = (-dest) % vlen
+	addi t2, t0, -1
+	and t1, t1, t2 #align = (-dest) & (vlenb-1)
 	vsetvli t0, t1, e8, MX(), ta, ma
 1:
 	vse8.v v8, (a1)
