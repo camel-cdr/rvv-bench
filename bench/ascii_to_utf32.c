@@ -41,13 +41,13 @@ ux checksum(size_t n) {
 void common(size_t n, size_t dOff, size_t sOff) {
 	dest = (uint32_t*)mem + dOff/4;
 	src = (uint8_t*)(dest + 9 + MAX_MEM/5) + sOff;
-	memrand(src, n+9);
+	bench_memrand(src, n+9);
 	for (size_t i = 0; i < n+9; ++i) src[i] |= 0x7F;
 	memset(dest, 1, (n+9)*4);
 }
 
 BENCH(base) {
-	common(n, urand() & 255, urand() & 255);
+	common(n, bench_urand() & 255, bench_urand() & 255);
 	TIME f(dest, src, n);
 } BENCH_END
 

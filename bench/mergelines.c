@@ -38,9 +38,9 @@ void init(void) { }
 ux checksum(size_t n) { return last; }
 
 void common(size_t n, char const *chars, size_t nChars) {
-	str = (char*)mem + (urand() & 255);
+	str = (char*)mem + (bench_urand() & 255);
 	for (size_t i = 0; i < n; ++i)
-		str[i] = chars[urand() % nChars];
+		str[i] = chars[bench_urand() % nChars];
 }
 
 BENCH(2_3) {
@@ -59,9 +59,9 @@ BENCH(2_32) {
 } BENCH_END
 
 BENCH(2_256) {
-	str = (char*)mem + (urand() & 255);
+	str = (char*)mem + (bench_urand() & 255);
 	for (size_t i = 0; i < n; ++i)
-		str[i] = urand() & 0xff;
+		str[i] = bench_urand() & 0xff;
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
 

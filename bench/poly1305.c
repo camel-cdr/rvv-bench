@@ -32,8 +32,8 @@ Impl impls[] = {
 };
 
 void init(void) {
-	memrand(key, sizeof key);
-	memrand(sig, sizeof sig);
+	bench_memrand(key, sizeof key);
+	bench_memrand(sig, sizeof sig);
 }
 
 ux checksum(size_t n) {
@@ -45,7 +45,7 @@ ux checksum(size_t n) {
 
 BENCH(aligned) {
 	for (size_t i = 0; i < 256; ++i)
-		mem[urand()%n] = urand();
+		mem[bench_urand()%n] = bench_urand();
 	n = (15+n) & -16;
 	TIME f(mem, n);
 } BENCH_END

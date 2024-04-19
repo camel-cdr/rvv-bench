@@ -181,7 +181,7 @@ void common(size_t n, size_t dOff, size_t sOff) {
 }
 
 BENCH(base) {
-	common(n, urand() & 255, urand() & 255);
+	common(n, bench_urand() & 255, bench_urand() & 255);
 	TIME last = (uintptr_t)f(dest, src, n);
 } BENCH_END
 

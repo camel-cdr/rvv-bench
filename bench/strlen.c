@@ -64,10 +64,10 @@ void init(void) {
 ux checksum(size_t n) { return last; }
 
 BENCH(base) {
-	char *p = (char*)mem + (urand() % 511);
+	char *p = (char*)mem + (bench_urand() % 511);
 	p[n] = 0;
 	TIME last = f(p);
-	p[n] = urand() | 1;
+	p[n] = bench_urand() | 1;
 } BENCH_END
 
 Bench benches[] = {

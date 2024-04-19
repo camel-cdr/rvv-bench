@@ -114,11 +114,11 @@ ux checksum(size_t n) { return last; }
 
 void common(size_t n, size_t off) {
 	str = (char*)mem + off;
-	memrand(str, n + 9);
+	bench_memrand(str, n + 9);
 }
 
 BENCH(base) {
-	common(n, urand() & 511);
+	common(n, bench_urand() & 511);
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
 

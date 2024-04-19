@@ -132,7 +132,7 @@ uint8_t *dest;
 ux last;
 char c;
 
-void init(void) { c = urand(); }
+void init(void) { c = bench_urand(); }
 
 ux checksum(size_t n) {
 	ux sum = last;
@@ -147,7 +147,7 @@ void common(size_t n, size_t off) {
 }
 
 BENCH(base) {
-	common(n, urand() & 511);
+	common(n, bench_urand() & 511);
 	TIME last = (uintptr_t)f(dest, c, n);
 } BENCH_END
 

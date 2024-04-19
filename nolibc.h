@@ -235,21 +235,56 @@ uhash(ux x)
 	return x;
 }
 
+typedef struct { ux x, y, z; } URand;
+
+#define ROTL(x,n) (((x) << (n)) | ((x) >> (8*sizeof(x) - (n))))
+
+/* RomuDuoJr, see https://romu-random.org/ */
+static inline ux
+urand(URand *r)
+{
+	ux xp = r->x, yp = r->y, zp = r->z;
+#if __riscv_xlen == 32
+	r->x = 3323815723u * zp;
+	r->y = ROTL(yp - xp, 6);
+	r->z = ROTL(zp - yp, 22);
+#else
+	r->x = 15241094284759029579u * zp;
+	r->y = ROTL(yp - xp, 12);
+	r->z = ROTL(zp - yp, 44);
+#endif
+	return xp;
+}
+
+static void
+memrand(URand *r, void *ptr, size_t n)
+{
+	unsigned char *p = ptr;
+#ifdef __GNUC__
+	typedef ux __attribute__((__may_alias__)) uxa;
+	for (; n && (uintptr_t)p % sizeof(uxa); --n) *p++ = urand(r);
+	uxa *px = (uxa*)p;
+	for (; n > sizeof(ux); n -= sizeof(ux)) *px++ = urand(r);
+	p = (unsigned char*)px;
+#endif
+	while (n--) *p++ = urand(r);
+}
+
 
 /* string conversions */
 
 #if __riscv_xlen == 32
-#define UTOA_MAX 20
+#define UXTOA_MAX 20
 #elif __riscv_xlen == 64
-#define UTOA_MAX 10
+#define UXTOA_MAX 10
 #else
 #error "unsupported XLEN"
 #endif
 
 static size_t
-utoa(char *str, ux val)
+uxtoa(char *str, ux val)
 {
-	char buf[UTOA_MAX], *end = buf + sizeof buf, *it = end;
+	char buf[UXTOA_MAX], *end = buf + sizeof buf, *it = end;
 	do *--it = (val % 10) + '0'; while ((val /= 10));
 	val = end - it;
 	memcpy(str, it, val);
@@ -281,6 +316,7 @@ ftoa(char *str, fx val, size_t prec)
 	memcpy(str, it, prec);
 	return prec;
 }
+
 
 /* print API */
 
@@ -314,9 +350,9 @@ static void print_s(const char *s) { print_raw(s, strlen(s)); }
 static void
 print_u(ux val)
 {
-	if (printEnd - printIt < UTOA_MAX)
+	if (printEnd - printIt < UXTOA_MAX)
 		flush();
-	printIt += utoa(printIt, val);
+	printIt += uxtoa(printIt, val);
 }
 
 static void

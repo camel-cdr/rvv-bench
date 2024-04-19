@@ -69,7 +69,7 @@ ux checksum(size_t n) {
 }
 
 BENCH(base) {
-	memrand(ptr, n * sizeof *ptr);
+	bench_memrand(ptr, n * sizeof *ptr);
 	TIME f(ptr, n);
 } BENCH_END
 

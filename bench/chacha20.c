@@ -30,8 +30,8 @@ Impl impls[] = {
 };
 
 void init(void) {
-	memrand(key, sizeof key);
-	memrand(nonce, sizeof nonce);
+	bench_memrand(key, sizeof key);
+	bench_memrand(nonce, sizeof nonce);
 	counter = 0;
 }
 

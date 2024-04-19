@@ -9,8 +9,6 @@
 #define STR(x) STR_(x)
 #define STR_(x) #x
 
-#define ROTL(x,n) (((x) << (n)) | ((x) >> (8*sizeof(x) - (n))))
-
 #if defined(__clang__) || defined(__GNUC__) || defined(__INTEL_COMPILER)
 
 # define BENCH_CLOBBER() ({__asm volatile("":::"memory");})
@@ -42,25 +40,9 @@ compare_ux(void const *a, void const *b)
 	return A < B ? -1 : A > B ? 1 : 0;
 }
 
-typedef struct { ux x, y, z; } RandState;
-static RandState randState = { 123, 456, 789 };
-
-/* RomuDuoJr, see https://romu-random.org/ */
-static ux
-urand(void)
-{
-	ux xp = randState.x, yp = randState.y, zp = randState.z;
-#if __riscv_xlen == 32
-	randState.x = 3323815723u * zp;
-	randState.y = ROTL(yp - xp, 6);
-	randState.z = ROTL(zp - yp, 22);
-#else
-	randState.x = 15241094284759029579u * zp;
-	randState.y = ROTL(yp - xp, 12);
-	randState.z = ROTL(zp - yp, 44);
-#endif
-	return xp;
-}
+static URand randState = { 123, 456, 789 };
+static ux bench_urand(void) { return urand(&randState); }
+static void bench_memrand(void *ptr, size_t n) { return memrand(&randState, ptr, n); }
 
 typedef struct {
 	char const *name; void *func;
@@ -76,20 +58,6 @@ static unsigned char *mem = 0;
 void bench_main(void);
 ux checksum(size_t n);
 void init(void);
-
-static void
-memrand(void *ptr, size_t n)
-{
-	unsigned char *p = ptr;
-#ifdef __GNUC__
-	typedef ux __attribute__((__may_alias__)) uxa;
-	for (; n && (uintptr_t)p % sizeof(uxa); --n) *p++ = urand();
-	uxa *px = (uxa*)p;
-	for (; n > sizeof(ux); n -= sizeof(ux)) *px++ = urand();
-	p = (unsigned char*)px;
-#endif
-	while (n--) *p++ = urand();
-}
 
 #if __STDC_HOSTED__
 # include <stdlib.h>
@@ -113,7 +81,7 @@ main(void)
 	randState.y += rv_cycles() ^ (uintptr_t)&x + 666*(uintptr_t)mem;
 
 	/* initialize memory */
-	memrand(mem, MAX_MEM);
+	bench_memrand(mem, MAX_MEM);
 
 	init();
 	bench_main();
@@ -169,7 +137,7 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 				ux si = 0, s0 = 0;
 
 				if (i != impls) {
-					RandState seed = randState;
+					URand seed = randState;
 					(void)b->func(i->func, n);
 					si = checksum(n);
 
