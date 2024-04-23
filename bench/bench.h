@@ -136,6 +136,7 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
 				ux si = 0, s0 = 0;
 
+#if MAX_REPEATS > 4
 				if (i != impls) {
 					URand seed = randState;
 					(void)b->func(i->func, n);
@@ -151,6 +152,7 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 					flush();
 					exit(EXIT_FAILURE);
 				}
+#endif
 
 				print(f,bench_time(n, *i, *b))(",");
 				flush();

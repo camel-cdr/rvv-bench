@@ -73,15 +73,14 @@ IMPLS(DECLARE)
 #define EXTRACT(f) { #f, &mandelbrot_##f },
 Impl impls[] = { IMPLS(EXTRACT) };
 
-uint32_t *dest;
-void init(void) { memset(mem, 0, MAX_MEM); dest = (uint32_t*)mem; }
+void init(void) { }
 
 /* disabled, because of rounding errors, please independently verify */
 ux checksum(size_t n) { return 0; }
 
 BENCH(base) {
 	n = usqrt(n);
-	TIME f(n, mandelbrot_ITER, dest);
+	TIME f(n, mandelbrot_ITER, (uint32_t*)mem);
 } BENCH_END
 
 Bench benches[] = {
