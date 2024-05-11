@@ -39,7 +39,7 @@ test(size_t length, size_t bitFlipCount)
 		print("\ntar: ");
 		for (size_t i = 0; i < lenGolden; ++i)
 			print(b16,golden[i])(" ");
-		flush();exit(0);
+		print_flush();exit(0);
 		return;
 	}
 	for (size_t i = 0; i < lenGolden; ++i) {
@@ -66,7 +66,7 @@ main(void)
 		test(2000, 2);
 		test(2000, 100);
 		if ((i & 127) == 0)
-		print("\r")(u,i)("          "), flush();
+		print("\r")(u,i)("          ")(flush,);
 	}
 	return 0;
 }

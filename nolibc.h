@@ -19,7 +19,7 @@ typedef double fx;
 #endif
 
 
-static void flush(void);
+static void print_flush(void);
 
 
 #if __STDC_HOSTED__
@@ -45,7 +45,7 @@ memread(void *ptr, size_t len)
 
 int main(void) {
 	int x = nolibc_main();
-	flush();
+	print_flush();
 	exit(x);
 }
 #define main nolibc_main
@@ -73,7 +73,7 @@ int main(void);
 
 void _start(void) {
 	int x = main();
-	flush();
+	print_flush();
 	exit(x);
 }
 #else
@@ -127,7 +127,7 @@ int main(void);
 
 void _start(void) {
 	int x = main();
-	flush();
+	print_flush();
 	exit(x);
 }
 
@@ -158,7 +158,7 @@ memswap(void *a, void *b, size_t size)
 }
 
 #if !__STDC_HOSTED__
-static void *
+void *
 memcpy(void *restrict dest, void const *restrict src, size_t n)
 {
 	unsigned char *d = dest;
@@ -167,7 +167,7 @@ memcpy(void *restrict dest, void const *restrict src, size_t n)
 	return dest;
 }
 
-static void *
+void *
 memset(void *dest, int c, size_t n)
 {
 	unsigned char *d = dest;
@@ -175,7 +175,7 @@ memset(void *dest, int c, size_t n)
 	return dest;
 }
 
-static size_t
+size_t
 strlen(char const *str)
 {
 	size_t len = 0;
@@ -183,7 +183,7 @@ strlen(char const *str)
 	return len;
 }
 
-static void
+void
 qsort(void *base, size_t len, size_t size, int (*cmp)(const void *, const void *))
 {
 	if (len < 2) return;
@@ -259,7 +259,7 @@ urand(URand *r)
 static void
 memrand(URand *r, void *ptr, size_t n)
 {
-	unsigned char *p = ptr;
+	unsigned char *p = (unsigned char*)ptr;
 #ifdef __GNUC__
 	typedef ux __attribute__((__may_alias__)) uxa;
 	for (; n && (uintptr_t)p % sizeof(uxa); --n) *p++ = urand(r);
@@ -327,7 +327,7 @@ static char *const printEnd = printBuffer + sizeof printBuffer;
 #define print_lit(s) print_raw(s, (sizeof s) - 1)
 
 static void
-flush(void)
+print_flush(void)
 {
 	memwrite(printBuffer, printIt - printBuffer);
 	printIt = printBuffer;
@@ -340,7 +340,7 @@ print_raw(const char *s, size_t len)
 		memcpy(printIt, s, len);
 		printIt += len;
 	} else {
-		flush();
+		print_flush();
 		memwrite(s, len);
 	}
 }
@@ -351,7 +351,7 @@ static void
 print_u(ux val)
 {
 	if (printEnd - printIt < UXTOA_MAX)
-		flush();
+		print_flush();
 	printIt += uxtoa(printIt, val);
 }
 
@@ -361,7 +361,7 @@ print_h(ux val, size_t n)
 	if ((n << 2) >= sizeof printBuffer)
 		return;
 	if ((size_t)(printEnd - printIt) < n)
-		flush();
+		print_flush();
 	while (n--) {
 		*printIt++ = "0123456789abcdef"[(val >> (n << 2)) & 0xf];
 	}
@@ -373,7 +373,7 @@ print_b(ux val, size_t n)
 	if (n >= sizeof printBuffer)
 		return;
 	if ((size_t)(printEnd - printIt) < n)
-		flush();
+		print_flush();
 	while (n--) {
 		*printIt++ = ((val >> n) & 1) + '0';
 	}
@@ -383,7 +383,7 @@ static void
 print_fn(size_t prec, fx val)
 {
 	if (printEnd - printIt < FTOA_MAX)
-		flush();
+		print_flush();
 	printIt += ftoa(printIt, val, prec);
 }
 

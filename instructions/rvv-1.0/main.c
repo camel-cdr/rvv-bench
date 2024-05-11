@@ -49,8 +49,7 @@ run_all_types(char const *name, ux (*bench)(void), ux types, ux vl, int ta, int 
 #endif
 		print("<td>")(fn,1,sum * 1.0f/(UNROLL*LOOP*count))("</td>");
 	}
-	print("</tr>\n");
-	flush();
+	print("</tr>\n")(flush,);
 }
 
 int

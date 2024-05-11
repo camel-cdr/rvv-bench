@@ -128,8 +128,7 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 		print("data: [\n[");
 		for (size_t n = 1; n < N; n = BENCH_NEXT(n))
 			print(u,n)(",");
-		print("],\n");
-		flush();
+		print("],\n")(flush,);
 
 		for (Impl *i = impls; i != impls + nImpls; ++i) {
 			print("[");
@@ -148,17 +147,14 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 				}
 
 				if (si != s0) {
-					print("ERROR: ")(s,i->name)(" in ")(s,b->name)(" at ")(u,n);
-					flush();
+					print("ERROR: ")(s,i->name)(" in ")(s,b->name)(" at ")(u,n)(flush,);
 					exit(EXIT_FAILURE);
 				}
 #endif
 
-				print(f,bench_time(n, *i, *b))(",");
-				flush();
+				print(f,bench_time(n, *i, *b))(",")(flush,);
 			}
-			print("],\n");
-			flush();
+			print("],\n")(flush,);
 		}
 		print("]\n},\n");
 	}
