@@ -13,6 +13,8 @@
 
 #include "config.h"
 
+changecom(`#', `')
+
 .macro m_nop
 .endm
 
@@ -22,91 +24,61 @@ remu t0, t0, VL
 vmseq.vx v8, v0, t0
 .endm
 
-.macro m_mask f name type setup code:vararg
-	\f \name\(),  \type, \setup, \code
-	\f \name\()m, \type, \setup, \code, v0.t
-.endm
+define(`m_mask',
+	`m_$1($2, shift(shift($*)))
+	m_$1( $2`'m, shift(shift($*)), v0.t)')
 
-.macro m_bench_vx f t name
-	m_mask \f bench_\()\name\()vv, \t, m_nop, \name\().vv v8, v16, v24
-	m_mask \f bench_\()\name\()vx, \t, m_nop, \name\().vx v8, v16, t0
-.endm
+define(`m_bench_vx',
+	`m_mask($1, bench_$3`'vv, $2, m_nop, $3.vv, v8, v16, v24)
+	m_mask( $1, bench_$3`'vx, $2, m_nop, $3.vx, v8, v16, t0)')
 
-.macro m_bench_xv f t name
-	m_mask \f bench_\()\name\()vv, \t, m_nop, \name\().vv v8, v16, v24
-	m_mask \f bench_\()\name\()vx, \t, m_nop, \name\().vx v8, t0, v16
-.endm
+define(`m_bench_xv',
+	`m_mask($1, bench_$3`'vv, $2, m_nop, $3.vv, v8, v16, v24)
+	m_mask( $1, bench_$3`'vx, $2, m_nop, $3.vx, v8, t0,  v16)')
 
-.macro m_bench_xi f t name
-	m_mask \f bench_\()\name\()vx, \t, m_nop, \name\().vx v8, v16, t0
-	m_mask \f bench_\()\name\()vi, \t, m_nop, \name\().vi v8, v16, 13
-.endm
+define(`m_bench_xi',
+	`m_mask($1, bench_$3`'vx, $2, m_nop, $3.vx, v8, v16, t0)
+	m_mask( $1, bench_$3`'vi, $2, m_nop, $3.vi, v8, v16, 13)')
 
-.macro m_bench_vxi f t name
-	m_mask \f bench_\()\name\()vv, \t, m_nop, \name\().vv v8, v16, v24
-	m_mask \f bench_\()\name\()vx, \t, m_nop, \name\().vx v8, v16, t0
-	m_mask \f bench_\()\name\()vi, \t, m_nop, \name\().vi v8, v16, 13
-.endm
+define(`m_bench_xi',
+	`m_mask($1, bench_$3`'vx, $2, m_nop, $3.vx, v8, v16, t0)
+	m_mask( $1, bench_$3`'vi, $2, m_nop, $3.vi, v8, v16, 13)')
 
-.macro m_bench_vxm f t name
-	\f bench_\()\name\()vvm, \t, m_nop, \name\().vvm v8, v16, v24, v0
-	\f bench_\()\name\()vxm, \t, m_nop, \name\().vxm v8, v16, t0, v0
-.endm
+define(`m_bench_vxi',
+	`m_mask($1, bench_$3`'vv, $2, m_nop, $3.vv, v8, v16, v24)
+	m_mask( $1, bench_$3`'vx, $2, m_nop, $3.vx, v8, v16, t0)
+	m_mask( $1, bench_$3`'vi, $2, m_nop, $3.vi, v8, v16, 13)')
 
-.macro m_bench_vxim f t name
-	\f bench_\()\name\()vvm, \t, m_nop, \name\().vvm v8, v16, v24, v0
-	\f bench_\()\name\()vxm, \t, m_nop, \name\().vxm v8, v16, t0, v0
-	\f bench_\()\name\()vim, \t, m_nop, \name\().vim v8, v16, 13, v0
-.endm
+define(`m_bench_vxm',
+	`m_$1(bench_$3`'vvm, $2, m_nop, $3.vvm, v8, v16, v24, v0)
+	 m_$1(bench_$3`'vxm, $2, m_nop, $3.vxm, v8, v16, t0, v0)')
 
-.macro m_bench_vf f t name
-	m_mask \f bench_\()\name\()vv, \t, m_nop, \name\().vv v8, v16, v24
-	m_mask \f bench_\()\name\()vf, \t, m_nop, \name\().vf v8, v16, ft0
-.endm
+define(`m_bench_vxim',
+	`m_$1(bench_$3`'vvm, $2, m_nop, $3.vvm, v8, v16, v24, v0)
+	 m_$1(bench_$3`'vxm, $2, m_nop, $3.vxm, v8, v16, t0, v0)
+	 m_$1(bench_$3`'vim, $2, m_nop, $3.vim, v8, v16, 13, v0)')
 
-.macro m_bench_fv f t name
-	m_mask \f bench_\()\name\()vv, \t, m_nop, \name\().vv v8, v16, v24
-	m_mask \f bench_\()\name\()vf, \t, m_nop, \name\().vf v8, ft0, v16
-.endm
+define(`m_bench_vf',
+	`m_mask($1, bench_$3`'vv, $2, m_nop, $3.vv, v8, v16, v24)
+	m_mask( $1, bench_$3`'vf, $2, m_nop, $3.vf, v8, v16, ft0)')
 
-.macro m_bench_wx f t name
-	m_mask \f bench_\()\name\()wv, \t, m_nop, \name\().wv v8, v16, v24
-	m_mask \f bench_\()\name\()wx, \t, m_nop, \name\().wx v8, v16, t0
-.endm
+define(`m_bench_fv',
+	`m_mask($1, bench_$3`'vv, $2, m_nop, $3.vv, v8, v16, v24)
+	m_mask( $1, bench_$3`'vf, $2, m_nop, $3.vf, v8, ft0, v16)')
 
-.macro m_bench_wf f t name
-	m_mask \f bench_\()\name\()wv, \t, m_nop, \name\().wv v8, v16, v24
-	m_mask \f bench_\()\name\()wf, \t, m_nop, \name\().wf v8, v16, ft0
-.endm
+define(`m_bench_wx',
+	`m_mask($1, bench_$3`'wv, $2, m_nop, $3.wv, v8, v16, v24)
+	m_mask( $1, bench_$3`'wx, $2, m_nop, $3.wx, v8, v16, t0)')
 
-.macro m_bench_wxi f t name
-	m_mask \f bench_\()\name\()wv, \t, m_nop, \name\().wv v8, v16, v24
-	m_mask \f bench_\()\name\()wx, \t, m_nop, \name\().wx v8, v16, t0
-	m_mask \f bench_\()\name\()wi, \t, m_nop, \name\().wi v8, v16, 13
-.endm
+define(`m_bench_wf',
+	`m_mask($1, bench_$3`'wv, $2, m_nop, $3.wv, v8, v16, v24)
+	m_mask( $1, bench_$3`'wf, $2, m_nop, $3.wf, v8, v16, ft0)')
 
-// TODO: mask SEW and LMUL thogether
-.macro m_bench_ls f setup pre suf args:vararg
-	m_mask \f bench_vl\()\pre\()8\()\suf\()v,  T_A,  \setup, vl\pre\()8\()\suf\().v \args
-	m_mask \f bench_vs\()\pre\()8\()\suf\()v,  T_A,  \setup, vl\pre\()8\()\suf\().v \args
-	m_mask \f bench_vl\()\pre\()16\()\suf\()v, T_E2, \setup, vl\pre\()16\()\suf\().v \args
-	m_mask \f bench_vs\()\pre\()16\()\suf\()v, T_E2, \setup, vl\pre\()16\()\suf\().v \args
-	m_mask \f bench_vl\()\pre\()32\()\suf\()v, T_E4, \setup, vl\pre\()32\()\suf\().v \args
-	m_mask \f bench_vs\()\pre\()32\()\suf\()v, T_E4, \setup, vl\pre\()32\()\suf\().v \args
-	IF64(m_mask \f bench_vl\()\pre\()64\()\suf\()v, T_E8, \setup, vl\pre\()64\()\suf\().v \args)
-	IF64(m_mask \f bench_vs\()\pre\()64\()\suf\()v, T_E8, \setup, vl\pre\()64\()\suf\().v \args)
-.endm
+define(`m_bench_wxi',
+	`m_mask($1, bench_$3`'wv, $2, m_nop, $3.wv, v8, v16, v24)
+	m_mask( $1, bench_$3`'wx, $2, m_nop, $3.wx, v8, v16, t0)
+	m_mask( $1, bench_$3`'wi, $2, m_nop, $3.wi, v8, v16, 13)')
 
-.macro m_bench_vlnre f n
-	\f bench_vl\()\n\()re8v,  T_A, m_nop, vl\()\n\()re8.v v8, (PTR)
-	\f bench_vs\()\n\()re8v,  T_A, m_nop, vl\()\n\()re8.v v8, (PTR)
-	\f bench_vl\()\n\()re16v, T_A, m_nop, vl\()\n\()re16.v v8, (PTR)
-	\f bench_vs\()\n\()re16v, T_A, m_nop, vl\()\n\()re16.v v8, (PTR)
-	\f bench_vl\()\n\()re32v, T_A, m_nop, vl\()\n\()re32.v v8, (PTR)
-	\f bench_vs\()\n\()re32v, T_A, m_nop, vl\()\n\()re32.v v8, (PTR)
-	IF64(\f bench_vl\()\n\()re64v, T_A, m_nop, vl\()\n\()re64.v v8, (PTR))
-	IF64(\f bench_vs\()\n\()re64v, T_A, m_nop, vl\()\n\()re64.v v8, (PTR))
-.endm
 
 .macro m_mod_v24_e8_vl
 	csrr t1, vtype
@@ -122,257 +94,243 @@ vmseq.vx v8, v0, t0
 	vsetvl x0, VL, t1
 .endm
 
-.macro m_mod_v16_vl
-	vremu.vx v16, v16, VL
-.endm
-
 .macro m_mod_t0_vl
 	remu t0, t0, VL
 .endm
 
-.macro m_mod_t0_8
-	andi t0, t0, 7
+.macro m_unimpl
+	li a0, -1
+	ret
 .endm
 
-
-.macro m_benchmarks_all f
-	\f bench_add, T_A, m_nop, add t0, t1, t2
-	\f bench_mul, T_A, m_nop, mul t0, t1, t2
-	m_bench_vxi \f, T_A, vadd
-	m_bench_vx  \f, T_A, vsub
-	m_bench_xi  \f, T_A, vrsub
-	m_bench_vx  \f, T_A, vminu
-	m_bench_vx  \f, T_A, vmin
-	m_bench_vx  \f, T_A, vmaxu
-	m_bench_vx  \f, T_A, vmax
-	m_bench_vxi \f, T_A, vand
-	m_bench_vxi \f, T_A, vor
-	m_bench_vxi \f, T_A, vxor
-
-	m_mask \f bench_vrgathervv,     T_A, m_mod_v24_e8_vl,  vrgather.vv     v8, v16, v24
-	m_mask \f bench_vrgathervx,     T_A, m_mod_t0_vl,      vrgather.vx     v8, v16, t0
-	m_mask \f bench_vrgathervi,     T_A, m_nop,            vrgather.vi     v8, v16, 3
-	m_mask \f bench_vslideupvx,     T_A, m_mod_t0_vl,      vslideup.vx     v8, v16, t0
-	m_mask \f bench_vslideupvi,     T_A, m_nop,            vslideup.vi     v8, v16, 3
-	// TODO: mask SEW and LMUL thogether
-	m_mask \f bench_vrgatherei16vv, T_N8, m_mod_v24_e16_vl, vrgatherei16.vv v8, v16, v24
-
-	m_mask \f bench_vslidedownvx, T_A, m_mod_t0_vl,  vslidedown.vx v8, v16, t0
-	m_mask \f bench_vslidedownvi, T_A, m_nop,        vslidedown.vi v8, v16, 3
-
-	m_mask \f bench_vredsumvs,  T_A, m_nop, vredsum.vs  v8, v16, v24
-	m_mask \f bench_vredandvs,  T_A, m_nop, vredand.vs  v8, v16, v24
-	m_mask \f bench_vredorvs,   T_A, m_nop, vredor.vs   v8, v16, v24
-	m_mask \f bench_vredxorvs,  T_A, m_nop, vredxor.vs  v8, v16, v24
-	m_mask \f bench_vredminuvs, T_A, m_nop, vredminu.vs v8, v16, v24
-	m_mask \f bench_vredminvs,  T_A, m_nop, vredmin.vs  v8, v16, v24
-	m_mask \f bench_vredmaxuvs, T_A, m_nop, vredmaxu.vs v8, v16, v24
-	m_mask \f bench_vredmaxvs,  T_A, m_nop, vredmax.vs  v8, v16, v24
-
-	m_bench_vx \f, T_A, vaaddu
-	m_bench_vx \f, T_A, vaadd
-	m_bench_vx \f, T_A, vasubu
-	m_bench_vx \f, T_A, vasub
-
-	m_mask \f bench_vslide1upvx,   T_A, m_nop, vslide1up.vx   v8, v16, t0
-	m_mask \f bench_vslide1downvx, T_A, m_nop, vslide1down.vx v8, v16, t0
-
-	m_bench_vxim \f, T_A, vadc
-	m_bench_vxim \f, T_A, vmadc
-	m_bench_vxm  \f, T_A, vsbc
-	m_bench_vxm  \f, T_A, vmsbc
-
-	m_bench_vxim \f, T_A, vmerge
-	\f bench_vmvvv, T_A, m_nop, vmv.v.v v8, v16
-	\f bench_vmvvx, T_A, m_nop, vmv.v.x v8, t0
-	\f bench_vmvvi, T_A, m_nop, vmv.v.i v8, 13
-	m_bench_vxi \f, T_A, vmseq
-	m_bench_vxi \f, T_A, vmsne
-	m_bench_vx  \f, T_A, vmsltu
-	m_bench_vx  \f, T_A, vmslt
-	m_bench_vxi \f, T_A, vmsleu
-	m_bench_vxi \f, T_A, vmsle
-	m_bench_xi  \f, T_A, vmsgtu
-	m_bench_xi  \f, T_A, vmsgt
-
-	\f bench_vcompressvm, T_A, m_nop, vcompress.vm v0, v8, v16
-
-	\f bench_vmandnmm, T_A, m_nop, vmandn.mm v0, v8, v16
-	\f bench_vmandmm,  T_A, m_nop, vmand.mm  v0, v8, v16
-	\f bench_vmormm,   T_A, m_nop, vmor.mm   v0, v8, v16
-	\f bench_vmxormm,  T_A, m_nop, vmxor.mm  v0, v8, v16
-	\f bench_vmornmm,  T_A, m_nop, vmorn.mm  v0, v8, v16
-	\f bench_vmnandmm, T_A, m_nop, vmnand.mm v0, v8, v16
-	\f bench_vmnormm,  T_A, m_nop, vmnor.mm  v0, v8, v16
-	\f bench_vmxnormm, T_A, m_nop, vmxnor.mm v0, v8, v16
+define(`m_ifmx_t', `m_$3(shift(shift(shift($*))))')
+define(`m_ifmx_f', `m_$3($4, 0, m_nop, m_unimpl)')
+define(`m_ifmx',`ifelse(eval($1 <= m_LMUL && $2 >= m_LMUL),1,`m_ifmx_t($*)',`m_ifmx_f($*)')')
 
 
-	m_bench_vxi \f, T_A, vsaddu
-	m_bench_vxi \f, T_A, vsadd
-	m_bench_vx  \f, T_A, vssubu
-	m_bench_vx  \f, T_A, vssub
-	m_bench_vxi \f, T_A, vsll
-	m_bench_vx  \f, T_A, vsmul
-	\f bench_vmv1rv, T_A, m_nop, vmv1r.v v8, v16
-	\f bench_vmv2rv, T_A, m_nop, vmv2r.v v8, v16
-	\f bench_vmv4rv, T_A, m_nop, vmv4r.v v8, v16
-	\f bench_vmv8rv, T_A, m_nop, vmv8r.v v8, v16
-	m_bench_vxi \f, T_A, vsrl
-	m_bench_vxi \f, T_A, vsra
-	m_bench_vxi \f, T_A, vssrl
+# calls $1 with: name type setup code:vararg
+define(`m_bench_all',`
+	m_$1(bench_add, T_A, m_nop, add, t0, t1, t2)
+	m_$1(bench_mul, T_A, m_nop, mul, t0, t1, t2)
+	m_bench_vxi($1, T_A, vadd)
+	m_bench_vx($1,  T_A, vsub)
+	m_bench_xi($1,  T_A, vrsub)
+	m_bench_vx($1,  T_A, vminu)
+	m_bench_vx($1,  T_A, vmin)
+	m_bench_vx($1,  T_A, vmaxu)
+	m_bench_vx($1,  T_A, vmax)
+	m_bench_vxi($1, T_A, vand)
+	m_bench_vxi($1, T_A, vor)
+	m_bench_vxi($1, T_A, vxor)
 
-	m_bench_vx \f, T_A, vdivu
-	m_bench_vx \f, T_A, vdiv
-	m_bench_vx \f, T_A, vremu
-	m_bench_vx \f, T_A, vrem
-	m_bench_vx \f, T_A, vmulhu
-	m_bench_vx \f, T_A, vmul
-	m_bench_vx \f, T_A, vmulhsu
-	m_bench_vx \f, T_A, vmulh
-	m_bench_xv \f, T_A, vmadd
-	m_bench_xv \f, T_A, vmacc
+	m_mask($1, bench_vrgathervv,     T_A,  m_mod_v24_e8_vl,  vrgather.vv,     v8, v16, v24)
+	m_mask($1, bench_vrgathervx,     T_A,  m_mod_t0_vl,      vrgather.vx,     v8, v16, t0)
+	m_mask($1, bench_vrgathervi,     T_A,  m_nop,            vrgather.vi,     v8, v16, 3)
+	m_mask($1, bench_vslideupvx,     T_A,  m_mod_t0_vl,      vslideup.vx,     v8, v16, t0)
+	m_mask($1, bench_vslideupvi,     T_A,  m_nop,            vslideup.vi,     v8, v16, 3)
+	m_mask($1, bench_vrgatherei16vv, T_ei16, m_mod_v24_e16_vl, vrgatherei16.vv, v8, v16, v24)
 
-	m_bench_wxi \f, T_N, vnsrl
-	m_bench_wxi \f, T_N, vnsra
-	m_bench_wxi \f, T_N, vnclipu
-	m_bench_wxi \f, T_N, vnclip
-	m_bench_xv  \f, T_N, vnmsub
-	m_bench_xv  \f, T_N, vnmsac
+	m_mask($1, bench_vslidedownvx, T_A, m_mod_t0_vl,  vslidedown.vx, v8, v16, t0)
+	m_mask($1, bench_vslidedownvi, T_A, m_nop,        vslidedown.vi, v8, v16, 3)
 
-	m_bench_vx \f, T_W, vwaddu
-	m_bench_vx \f, T_W, vwadd
-	m_bench_vx \f, T_W, vwsub
-	m_bench_wx \f, T_W, vwaddu
-	m_bench_wx \f, T_W, vwadd
-	m_bench_wx \f, T_W, vwsub
-	m_bench_vx \f, T_W, vwmulu
-	m_bench_vx \f, T_W, vwmulsu
-	m_bench_vx \f, T_W, vwmul
-	m_bench_xv \f, T_W, vwmaccu
-	m_bench_xv \f, T_W, vwmacc
-	m_bench_xv \f, T_W, vwmaccsu
-	m_mask \f bench_vwmaccusvx,  T_W, m_nop, vwmaccus.vx  v8, t0, v16
+	m_mask($1, bench_vredsumvs,  T_A, m_nop, vredsum.vs,  v8, v16, v24)
+	m_mask($1, bench_vredandvs,  T_A, m_nop, vredand.vs,  v8, v16, v24)
+	m_mask($1, bench_vredorvs,   T_A, m_nop, vredor.vs,   v8, v16, v24)
+	m_mask($1, bench_vredxorvs,  T_A, m_nop, vredxor.vs,  v8, v16, v24)
+	m_mask($1, bench_vredminuvs, T_A, m_nop, vredminu.vs, v8, v16, v24)
+	m_mask($1, bench_vredminvs,  T_A, m_nop, vredmin.vs,  v8, v16, v24)
+	m_mask($1, bench_vredmaxuvs, T_A, m_nop, vredmaxu.vs, v8, v16, v24)
+	m_mask($1, bench_vredmaxvs,  T_A, m_nop, vredmax.vs,  v8, v16, v24)
 
-	m_bench_vf \f, T_F, vfadd
-	m_bench_vf \f, T_F, vfsub
-	m_bench_vf \f, T_F, vfmin
-	m_bench_vf \f, T_F, vfmax
-	m_bench_vf \f, T_F, vfsgnj
-	m_bench_vf \f, T_F, vfsgnjn
-	m_bench_vf \f, T_F, vfsgnjx
-	m_mask \f bench_vfslide1upvf,   T_F, m_nop, vfslide1up.vf   v8, v16, ft0
-	m_mask \f bench_vfslide1downvf, T_F, m_nop, vfslide1down.vf v8, v16, ft0
+	m_bench_vx($1, T_A, vaaddu)
+	m_bench_vx($1, T_A, vaadd)
+	m_bench_vx($1, T_A, vasubu)
+	m_bench_vx($1, T_A, vasub)
 
-	m_mask \f bench_vfredusumvs, T_F, m_nop, vfredusum.vs v8, v16, v24
-	m_mask \f bench_vfredosumvs, T_F, m_nop, vfredosum.vs v8, v16, v24
-	m_mask \f bench_vfredminvs,  T_F, m_nop, vfredmin.vs  v8, v16, v24
-	m_mask \f bench_vfredmaxvs,  T_F, m_nop, vfredmax.vs  v8, v16, v24
+	m_mask($1, bench_vslide1upvx,   T_A, m_nop, vslide1up.vx,   v8, v16, t0)
+	m_mask($1, bench_vslide1downvx, T_A, m_nop, vslide1down.vx, v8, v16, t0)
 
-	\f bench_vfmergevfm, T_F, m_nop, vfmerge.vfm v8,  v16, ft0, v0
-	\f bench_vfmvvf,     T_F, m_nop, vfmv.v.f    v8,  ft0
+	m_bench_vxim($1, T_A, vadc)
+	m_bench_vxim($1, T_A, vmadc)
+	m_bench_vxm($1,  T_A, vsbc)
+	m_bench_vxm($1,  T_A, vmsbc)
 
-	m_bench_vf \f, T_F, vmfeq
-	m_bench_vf \f, T_F, vmfle
-	m_bench_vf \f, T_F, vmflt
-	m_bench_vf \f, T_F, vmfne
-	m_bench_vf \f, T_F, vmfgt
-	m_bench_vf \f, T_F, vmfge
+	m_bench_vxim($1, T_A, vmerge)
+	m_$1(bench_vmvvv, T_A, m_nop, vmv.v.v, v8, v16)
+	m_$1(bench_vmvvx, T_A, m_nop, vmv.v.x, v8, t0)
+	m_$1(bench_vmvvi, T_A, m_nop, vmv.v.i, v8, 13)
+	m_bench_vxi($1, T_A, vmseq)
+	m_bench_vxi($1, T_A, vmsne)
+	m_bench_vx($1,  T_A, vmsltu)
+	m_bench_vx($1,  T_A, vmslt)
+	m_bench_vxi($1, T_A, vmsleu)
+	m_bench_vxi($1, T_A, vmsle)
+	m_bench_xi($1,  T_A, vmsgtu)
+	m_bench_xi($1,  T_A, vmsgt)
 
-	m_bench_vf \f, T_F, vfdiv
-	m_mask \f bench_vfrdivvf, T_F, m_nop, vfrdiv.vf v8, v16, ft0
-	m_bench_vf \f, T_F, vfmul
-	m_mask \f bench_vfrsubvf, T_F, m_nop, vfrsub.vf v8, v16, ft0
-	m_bench_fv \f, T_F, vfmadd
-	m_bench_fv \f, T_F, vfmsub
-	m_bench_fv \f, T_F, vfmacc
-	m_bench_fv \f, T_F, vfmsac
+	m_$1(bench_vcompressvm, T_A, m_nop, vcompress.vm, v8, v16, v24)
 
-	m_bench_fv \f, T_FN, vfnmsac
-	m_bench_fv \f, T_FN, vfnmacc
-	m_bench_fv \f, T_FN, vfnmsub
-	m_bench_fv \f, T_FN, vfnmadd
+	m_$1(bench_vmandnmm, T_A, m_nop, vmandn.mm, v8, v16, v24)
+	m_$1(bench_vmandmm,  T_A, m_nop, vmand.mm,  v8, v16, v24)
+	m_$1(bench_vmormm,   T_A, m_nop, vmor.mm,   v8, v16, v24)
+	m_$1(bench_vmxormm,  T_A, m_nop, vmxor.mm,  v8, v16, v24)
+	m_$1(bench_vmornmm,  T_A, m_nop, vmorn.mm,  v8, v16, v24)
+	m_$1(bench_vmnandmm, T_A, m_nop, vmnand.mm, v8, v16, v24)
+	m_$1(bench_vmnormm,  T_A, m_nop, vmnor.mm,  v8, v16, v24)
+	m_$1(bench_vmxnormm, T_A, m_nop, vmxnor.mm, v8, v16, v24)
 
-	m_mask \f bench_vwredsumuvs, T_WR, m_nop, vwredsumu.vs v8, v16, v24
-	m_mask \f bench_vwredsumvs,  T_WR, m_nop, vwredsum.vs  v8, v16, v24
+	m_bench_vxi($1, T_A, vsaddu)
+	m_bench_vxi($1, T_A, vsadd)
+	m_bench_vx($1,  T_A, vssubu)
+	m_bench_vx($1,  T_A, vssub)
+	m_bench_vxi($1, T_A, vsll)
+	m_bench_vx($1,  T_A, vsmul)
+	m_ifmx(1,8,$1, bench_vmv1rv, T_A, m_nop, vmv1r.v, v8, v16)
+	m_ifmx(2,8,$1, bench_vmv2rv, T_A, m_nop, vmv2r.v, v8, v16)
+	m_ifmx(4,8,$1, bench_vmv4rv, T_A, m_nop, vmv4r.v, v8, v16)
+	m_ifmx(8,8,$1, bench_vmv8rv, T_A, m_nop, vmv8r.v, v8, v16)
+	m_bench_vxi($1, T_A, vsrl)
+	m_bench_vxi($1, T_A, vsra)
+	m_bench_vxi($1, T_A, vssrl)
 
-	m_bench_vf \f, T_FW, vfwadd
-	m_bench_vf \f, T_FW, vfwsub
-	m_bench_wf \f, T_FW, vfwadd
-	m_bench_wf \f, T_FW, vfwsub
-	m_bench_vf \f, T_FW, vfwmul
-	m_bench_fv \f, T_FW, vfwmacc
-	m_bench_fv \f, T_FW, vfwnmacc
-	m_bench_fv \f, T_FW, vfwmsac
-	m_bench_fv \f, T_FW, vfwnmsac
+	m_bench_vx($1, T_A, vdivu)
+	m_bench_vx($1, T_A, vdiv)
+	m_bench_vx($1, T_A, vremu)
+	m_bench_vx($1, T_A, vrem)
+	m_bench_vx($1, T_A, vmulhu)
+	m_bench_vx($1, T_A, vmul)
+	m_bench_vx($1, T_A, vmulhsu)
+	m_bench_vx($1, T_A, vmulh)
+	m_bench_xv($1, T_A, vmadd)
+	m_bench_xv($1, T_A, vmacc)
 
-	m_mask \f bench_vfwredosumvs, T_FWR, m_nop, vfwredosum.vs v8, v16, v24
-	m_mask \f bench_vfwredusumvs, T_FWR, m_nop, vfwredusum.vs v8, v16, v24
+	m_bench_wxi($1, T_N, vnsrl)
+	m_bench_wxi($1, T_N, vnsra)
+	m_bench_wxi($1, T_N, vnclipu)
+	m_bench_wxi($1, T_N, vnclip)
+	m_bench_xv($1,  T_N, vnmsub)
+	m_bench_xv($1,  T_N, vnmsac)
 
-	\f bench_vmvsx, T_A, m_nop, vmv.s.x v8, t0
-	\f bench_vmvxs, T_A, m_nop, vmv.x.s t0, v8
+	m_bench_vx($1, T_W, vwaddu)
+	m_bench_vx($1, T_W, vwadd)
+	m_bench_vx($1, T_W, vwsub)
+	m_bench_wx($1, T_W, vwaddu)
+	m_bench_wx($1, T_W, vwadd)
+	m_bench_wx($1, T_W, vwsub)
+	m_bench_vx($1, T_W, vwmulu)
+	m_bench_vx($1, T_W, vwmulsu)
+	m_bench_vx($1, T_W, vwmul)
+	m_bench_xv($1, T_W, vwmaccu)
+	m_bench_xv($1, T_W, vwmacc)
+	m_bench_xv($1, T_W, vwmaccsu)
+	m_mask($1, bench_vwmaccusvx,  T_W, m_nop, vwmaccus.vx,  v8, t0, v16)
 
-	m_mask \f bench_vcpopm,   T_A,  m_nop,  vcpop.m   t0, v8
-	m_mask \f bench_vfirstm,  T_A,  m_1bit, vfirst.m  t0, v8
-	m_mask \f bench_vzextvf2, T_E2, m_1bit, vzext.vf2 v8, v16
-	m_mask \f bench_vsextvf2, T_E2, m_1bit, vsext.vf2 v8, v16
-	m_mask \f bench_vzextvf4, T_E4, m_1bit, vzext.vf4 v8, v16
-	m_mask \f bench_vsextvf4, T_E4, m_1bit, vsext.vf4 v8, v16
-	m_mask \f bench_vzextvf8, T_E8, m_1bit, vzext.vf8 v8, v16
-	m_mask \f bench_vsextvf8, T_E8, m_1bit, vsext.vf8 v8, v16
+	m_bench_vf($1, T_F, vfadd)
+	m_bench_vf($1, T_F, vfsub)
+	m_bench_vf($1, T_F, vfmin)
+	m_bench_vf($1, T_F, vfmax)
+	m_bench_vf($1, T_F, vfsgnj)
+	m_bench_vf($1, T_F, vfsgnjn)
+	m_bench_vf($1, T_F, vfsgnjx)
+	m_mask($1, bench_vfslide1upvf,   T_F, m_nop, vfslide1up.vf,   v8, v16, ft0)
+	m_mask($1, bench_vfslide1downvf, T_F, m_nop, vfslide1down.vf, v8, v16, ft0)
 
-	\f bench_vfmvfs, T_F, m_nop, vfmv.f.s ft0, v8
-	\f bench_vfmvsf, T_F, m_nop, vfmv.s.f v8,  ft0
+	m_mask($1, bench_vfredusumvs, T_F, m_nop, vfredusum.vs, v8, v16, v24)
+	m_mask($1, bench_vfredosumvs, T_F, m_nop, vfredosum.vs, v8, v16, v24)
+	m_mask($1, bench_vfredminvs,  T_F, m_nop, vfredmin.vs,  v8, v16, v24)
+	m_mask($1, bench_vfredmaxvs,  T_F, m_nop, vfredmax.vs,  v8, v16, v24)
 
-	m_mask \f bench_vfcvtxufv,    T_F, m_nop, vfcvt.xu.f.v     v8, v16
-	m_mask \f bench_vfcvtxfv,     T_F, m_nop, vfcvt.x.f.v      v8, v16
-	m_mask \f bench_vfcvtfxuv,    T_F, m_nop, vfcvt.f.xu.v     v8, v16
-	m_mask \f bench_vfcvtfxv,     T_F, m_nop, vfcvt.f.x.v      v8, v16
-	m_mask \f bench_vfcvtrtzxfv,  T_F, m_nop, vfcvt.rtz.x.f.v  v8, v16
-	m_mask \f bench_vfcvtrtzxufv, T_F, m_nop, vfcvt.rtz.xu.f.v v8, v16
+	m_$1(bench_vfmergevfm, T_F, m_nop, vfmerge.vfm, v8,  v16, ft0, v0)
+	m_$1(bench_vfmvvf,     T_F, m_nop, vfmv.v.f,    v8,  ft0)
 
-	m_mask \f bench_vfwcvtxufv,    T_FW, m_nop, vfwcvt.xu.f.v     v8, v16
-	m_mask \f bench_vfwcvtxfv,     T_FW, m_nop, vfwcvt.x.f.v      v8, v16
-	m_mask \f bench_vfwcvtfxuv,    T_FW, m_nop, vfwcvt.f.xu.v     v8, v16
-	m_mask \f bench_vfwcvtfxv,     T_FW, m_nop, vfwcvt.f.x.v      v8, v16
-	m_mask \f bench_vfwcvtffv,     T_FW, m_nop, vfwcvt.f.f.v      v8, v16
-	m_mask \f bench_vfwcvtrtzxufv, T_FW, m_nop, vfwcvt.rtz.xu.f.v v8, v16
-	m_mask \f bench_vfwcvtrtzxfv,  T_FW, m_nop, vfwcvt.rtz.x.f.v  v8, v16
+	m_bench_vf($1, T_F, vmfeq)
+	m_bench_vf($1, T_F, vmfle)
+	m_bench_vf($1, T_F, vmflt)
+	m_bench_vf($1, T_F, vmfne)
+	m_bench_vf($1, T_F, vmfgt)
+	m_bench_vf($1, T_F, vmfge)
 
-	m_mask \f bench_vfncvtxufw,       T_FN, m_nop, vfncvt.xu.f.w     v8, v16
-	m_mask \f bench_vfncvtxfw,        T_FN, m_nop, vfncvt.x.f.w      v8, v16
-	m_mask \f bench_vfncvtfxuw,       T_FN, m_nop, vfncvt.f.xu.w     v8, v16
-	m_mask \f bench_vfncvtfxw,        T_FN, m_nop, vfncvt.f.x.w      v8, v16
-	m_mask \f bench_vfncvtffw,        T_FN, m_nop, vfncvt.f.f.w      v8, v16
-	m_mask \f bench_vfncvtrtzxfw,     T_FN, m_nop, vfncvt.rtz.x.f.w  v8, v16
-	m_mask \f bench_vfncvtrtzxufw,    T_FN, m_nop, vfncvt.rtz.xu.f.w v8, v16
-	m_mask \f bench_vfncvt.rod.f.f.w, T_FN, m_nop, vfncvt.rod.f.f.w  v8, v16
+	m_bench_vf($1, T_F, vfdiv)
+	m_mask($1, bench_vfrdivvf, T_F, m_nop, vfrdiv.vf, v8, v16, ft0)
+	m_bench_vf($1, T_F, vfmul)
+	m_mask($1, bench_vfrsubvf, T_F, m_nop, vfrsub.vf, v8, v16, ft0)
+	m_bench_fv($1, T_F, vfmadd)
+	m_bench_fv($1, T_F, vfmsub)
+	m_bench_fv($1, T_F, vfmacc)
+	m_bench_fv($1, T_F, vfmsac)
 
+	m_bench_fv($1, T_FN, vfnmsac)
+	m_bench_fv($1, T_FN, vfnmacc)
+	m_bench_fv($1, T_FN, vfnmsub)
+	m_bench_fv($1, T_FN, vfnmadd)
 
-	m_mask \f bench_vfsqrtv,   T_F, m_nop, vfsqrt.v   v8, v16
-	m_mask \f bench_vfrsqrt7v, T_F, m_nop, vfrsqrt7.v v8, v16
-	m_mask \f bench_vfrec7v,   T_F, m_nop, vfrec7.v   v8, v16
-	m_mask \f bench_vfclassv,  T_F, m_nop, vfclass.v  v8, v16
+	m_mask($1, bench_vwredsumuvs, T_WR, m_nop, vwredsumu.vs, v8, v16, v24)
+	m_mask($1, bench_vwredsumvs,  T_WR, m_nop, vwredsum.vs,  v8, v16, v24)
 
-	m_mask \f bench_vmsbfm,   T_A, m_1bit, vmsbf.m   v8, v16
-	m_mask \f bench_vmsofm,   T_A, m_1bit, vmsof.m   v8, v16
-	m_mask \f bench_vmsifm,   T_A, m_1bit, vmsif.m   v8, v16
-	m_mask \f bench_viotam,   T_A, m_nop,  viota.m   v8, v16
-	m_mask \f bench_vidv,     T_A, m_nop,  vid.v     v8
+	m_bench_vf($1, T_FW, vfwadd)
+	m_bench_vf($1, T_FW, vfwsub)
+	m_bench_wf($1, T_FW, vfwadd)
+	m_bench_wf($1, T_FW, vfwsub)
+	m_bench_vf($1, T_FW, vfwmul)
+	m_bench_fv($1, T_FW, vfwmacc)
+	m_bench_fv($1, T_FW, vfwnmacc)
+	m_bench_fv($1, T_FW, vfwmsac)
+	m_bench_fv($1, T_FW, vfwnmsac)
 
-	m_bench_ls \f, m_nop,        e,    ,   v8, (PTR)
-	m_bench_ls \f, m_nop,        e,    ff, v8, (PTR)
-	// TODO: fix this
-	// m_bench_ls \f, m_mod_t0_8,   se,   ,   v8, (PTR), t0
-	// m_bench_ls \f, m_mod_v16_vl, uxei, ,   v8, (PTR), v16
-	// m_bench_ls \f, m_mod_v16_vl, oxei, ,   v8, (PTR), v16
+	m_mask($1, bench_vfwredosumvs, T_FWR, m_nop, vfwredosum.vs, v8, v16, v24)
+	m_mask($1, bench_vfwredusumvs, T_FWR, m_nop, vfwredusum.vs, v8, v16, v24)
 
-	m_bench_vlnre \f, 1
-	m_bench_vlnre \f, 2
-	m_bench_vlnre \f, 4
-	m_bench_vlnre \f, 8
+	m_$1(bench_vmvsx, T_A, m_nop, vmv.s.x, v8, t0)
+	m_$1(bench_vmvxs, T_A, m_nop, vmv.x.s, t0, v8)
 
-	// TODO: segmented load/store
-.endm
+	m_mask($1, bench_vcpopm,   T_A,  m_nop,  vcpop.m,   t0, v8)
+	m_mask($1, bench_vfirstm,  T_A,  m_1bit, vfirst.m,  t0, v8)
+	m_mask($1, bench_vzextvf2, T_E2, m_1bit, vzext.vf2, v8, v16)
+	m_mask($1, bench_vsextvf2, T_E2, m_1bit, vsext.vf2, v8, v16)
+	m_mask($1, bench_vzextvf4, T_E4, m_1bit, vzext.vf4, v8, v16)
+	m_mask($1, bench_vsextvf4, T_E4, m_1bit, vsext.vf4, v8, v16)
+	m_mask($1, bench_vzextvf8, T_E8, m_1bit, vzext.vf8, v8, v16)
+	m_mask($1, bench_vsextvf8, T_E8, m_1bit, vsext.vf8, v8, v16)
+
+	m_$1(bench_vfmvfs, T_F, m_nop, vfmv.f.s, ft0, v8)
+	m_$1(bench_vfmvsf, T_F, m_nop, vfmv.s.f, v8,  ft0)
+
+	m_mask($1, bench_vfcvtxufv,    T_F, m_nop, vfcvt.xu.f.v,     v8, v16)
+	m_mask($1, bench_vfcvtxfv,     T_F, m_nop, vfcvt.x.f.v,      v8, v16)
+	m_mask($1, bench_vfcvtfxuv,    T_F, m_nop, vfcvt.f.xu.v,     v8, v16)
+	m_mask($1, bench_vfcvtfxv,     T_F, m_nop, vfcvt.f.x.v,      v8, v16)
+	m_mask($1, bench_vfcvtrtzxfv,  T_F, m_nop, vfcvt.rtz.x.f.v,  v8, v16)
+	m_mask($1, bench_vfcvtrtzxufv, T_F, m_nop, vfcvt.rtz.xu.f.v, v8, v16)
+
+	m_mask($1, bench_vfwcvtxufv,    T_FW, m_nop, vfwcvt.xu.f.v,     v8, v16)
+	m_mask($1, bench_vfwcvtxfv,     T_FW, m_nop, vfwcvt.x.f.v,      v8, v16)
+	m_mask($1, bench_vfwcvtfxuv,    T_FW, m_nop, vfwcvt.f.xu.v,     v8, v16)
+	m_mask($1, bench_vfwcvtfxv,     T_FW, m_nop, vfwcvt.f.x.v,      v8, v16)
+	m_mask($1, bench_vfwcvtffv,     T_FW, m_nop, vfwcvt.f.f.v,      v8, v16)
+	m_mask($1, bench_vfwcvtrtzxufv, T_FW, m_nop, vfwcvt.rtz.xu.f.v, v8, v16)
+	m_mask($1, bench_vfwcvtrtzxfv,  T_FW, m_nop, vfwcvt.rtz.x.f.v,  v8, v16)
+
+	m_mask($1, bench_vfncvtxufw,       T_FN, m_nop, vfncvt.xu.f.w,     v8, v16)
+	m_mask($1, bench_vfncvtxfw,        T_FN, m_nop, vfncvt.x.f.w,      v8, v16)
+	m_mask($1, bench_vfncvtfxuw,       T_FN, m_nop, vfncvt.f.xu.w,     v8, v16)
+	m_mask($1, bench_vfncvtfxw,        T_FN, m_nop, vfncvt.f.x.w,      v8, v16)
+	m_mask($1, bench_vfncvtffw,        T_FN, m_nop, vfncvt.f.f.w,      v8, v16)
+	m_mask($1, bench_vfncvtrtzxfw,     T_FN, m_nop, vfncvt.rtz.x.f.w,  v8, v16)
+	m_mask($1, bench_vfncvtrtzxufw,    T_FN, m_nop, vfncvt.rtz.xu.f.w, v8, v16)
+	m_mask($1, bench_vfncvt.rod.f.f.w, T_FN, m_nop, vfncvt.rod.f.f.w,  v8, v16)
+
+	m_mask($1, bench_vfsqrtv,   T_F, m_nop, vfsqrt.v,   v8, v16)
+	m_mask($1, bench_vfrsqrt7v, T_F, m_nop, vfrsqrt7.v, v8, v16)
+	m_mask($1, bench_vfrec7v,   T_F, m_nop, vfrec7.v,   v8, v16)
+	m_mask($1, bench_vfclassv,  T_F, m_nop, vfclass.v,  v8, v16)
+
+	m_mask($1, bench_vmsbfm,   T_A, m_1bit, vmsbf.m,   v8, v16)
+	m_mask($1, bench_vmsofm,   T_A, m_1bit, vmsof.m,   v8, v16)
+	m_mask($1, bench_vmsifm,   T_A, m_1bit, vmsif.m,   v8, v16)
+	m_mask($1, bench_viotam,   T_A, m_nop,  viota.m,   v8, v16)
+	m_mask($1, bench_vidv,     T_A, m_nop,  vid.v,     v8)
+
+')
 
 
 .data
@@ -384,57 +342,147 @@ vmseq.vx v8, v0, t0
 #define defptr .dword
 #endif
 
-.global benchmarks
-benchmarks:
-.macro gen_function_pointers name type setup code:vararg
-	defptr \name
-.endm
-m_benchmarks_all gen_function_pointers
-defptr 0 # zero termination
+define(`m_gen_function_pointers', `defptr $1_m`'m_LMUL')
+define(`m_gen_types', `defptr $2')
+define(`m_format',`$2 shift(shift($*))')
+define(`m_gen_strings', `.string "m_format(,shift(shift(shift($*))))"')
 
-.global benchmark_types
-benchmark_types:
-.macro gen_types name type setup code:vararg
-	defptr \type
-.endm
-m_benchmarks_all gen_types
+define(`m_gen_all_data', `
+
+')
 
 
-.macro gen_strings name type setup code:vararg
-	.string "\code"
-.endm
 
-.global benchmark_names
-benchmark_names:
-m_benchmarks_all gen_strings
+define(`m_LMUL', 1)
+.global bench_m`'m_LMUL
+	bench_m`'m_LMUL:
+	m_bench_all(`gen_function_pointers')
+
+define(`m_LMUL', 2)
+.global bench_m`'m_LMUL
+	bench_m`'m_LMUL:
+	m_bench_all(`gen_function_pointers')
+
+define(`m_LMUL', 4)
+.global bench_m`'m_LMUL
+	bench_m`'m_LMUL:
+	m_bench_all(`gen_function_pointers')
+
+define(`m_LMUL', 8)
+.global bench_m`'m_LMUL
+	bench_m`'m_LMUL:
+	m_bench_all(`gen_function_pointers')
+
+pushdef(`m_ifmx',`m_ifmx_t($*)')
+
+.global bench_types
+	bench_types:
+	m_bench_all(`gen_types')
+
+.global bench_names
+	bench_names:
+	m_bench_all(`gen_strings')
+
+define(`m_1p', 1+)
+.global bench_count
+bench_count:
+	defptr eval(m_bench_all(`1p')0)
+
+popdef(`m_ifmx')
 
 
 .text
 .balign 8
 
-.macro m_gen_benchname name type setup code:vararg
-	\name:
-		\setup
-		li a0, WARMUP
-	1:
-		\code
-		addi a0, a0, -1
-		bnez a0, 1b
-		li a0, LOOP
-		rdcycle a1
-	1:
-	.rept UNROLL
-		\code
-	.endr
-		addi a0, a0, -1
-		bnez a0, 1b
-		fence.i
-		rdcycle a0
-		sub a0, a0, a1
-	ret
-.endm
 
-m_benchmarks_all m_gen_benchname
+# x off
+define(`m_offset1',
+	`ifelse(`$1',`v8',v`'eval(8+$2),
+		ifelse(`$1',v16,v`'eval(16+$2),
+			ifelse(`$1',v24,v`'eval(24+$2),$1)))')
+# acc off code:vararg
+define(`m_offset',
+	`ifelse(`$3',,`m_format($1)',
+		`m_offset(`$1,m_offset1($3,$2)',$2,$4,$5,$6,$7,$8,$9)')')
+
+define(`m_gen_code_m1',
+	`m_format(,$*)
+m_offset(,1,$*)
+m_offset(,2,$*)
+m_offset(,3,$*)
+m_offset(,4,$*)
+m_offset(,5,$*)
+m_offset(,6,$*)
+m_offset(,7,$*)')
+
+define(`m_gen_code_m2',
+	`m_format(,$*)
+m_offset(,2,$*)
+m_offset(,4,$*)
+m_offset(,6,$*)
+m_format(,$*)
+m_offset(,2,$*)
+m_offset(,4,$*)
+m_offset(,6,$*)')
+
+define(`m_gen_code_m4',
+	`m_format(,$*)
+m_offset(,4,$*)
+m_format(,$*)
+m_offset(,4,$*)
+m_format(,$*)
+m_offset(,4,$*)
+m_format(,$*)
+m_offset(,4,$*)')
+
+define(`m_gen_code_m8',
+	`m_format(,$*)
+m_format(,$*)
+m_format(,$*)
+m_format(,$*)
+m_format(,$*)
+m_format(,$*)
+m_format(,$*)
+m_format(,$*)')
+
+
+# name type setup code:vararg
+define(`m_gen_bench',`
+$1`'_m`'m_LMUL:	pushdef(`m_code', `shift(shift(shift($*)))')
+	$3
+	li a0, WARMUP
+1:
+ifelse(m_LMUL,1,`m_gen_code_m1(m_code)')
+ifelse(m_LMUL,2,`m_gen_code_m2(m_code)')
+ifelse(m_LMUL,4,`m_gen_code_m4(m_code)')
+ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
+	addi a0, a0, -1
+	bnez a0, 1b
+	li a0, LOOP
+	rdcycle a1
+1:
+.rept UNROLL
+ifelse(m_LMUL,1,`m_gen_code_m1(m_code)')
+ifelse(m_LMUL,2,`m_gen_code_m2(m_code)')
+ifelse(m_LMUL,4,`m_gen_code_m4(m_code)')
+ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
+.endr
+	addi a0, a0, -1
+	bnez a0, 1b
+	fence.i
+	rdcycle a0
+	sub a0, a0, a1
+ret	popdef(`m_code')
+')
+
+define(`m_LMUL', 1)
+m_bench_all(`gen_bench')
+define(`m_LMUL', 2)
+m_bench_all(`gen_bench')
+define(`m_LMUL', 4)
+m_bench_all(`gen_bench')
+define(`m_LMUL', 8)
+m_bench_all(`gen_bench')
 
 
 randomize:
