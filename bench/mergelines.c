@@ -20,8 +20,10 @@ mergelines_scalar(char *str, size_t len)
 
 #define IMPLS(f) \
 	f(scalar) \
-	MX(f, rvv) \
-	MX(f, rvv_skip) \
+	MX(f, rvv_vslide) \
+	MX(f, rvv_vslide_skip) \
+	MX(f, rvv_mshift) \
+	MX(f, rvv_mshift_skip) \
 
 typedef size_t Func(char *buf, size_t len);
 
@@ -43,22 +45,22 @@ void common(size_t n, char const *chars, size_t nChars) {
 		str[i] = chars[bench_urand() % nChars];
 }
 
-BENCH(2_3) {
+BENCH_BEG(2_3) {
 	common(n, "\\\na", 3);
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
 
-BENCH(2_16) {
+BENCH_BEG(2_16) {
 	common(n, "\\\nabcdefgh", 16);
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
 
-BENCH(2_32) {
+BENCH_BEG(2_32) {
 	common(n, "\\\nabcdefgh123456789", 32);
 	TIME last = (uintptr_t)f(str, n);
 } BENCH_END
 
-BENCH(2_256) {
+BENCH_BEG(2_256) {
 	str = (char*)mem + (bench_urand() & 255);
 	for (size_t i = 0; i < n; ++i)
 		str[i] = bench_urand() & 0xff;
@@ -67,9 +69,9 @@ BENCH(2_256) {
 
 #define COUNT SCALE_mergelines(MAX_MEM) - 256
 Bench benches[] = {
-	{ COUNT, "mergelines 2/3", bench_2_3 },
-	{ COUNT, "mergelines 2/16", bench_2_16 },
-	{ COUNT, "mergelines 2/32", bench_2_32 },
-	{ COUNT, "mergelines 2/256", bench_2_256 }
-}; BENCH_MAIN(impls, benches)
+	BENCH( impls, COUNT, "mergelines 2/3", bench_2_3 ),
+	BENCH( impls, COUNT, "mergelines 2/16", bench_2_16 ),
+	BENCH( impls, COUNT, "mergelines 2/32", bench_2_32 ),
+	BENCH( impls, COUNT, "mergelines 2/256", bench_2_256 )
+}; BENCH_MAIN(benches)
 

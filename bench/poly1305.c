@@ -43,7 +43,7 @@ ux checksum(size_t n) {
 	return sum;
 }
 
-BENCH(aligned) {
+BENCH_BEG(aligned) {
 	for (size_t i = 0; i < 256; ++i)
 		mem[bench_urand()%n] = bench_urand();
 	n = (15+n) & -16;
@@ -51,8 +51,8 @@ BENCH(aligned) {
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM, "poly1305 aligned", bench_aligned }
-}; BENCH_MAIN(impls, benches)
+	BENCH( impls, MAX_MEM, "poly1305 aligned", bench_aligned )
+}; BENCH_MAIN(benches)
 
 
 #include "../thirdparty/boring.c"
@@ -60,5 +60,5 @@ Bench benches[] = {
 void init(void) {}
 Impl impls[] = {};
 Bench benches[] = {};
-BENCH_MAIN(impls, benches)
+BENCH_MAIN(benches)
 #endif

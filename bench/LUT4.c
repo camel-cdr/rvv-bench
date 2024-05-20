@@ -44,13 +44,13 @@ ux checksum(size_t n) {
 	return sum;
 }
 
-BENCH(base) {
+BENCH_BEG(base) {
 	static uint32_t lut[4] = { 0x4564907f, 0xb8ce2de0, 0xc0f7adf8, 0xa048aa9f };
 	bench_memrand(ptr, n * sizeof *ptr);
 	TIME f((uint8_t*)lut, ptr, n);
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM, "LUT4", bench_base }
-}; BENCH_MAIN(impls, benches)
+	BENCH( impls, MAX_MEM, "LUT4", bench_base )
+}; BENCH_MAIN(benches)
 

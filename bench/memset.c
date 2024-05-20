@@ -146,18 +146,18 @@ void common(size_t n, size_t off) {
 	memset(dest, c+3, n+9);
 }
 
-BENCH(base) {
+BENCH_BEG(base) {
 	common(n, bench_urand() & 511);
 	TIME last = (uintptr_t)f(dest, c, n);
 } BENCH_END
 
-BENCH(aligned) {
+BENCH_BEG(aligned) {
 	common(n, 0);
 	TIME last = (uintptr_t)f(dest, c, n);
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM - 521, "memset", bench_base },
-	{ MAX_MEM - 521, "memset aligned", bench_aligned}
-}; BENCH_MAIN(impls, benches)
+	BENCH( impls, MAX_MEM - 521, "memset", bench_base ),
+	BENCH( impls, MAX_MEM - 521, "memset aligned", bench_aligned )
+}; BENCH_MAIN(benches)
 

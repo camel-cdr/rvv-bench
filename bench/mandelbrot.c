@@ -78,16 +78,17 @@ void init(void) { }
 /* disabled, because of rounding errors, please independently verify */
 ux checksum(size_t n) { return 0; }
 
-BENCH(base) {
+BENCH_BEG(base) {
 	n = usqrt(n);
 	TIME f(n, mandelbrot_ITER, (uint32_t*)mem);
 } BENCH_END
 
 Bench benches[] = {
-	{
+	BENCH(
+		impls,
 		SCALE_mandelbrot(MAX_MEM / 4),
 		"mandelbrot "STR(mandelbrot_ITER),
 		bench_base
-	},
-}; BENCH_MAIN(impls, benches)
+	)
+}; BENCH_MAIN(benches)
 

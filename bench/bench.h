@@ -48,6 +48,8 @@ typedef struct {
 	char const *name; void *func;
 } Impl;
 typedef struct {
+	Impl *impls;
+	size_t nImpls;
 	size_t N;
 	char const *name;
 	ux (*func)(void *, size_t);
@@ -115,13 +117,13 @@ bench_time(size_t n, Impl impl, Bench bench)
 }
 
 static void
-bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
+bench_run(Bench *benches, size_t nBenches)
 {
 	for (Bench *b = benches; b != benches + nBenches; ++b) {
 		print("{\ntitle: \"")(s,b->name)("\",\n");
 		print("labels: [\"0\",");
-		for (size_t i = 0; i < nImpls; ++i)
-			print("\"")(s,impls[i].name)("\",");
+		for (size_t i = 0; i < b->nImpls; ++i)
+			print("\"")(s,b->impls[i].name)("\",");
 		print("],\n");
 
 		size_t N = b->N;
@@ -130,19 +132,19 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 			print(u,n)(",");
 		print("],\n")(flush,);
 
-		for (Impl *i = impls; i != impls + nImpls; ++i) {
+		for (Impl *i = b->impls; i != b->impls + b->nImpls; ++i) {
 			print("[");
 			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
 				ux si = 0, s0 = 0;
 
 #if MAX_REPEATS > 4
-				if (i != impls) {
+				if (i != b->impls) {
 					URand seed = randState;
 					(void)b->func(i->func, n);
 					si = checksum(n);
 
 					randState = seed;
-					(void)b->func(impls[0].func, n);
+					(void)b->func(b->impls[0].func, n);
 					s0 = checksum(n);
 				}
 
@@ -165,13 +167,15 @@ bench_run(size_t nImpls, Impl *impls, size_t nBenches, Bench *benches)
 	       BENCH_FENCE(), \
 	       _cycles += rv_cycles() - beg, _once = 0)
 
-#define BENCH(name) \
+#define BENCH_BEG(name) \
 	ux bench_##name(void *_func, size_t n) { \
 		Func *f = _func; ux _cycles = 0;
 #define BENCH_END return _cycles; }
 
-#define BENCH_MAIN(impls, benches) \
+#define BENCH(impls, ...) { impls, ARR_LEN(impls), __VA_ARGS__ }
+
+#define BENCH_MAIN(benches) \
 	void bench_main(void) { \
-		bench_run(ARR_LEN(impls), impls, ARR_LEN(benches), benches); \
+		bench_run(benches, ARR_LEN(benches)); \
 	}
 

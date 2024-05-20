@@ -42,14 +42,14 @@ ux checksum(size_t n) {
 	return sum;
 }
 
-BENCH(aligned) {
+BENCH_BEG(aligned) {
 	memset(mem, 0, n+16);
 	TIME f(mem, mem + MAX_MEM/2 + 16, n);
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM/2 - 16, "chacha20 aligned", bench_aligned }
-}; BENCH_MAIN(impls, benches)
+	BENCH( impls, MAX_MEM/2 - 16, "chacha20 aligned", bench_aligned )
+}; BENCH_MAIN(benches)
 
 
 #include "../thirdparty/boring.c"
@@ -57,5 +57,5 @@ Bench benches[] = {
 void init(void) {}
 Impl impls[] = {};
 Bench benches[] = {};
-BENCH_MAIN(impls, benches)
+BENCH_MAIN(benches)
 #endif

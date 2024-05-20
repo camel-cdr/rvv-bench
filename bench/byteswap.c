@@ -68,12 +68,12 @@ ux checksum(size_t n) {
 	return sum;
 }
 
-BENCH(base) {
+BENCH_BEG(base) {
 	bench_memrand(ptr, n * sizeof *ptr);
 	TIME f(ptr, n);
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM/4, "byteswap32", bench_base }
-}; BENCH_MAIN(impls, benches)
+	BENCH( impls, MAX_MEM/4, "byteswap32", bench_base )
+}; BENCH_MAIN(benches)
 

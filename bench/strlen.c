@@ -63,7 +63,7 @@ void init(void) {
 
 ux checksum(size_t n) { return last; }
 
-BENCH(base) {
+BENCH_BEG(base) {
 	char *p = (char*)mem + (bench_urand() % 511);
 	p[n] = 0;
 	TIME last = f(p);
@@ -71,6 +71,6 @@ BENCH(base) {
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM - 521, "strlen", bench_base },
-}; BENCH_MAIN(impls, benches)
+	BENCH( impls, MAX_MEM - 521, "strlen", bench_base ),
+}; BENCH_MAIN(benches)
 

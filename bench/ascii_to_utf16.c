@@ -46,18 +46,18 @@ void common(size_t n, size_t dOff, size_t sOff) {
 	memset(dest, 1, (n+9)*2);
 }
 
-BENCH(base) {
+BENCH_BEG(base) {
 	common(n, bench_urand() & 255, bench_urand() & 255);
 	TIME f(dest, src, n);
 } BENCH_END
 
-BENCH(aligned) {
+BENCH_BEG(aligned) {
 	common(n, 0, 0);
 	TIME f(dest, src, n);
 } BENCH_END
 
 Bench benches[] = {
-	{ MAX_MEM/3 - 512-9*2, "ascii to utf16", bench_base },
-	{ MAX_MEM/3 - 512-9*2, "ascii to utf16 aligned", bench_aligned },
-}; BENCH_MAIN(impls, benches)
+	BENCH( impls, MAX_MEM/3 - 512-9*2, "ascii to utf16", bench_base ),
+	BENCH( impls, MAX_MEM/3 - 512-9*2, "ascii to utf16 aligned", bench_aligned ),
+}; BENCH_MAIN(benches)
 
