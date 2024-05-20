@@ -1,6 +1,9 @@
 #define VL s3
 #define PTR s4
 
+#define t7 a6
+#define t8 a7
+
 #if __riscv_xlen >= 64
 #define IF64(...) __VA_ARGS__
 #define lx ld
@@ -81,17 +84,17 @@ define(`m_bench_wxi',
 
 
 .macro m_mod_v24_e8_vl
-	csrr t1, vtype
+	csrr t8, vtype
 	vsetvli t0, x0, e8, m8, ta, ma
 	vremu.vx v24, v24, VL
-	vsetvl x0, VL, t1
+	vsetvl x0, VL, t8
 .endm
 
 .macro m_mod_v24_e16_vl
-	csrr t1, vtype
+	csrr t8, vtype
 	vsetvli t0, x0, e16, m8, ta, ma
 	vremu.vx v24, v24, VL
-	vsetvl x0, VL, t1
+	vsetvl x0, VL, t8
 .endm
 
 .macro m_mod_t0_vl
@@ -397,9 +400,11 @@ popdef(`m_ifmx')
 
 # x off
 define(`m_offset1',
-	`ifelse(`$1',`v8',v`'eval(8+$2),
-		ifelse(`$1',v16,v`'eval(16+$2),
-			ifelse(`$1',v24,v`'eval(24+$2),$1)))')
+	`ifelse(`$1',`t0',t$2,
+	 ifelse(`$1',`ft0',ft$2,
+	 ifelse(`$1',`v8',v`'eval(8+$2),
+	 ifelse(`$1',v16,v`'eval(16+$2),
+	 ifelse(`$1',v24,v`'eval(24+$2),$1)))))')
 # acc off code:vararg
 define(`m_offset',
 	`ifelse(`$3',,`m_format($1)',
@@ -549,7 +554,7 @@ randomize:
 			randomize_reg \xs
 		.endif
 	.endm
-	randomize_reg t0, t1, t2, t3, t4, t5, t6
+	randomize_reg t0, t1, t2, t3, t4, t5, t6, t7, t8
 
 	ret
 
