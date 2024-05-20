@@ -42,12 +42,33 @@ memread(void *ptr, size_t len)
 {
 	return fread(ptr, 1, len, stdin);
 }
-
+#define ENABLE_RDCYCLE_HACK
+#ifndef ENABLE_RDCYCLE_HACK
 int main(void) {
 	int x = nolibc_main();
 	print_flush();
 	exit(x);
 }
+#else
+#include <linux/perf_event.h>
+#include <asm/unistd.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+
+int main(void) {
+	struct perf_event_attr pe = { 0 };
+	pe.type = PERF_TYPE_HARDWARE;
+	pe.size = sizeof pe;
+	pe.config = PERF_COUNT_HW_CPU_CYCLES;
+	pe.disabled = 0;
+	pe.exclude_kernel = 1;
+	long fd = syscall(__NR_perf_event_open, &pe, 0, -1, -1, 0);
+	if (fd < 0) perror("perf_event_open"),exit(EXIT_FAILURE);
+	int x = nolibc_main();
+	print_flush();
+	exit(x);
+}
+#endif
 #define main nolibc_main
 
 #else
