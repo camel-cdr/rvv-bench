@@ -44,6 +44,8 @@ run_all_types(char const *name, ux bIdx, ux vl, int ta, int ma)
 			emul += 1;
 		if (mask == T_ei16 && sew == 0)
 			emul = emul < 3 ? emul+1 : 3;
+		if (mask == T_m1)
+			emul = 1;
 		BenchFunc bench = benches[emul][bIdx];
 
 		for (ux i = 0; i < RUNS; ++i) {

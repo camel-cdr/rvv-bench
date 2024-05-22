@@ -173,14 +173,14 @@ define(`m_bench_all',`
 
 	m_$1(bench_vcompressvm, T_A, m_nop, vcompress.vm, v8, v16, v24)
 
-	m_$1(bench_vmandnmm, T_A, m_nop, vmandn.mm, v8, v16, v24)
-	m_$1(bench_vmandmm,  T_A, m_nop, vmand.mm,  v8, v16, v24)
-	m_$1(bench_vmormm,   T_A, m_nop, vmor.mm,   v8, v16, v24)
-	m_$1(bench_vmxormm,  T_A, m_nop, vmxor.mm,  v8, v16, v24)
-	m_$1(bench_vmornmm,  T_A, m_nop, vmorn.mm,  v8, v16, v24)
-	m_$1(bench_vmnandmm, T_A, m_nop, vmnand.mm, v8, v16, v24)
-	m_$1(bench_vmnormm,  T_A, m_nop, vmnor.mm,  v8, v16, v24)
-	m_$1(bench_vmxnormm, T_A, m_nop, vmxnor.mm, v8, v16, v24)
+	m_$1(bench_vmandnmm, T_m1, m_nop, vmandn.mm, v8, v16, v24)
+	m_$1(bench_vmandmm,  T_m1, m_nop, vmand.mm,  v8, v16, v24)
+	m_$1(bench_vmormm,   T_m1, m_nop, vmor.mm,   v8, v16, v24)
+	m_$1(bench_vmxormm,  T_m1, m_nop, vmxor.mm,  v8, v16, v24)
+	m_$1(bench_vmornmm,  T_m1, m_nop, vmorn.mm,  v8, v16, v24)
+	m_$1(bench_vmnandmm, T_m1, m_nop, vmnand.mm, v8, v16, v24)
+	m_$1(bench_vmnormm,  T_m1, m_nop, vmnor.mm,  v8, v16, v24)
+	m_$1(bench_vmxnormm, T_m1, m_nop, vmxnor.mm, v8, v16, v24)
 
 	m_bench_vxi($1, T_A, vsaddu)
 	m_bench_vxi($1, T_A, vsadd)
@@ -286,8 +286,8 @@ define(`m_bench_all',`
 	m_$1(bench_vmvsx, T_A, m_nop, vmv.s.x, v8, t0)
 	m_$1(bench_vmvxs, T_A, m_nop, vmv.x.s, t0, v8)
 
-	m_mask($1, bench_vcpopm,   T_A,  m_nop,  vcpop.m,   t0, v8)
-	m_mask($1, bench_vfirstm,  T_A,  m_1bit, vfirst.m,  t0, v8)
+	m_mask($1, bench_vcpopm,   T_m1,  m_nop,  vcpop.m,   t0, v8)
+	m_mask($1, bench_vfirstm,  T_m1,  m_1bit, vfirst.m,  t0, v8)
 	m_mask($1, bench_vzextvf2, T_E2, m_1bit, vzext.vf2, v8, v16)
 	m_mask($1, bench_vsextvf2, T_E2, m_1bit, vsext.vf2, v8, v16)
 	m_mask($1, bench_vzextvf4, T_E4, m_1bit, vzext.vf4, v8, v16)

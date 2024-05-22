@@ -20,3 +20,6 @@
 #define T_E4   0b1100110011001100 // extend 4
 #define T_E8   0b1000100010001000 // extend 8
 #define T_ei16 0b1110111111111111 // no m8
+
+// special:
+#define T_m1 ((1 << 16) | T_A) // emul<=1
