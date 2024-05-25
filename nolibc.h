@@ -161,7 +161,11 @@ static inline ux
 rv_cycles(void)
 {
 	ux cycle;
-	__asm volatile ("rdcycle %0" : "=r"(cycle));
+#ifdef READ_MCYCLE
+	__asm volatile ("csrr %0, mcycle" : "=r"(cycle));
+#else
+	__asm volatile ("csrr %0, cycle" : "=r"(cycle));
+#endif
 	return cycle;
 }
 

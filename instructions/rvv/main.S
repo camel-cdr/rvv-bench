@@ -350,11 +350,6 @@ define(`m_gen_types', `defptr $2')
 define(`m_format',`$2 shift(shift($*))')
 define(`m_gen_strings', `.string "m_format(,shift(shift(shift($*))))"')
 
-define(`m_gen_all_data', `
-
-')
-
-
 
 define(`m_LMUL', 1)
 .global bench_m`'m_LMUL
@@ -464,7 +459,11 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	addi a0, a0, -1
 	bnez a0, 1b
 	li a0, LOOP
-	rdcycle a1
+#ifdef READ_MCYCLE
+	csrr a1, mcycle
+#else
+	csrr a1, cycle
+#endif
 1:
 .rept UNROLL
 ifelse(m_LMUL,1,`m_gen_code_m1(m_code)')
@@ -475,7 +474,11 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	addi a0, a0, -1
 	bnez a0, 1b
 	fence.i
-	rdcycle a0
+#ifdef READ_MCYCLE
+	csrr a0, mcycle
+#else
+	csrr a0, cycle
+#endif
 	sub a0, a0, a1
 ret	popdef(`m_code')
 ')

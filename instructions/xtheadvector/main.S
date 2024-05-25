@@ -316,7 +316,11 @@ m_benchmarks_all gen_string_arr
 		addi a0, a0, -1
 		bnez a0, 1b
 		li a0, LOOP
-		rdcycle a1
+#ifdef READ_MCYCLE
+		csrr a1, mcycle
+#else
+		csrr a1, cycle
+#endif
 	1:
 	.rept UNROLL
 		\code
@@ -324,7 +328,11 @@ m_benchmarks_all gen_string_arr
 		addi a0, a0, -1
 		bnez a0, 1b
 		fence.i
-		rdcycle a0
+#ifdef READ_MCYCLE
+		csrr a0, mcycle
+#else
+		csrr a0, cycle
+#endif
 		sub a0, a0, a1
 	ret
 .endm
