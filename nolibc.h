@@ -42,7 +42,6 @@ memread(void *ptr, size_t len)
 {
 	return fread(ptr, 1, len, stdin);
 }
-#define ENABLE_RDCYCLE_HACK
 #ifndef ENABLE_RDCYCLE_HACK
 int main(void) {
 	int x = nolibc_main();
