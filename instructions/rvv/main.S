@@ -1,5 +1,4 @@
 #define VL s3
-#define PTR s4
 
 #define t7 a6
 #define t8 a7
@@ -561,22 +560,20 @@ randomize:
 
 	ret
 
-# u64 f(u64 (*bench)(void), u64 type, u64 vl, void *ptr, u64 seed)
+# u64 f(u64 (*bench)(void), u64 type, u64 vl, u64 seed)
 .global run_bench
 run_bench:
-	addi sp, sp, -56
+	addi sp, sp, -48
 	sx ra, 8(sp)
 	sx VL, 16(sp)
 	sx s1, 24(sp)
 	sx s2, 32(sp)
 	sx VL, 40(sp)
-	sx PTR, 48(sp)
 
 	mv s1, a0
 	mv s2, a1 # type
 	mv VL, a2
-	mv PTR, a3
-	mv a0, a4 # seed
+	mv a0, a3 # seed
 	call randomize
 	vsetvl VL, VL, s2
 	bnez VL, 1f
@@ -589,6 +586,5 @@ run_bench:
 	lx s1, 24(sp)
 	lx s2, 32(sp)
 	lx VL, 40(sp)
-	lx PTR, 48(sp)
-	addi sp, sp, 56
+	addi sp, sp, 48
 	ret

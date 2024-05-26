@@ -1,7 +1,6 @@
 #include "../../nolibc.h"
 #include "config.h"
 
-static ux mem[65536/sizeof(ux)];
 static ux seed = 123456;
 
 typedef ux (*BenchFunc)(void);
@@ -11,7 +10,7 @@ extern ux bench_types;
 extern BenchFunc bench_m1, bench_m2, bench_m4, bench_m8;
 static BenchFunc *benches[] = { &bench_m1, &bench_m2, &bench_m4, &bench_m8 };
 
-extern ux run_bench(ux (*bench)(void), ux type, ux vl, void *ptr, ux seed);
+extern ux run_bench(ux (*bench)(void), ux type, ux vl, ux seed);
 
 
 static int
@@ -49,7 +48,7 @@ run_all_types(char const *name, ux bIdx, ux vl, int ta, int ma)
 		BenchFunc bench = benches[emul][bIdx];
 
 		for (ux i = 0; i < RUNS; ++i) {
-			arr[i] = run_bench(bench, vtype, vl, mem, seed);
+			arr[i] = run_bench(bench, vtype, vl, seed);
 			if (~arr[i] == 0) goto skip;
 			seed = seed*7 + 13;
 		}
