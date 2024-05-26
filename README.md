@@ -8,7 +8,9 @@ Benchmark results can be found at: https://camel-cdr.github.io/rvv-bench-results
 
 Contains a bunch of benchmark of different implementations of certain algorithms.
 
-RVV code is currently only written in assembly, and uses [`./thirdparty/rvv-rollback.S`](./thirdparty/rvv-rollback.S) to support RVV 0.7.1 and RVV 1.0.
+RVV code is currently only written in assembly, and uses [`./thirdparty/rvv-rollback.S`](./thirdparty/rvv-rollback.S) to support XTheadVector and RVV 1.0.
+
+Note: *The support XTheadVector hasn't been tested in some time, and will be depricated soon.*
 
 ## Instruction cycle count ([./instructions/](./instructions/))
 
@@ -20,9 +22,14 @@ Start by configuring [./config.mk](./config.mk), such that `make` works and opti
 
 The default configuration should work with all recent clang builds and doesn't require a full cross compilation toolchain, because it builds in freestanding mode.
 This means it will only work on linux, or linux syscall compatible OS.
-You can either modify the platform specific code at the beginning of [./nolibc.h](./nolibc.h), or configure [./config.mk](./config.mk) to build a hosted build.
+Alternatively you can configure [./config.mk](./config.mk) to build a hosted build or configure it with your custom toolchain, add the `-DCUSTOM_HOST` define, and implement the unimplemented functions under `#ifdef CUSTOM_HOST` in [./nolibc.h](./nolibc.h). Add the `-DREAD_MCYCLE` define, if you need to read from the `mcycle` instead of the `cycle` csr.
 
-If you have a rvv 0.7.1 supporting board (which is as of now almost certain), make sure to use a rvv 0.7.1 compatible toolchain. I've used [this one](https://github.com/brucehoult/riscv-gnu-toolchain) for development.
+If you have a XTheadVector supporting board, make sure to the rvv 0.7.1 compatible toolchain. I've used [this one](https://github.com/brucehoult/riscv-gnu-toolchain) for development.
+
+### Enable user level performance counter access
+
+If you want to run the benchmarks on real hardware, and are on linux kernel version <v6.5-rc1, then you may need to add the `-DENABLE_RDCYCLE_HACK` define, to allow the benchmarks to access the performance counters.
+On newer kernels, version >=v6.5-rc1, enable the `sysctl` `perf_user_access`, see [this article](https://lwn.net/Articles/939436/).
 
 ### Running benchmarks ([./bench/](./bench/))
 
