@@ -25,7 +25,7 @@ mandelbrot_scalar_f32(size_t width, size_t maxIter, uint32_t *res)
 	}
 }
 
-#if __riscv_xlen >= 64
+#if __riscv_xlen != 32
 void
 mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 {

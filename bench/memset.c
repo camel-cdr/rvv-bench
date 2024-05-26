@@ -17,7 +17,7 @@ memset_scalar_autovec(void *dest, int c, size_t n)
 }
 
 /* https://git.musl-libc.org/cgit/musl/tree/src/string/memset.c */
-#if __riscv_xlen >= 64
+#if __riscv_xlen != 32
 void *
 memset_musl(void *dest, int c, size_t n)
 {

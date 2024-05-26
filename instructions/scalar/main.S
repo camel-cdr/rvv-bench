@@ -1,13 +1,13 @@
 #include "config.h"
 
-#if __riscv_xlen >= 64
-#define IF64(...) __VA_ARGS__
-#define lx ld
-#define sx sd
-#else
+#if __riscv_xlen == 32
 #define IF64(...)
 #define lx lw
 #define sx sw
+#else
+#define IF64(...) __VA_ARGS__
+#define lx ld
+#define sx sd
 #endif
 
 .macro m_nop
@@ -187,7 +187,7 @@ fabs.d  fa0,fa0
 #endif
 
 	# D
-#if __riscv_d && __riscv_xlen >= 64
+#if __riscv_d && __riscv_xlen != 32
 	\f bench_fmvdx,   m_nop, fmv.d.x   ft0, t0
 	\f bench_fmvxd,   m_nop, fmv.x.d   t0,  ft0
 	\f bench_fcvtwd,  m_nop, fcvt.w.d  t0,  ft0
@@ -354,12 +354,12 @@ m_benchmarks_all m_gen_benchname
 
 
 randomize:
-#if __riscv_xlen >= 64
-	li a1, 0xa0761d6485ebca6b
-	li a2, 0x78bd642fc2b2ae35
-#else
+#if __riscv_xlen == 32
 	li a1, 0x85ebca6b
 	li a2, 0xc2b2ae35
+#else
+	li a1, 0xa0761d6485ebca6b
+	li a2, 0x78bd642fc2b2ae35
 #endif
 
 	# fill t* & ft* with wyhash

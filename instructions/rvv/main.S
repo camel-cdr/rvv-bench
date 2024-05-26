@@ -3,14 +3,14 @@
 #define t7 a6
 #define t8 a7
 
-#if __riscv_xlen >= 64
-#define IF64(...) __VA_ARGS__
-#define lx ld
-#define sx sd
-#else
+#if __riscv_xlen == 32
 #define IF64(...)
 #define lx lw
 #define sx sw
+#else
+#define IF64(...) __VA_ARGS__
+#define lx ld
+#define sx sd
 #endif
 
 #include "config.h"
@@ -493,14 +493,14 @@ m_bench_all(`gen_bench')
 
 
 randomize:
-#if __riscv_xlen >= 64
-	li a1, 0xa0761d6485ebca6b
-	li a2, 0x78bd642fc2b2ae35
-	li a3, 0xe7037ed17feb352d
-#else
+#if __riscv_xlen == 32
 	li a1, 0x85ebca6b
 	li a2, 0xc2b2ae35
 	li a3, 0x7feb352d
+#else
+	li a1, 0xa0761d6485ebca6b
+	li a2, 0x78bd642fc2b2ae35
+	li a3, 0xe7037ed17feb352d
 #endif
 
 	vsetvli a4, x0, e8, m8, ta, ma
@@ -533,10 +533,10 @@ randomize:
 
 	# zero floating point exponent bit to avoid NaN/Inf
 	vsetvli a4, x0, e16, m8, ta, ma
-#if __riscv_xlen >= 64
-	li a4, ~0x4000000040004000 # zero upper f16/f32/f64 exponent bit
-#else
+#if __riscv_xlen == 32
 	li a4, ~0x40004000 # zero upper f16/f32/f64 exponent bit
+#else
+	li a4, ~0x4000000040004000 # zero upper f16/f32/f64 exponent bit
 #endif
 	vand.vx v0, v0, a4
 	vand.vx v8, v8, a4

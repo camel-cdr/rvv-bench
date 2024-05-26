@@ -1,5 +1,5 @@
 #include "bench.h"
-#if __riscv_xlen >= 64
+#if __riscv_xlen != 32
 #include "../thirdparty/boring.h"
 
 uint8_t *src;

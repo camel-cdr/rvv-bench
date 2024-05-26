@@ -10,18 +10,16 @@
 typedef uint32_t ux;
 typedef float fx;
 #define IF64(...)
-#elif __riscv_xlen == 64
+#else
 typedef uint64_t ux;
 typedef double fx;
 #define IF64(...) __VA_ARGS__
-#else
-#error "unsupported XLEN"
 #endif
 
 
 static void print_flush(void);
 
-#ifdef NOLIBC_CUSTOM_HOST
+#ifdef CUSTOM_HOST
 
 #define IFHOSTED(...)
 #define EXIT_FAILURE 1
@@ -300,10 +298,8 @@ memrand(URand *r, void *ptr, size_t n)
 
 #if __riscv_xlen == 32
 #define UXTOA_MAX 10
-#elif __riscv_xlen == 64
-#define UXTOA_MAX 20
 #else
-#error "unsupported XLEN"
+#define UXTOA_MAX 20
 #endif
 
 static size_t
