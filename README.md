@@ -28,8 +28,11 @@ If you have a XTheadVector supporting board, make sure to the rvv 0.7.1 compatib
 
 ### Enable user level performance counter access
 
-If you want to run the benchmarks on real hardware, and are on linux kernel version <v6.5-rc1, then you may need to add the `-DENABLE_RDCYCLE_HACK` define, to allow the benchmarks to access the performance counters.
-On newer kernels, version >=v6.5-rc1, enable the `sysctl` `perf_user_access`, see [this article](https://lwn.net/Articles/939436/).
+If you want to run the benchmarks on real hardware and are on linux kernel version version v6.5-rc1 or newer enable the `sysctl` `perf_user_access` (see [this article](https://lwn.net/Articles/939436/)), to allow the benchmarks to access the performance counters directly.
+
+On older kernel versions, you may need to add the `-DENABLE_RDCYCLE_HACK` define to attempt to gain user space access via the `perf_event_open` syscall.
+
+If that doesn't work, another option is to build the kernel without the PMU enabled by disabeling `CONFIG_RISCV_PMU`.
 
 ### Running benchmarks ([./bench/](./bench/))
 
