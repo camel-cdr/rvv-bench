@@ -308,7 +308,7 @@ MX(rvv_f64_6):
 	vmv.v.i v20, 0
 MX(rvv_f64_7):
 #if HAS_RVV_1_0
-	vsetvli zero, zero, e8, MXf8(), ta, ma
+	vsetvli zero, zero, e8, MXf8e8(), ta, ma
 #else
 	vsetvli zero, t1, e8, m1, ta, ma
 #endif

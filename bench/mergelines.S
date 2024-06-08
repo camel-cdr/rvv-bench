@@ -228,7 +228,7 @@ MX(mergelines_rvv_mshift_):
 	addi a3, a1, -1
 	lbu a4, 0(a0)
 	li a6, 92
-	vsetvli a1, zero, e8, MXf8(), ta, ma
+	vsetvli a1, zero, e8, MXf8e8(), ta, ma
 	li a7, -1
 	mv t0, a0
 2:
@@ -238,7 +238,7 @@ MX(mergelines_rvv_mshift_):
 	vmsne.vx v24, v8, a6
 	vmsne.vi v25, v16, 10
 	vmor.mm v16, v24, v25
-	vsetvli a4, zero, e8, MXf8(), ta, ma
+	vsetvli a4, zero, e8, MXf8e8(), ta, ma
 	vslide1up.vx v17, v16, a7
 	vsrl.vi v17, v17, 7
 	vadd.vv v18, v16, v16
@@ -282,12 +282,12 @@ MX(mergelines_rvv_mshift_skip_):
 	addi a3, a1, -1
 	lbu t0, 0(a0)
 	li a7, 92
-	vsetvli a1, zero, e8, MXf8(), ta, ma
+	vsetvli a1, zero, e8, MXf8e8(), ta, ma
 	li a6, -1
 	mv a5, a0
 	j 4f
 2:
-	vsetvli a4, zero, e8, MXf8(), ta, ma
+	vsetvli a4, zero, e8, MXf8e8(), ta, ma
 	vslide1up.vx v17, v16, a6
 	vsrl.vi v17, v17, 7
 	vadd.vv v18, v16, v16

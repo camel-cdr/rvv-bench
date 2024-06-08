@@ -26,7 +26,8 @@
 #if HAS_RVV_1_0
 #define MXf2(x) x##mf2
 #define MXf4(x) x##mf4
-# define MXf8(x) x##mf8
+#define MXf8(x) x##mf8
+#define MXf8e8(x) x##mf4
 #endif
 #include STRe(INC)
 
@@ -38,6 +39,7 @@
 #undef MXf2
 #undef MXf4
 #undef MXf8
+#undef MXf8e8
 
 #define MX_N 2
 #define MX4(x) x##m8
@@ -46,7 +48,12 @@
 #define MXf2(x) x##m1
 #if HAS_RVV_1_0
 #define MXf4(x) x##mf2
-# define MXf8(x) x##mf4
+#define MXf8(x) x##mf4
+#if HAS_E64
+#define MXf8e8(x) x##mf8
+#else
+#define MXf8e8(x) x##mf4
+#endif
 #endif
 #include STRe(INC)
 
@@ -57,6 +64,7 @@
 #undef MXf2
 #undef MXf4
 #undef MXf8
+#undef MXf8e8
 
 #define MX_N 4
 #define MX2(x) x##m8
@@ -64,7 +72,8 @@
 #define MXf2(x) x##m2
 #define MXf4(x) x##m1
 #if HAS_RVV_1_0
-# define MXf8(x) x##mf2
+#define MXf8(x) x##mf2
+#define MXf8e8(x) x##mf2
 #endif
 #include STRe(INC)
 
@@ -74,11 +83,13 @@
 #undef MXf2
 #undef MXf4
 #undef MXf8
+#undef MXf8e8
 
 #define MX_N 8
 #define MX(x) x##m8
 #define MXf2(x) x##m4
 #define MXf4(x) x##m2
 #define MXf8(x) x##m1
+#define MXf8e8(x) x##m1
 #include STRe(INC)
 
