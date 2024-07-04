@@ -26,8 +26,11 @@
 #if HAS_RVV_1_0
 #define MXf2(x) x##mf2
 #define MXf4(x) x##mf4
-#define MXf8(x) x##mf8
+#if HAS_E64
+#define MXf8e8(x) x##mf8
+#else
 #define MXf8e8(x) x##mf4
+#endif
 #endif
 #include STRe(INC)
 
@@ -49,11 +52,7 @@
 #if HAS_RVV_1_0
 #define MXf4(x) x##mf2
 #define MXf8(x) x##mf4
-#if HAS_E64
-#define MXf8e8(x) x##mf8
-#else
 #define MXf8e8(x) x##mf4
-#endif
 #endif
 #include STRe(INC)
 
