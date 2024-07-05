@@ -4,10 +4,10 @@ include ../../config.mk
 
 all: rvv
 
-rvv: main.S main.c config.h
-	m4 main.S > gen.S
-	${CC} ${CFLAGS} -s gen.S main.c -o $@
-	rm gen.S
+rvv: gen.S main.c config.h
+	m4 gen.S > main.S
+	${CC} ${CFLAGS} -s main.S main.c -o $@
+	rm main.S
 
 clean:
 	rm -f rvv
