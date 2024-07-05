@@ -27,13 +27,13 @@ static void print_flush(void);
 
 /* customize me */
 static void
-exit(int x) { __asm volatile("unimp\n"); }
-
-static void
 memwrite(void const *ptr, size_t len) { }
 
 // static size_t /* only needed for vector-utf/bench.c */
 // memread(void *ptr, size_t len) { }
+
+static void
+exit(int x) { __asm volatile("unimp\n"); }
 
 int main(void);
 

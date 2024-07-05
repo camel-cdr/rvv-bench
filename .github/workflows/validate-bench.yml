@@ -1,0 +1,33 @@
+name: Validate bench
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install packages
+      run: |
+        git submodule update --init --recursive
+        sudo sed 's/jammy/devel/g' -i /etc/apt/sources.list
+        sudo apt-get update -q -y
+        sudo apt-get install -y make qemu-user-static clang-17 lld-17
+    - name: Validate RV64
+      run: |
+        cp .github/workflows/rv64-config.mk ./config.mk
+        cp .github/workflows/rv64-run.sh ./run.sh
+        cp .github/workflows/bench-config.h ./bench/config.h
+        make -C bench run -j$(nproc)
+        make -C bench clean
+    - name: Validate RV32
+      run: |
+        cp .github/workflows/rv32-config.mk ./config.mk
+        cp .github/workflows/rv32-run.sh ./run.sh
+        cp .github/workflows/bench-config.h ./bench/config.h
+        make -C bench run -j$(nproc)
+        make -C bench clean

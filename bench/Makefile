@@ -13,5 +13,5 @@ clean:
 	rm -f ${EXECS}
 
 run: all
-	for i in ${EXECS}; do ../run.sh ./$$i; done
+	for i in ${EXECS}; do ../run.sh ./$$i || { printf "\n\n\033[0;31mFAILED\033[0m\n\n"; exit 1; } ; done
 

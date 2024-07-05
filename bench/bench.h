@@ -137,7 +137,7 @@ bench_run(Bench *benches, size_t nBenches)
 			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
 				ux si = 0, s0 = 0;
 
-#if MAX_REPEATS > 4
+#if VALIDATE
 				if (i != b->impls) {
 					URand seed = randState;
 					(void)b->func(i->func, n);

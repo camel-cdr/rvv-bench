@@ -15,6 +15,8 @@
 /* stop repeats early afer this many cycles have elapsed */
 #define STOP_CYCLES (1024*1024*500)
 
+/* validate against reference implementation on the first repetition */
+#define VALIDATE 1
 
 /* custom scaling factors for benchmarks, these are used to make sure each
  * benchmark approximately takes the same amount of time. */
@@ -24,3 +26,4 @@
 
 /* benchmark specific configurations */
 #define mandelbrot_ITER 100
+

@@ -40,14 +40,24 @@ byteswap32_SWAR_rev8(uint32_t *ptr, size_t n)
 #endif
 
 
+/* we don't support these on XTheadVector */
+#ifndef __riscv_vector
+#define IMPLS_RVV(f)
+#else
+#define IMPLS_RVV(f) \
+	f(rvv_gatherei16_m1) \
+	f(rvv_gatherei16_m2) \
+	f(rvv_gatherei16_m4) \
+	f(rvv_m1_gatherei16s_m2) \
+	f(rvv_m1_gatherei16s_m4) \
+	f(rvv_m1_gatherei16s_m8)
+#endif
+
 #define IMPLS(f) \
 	f(scalar) \
 	f(scalar_autovec) \
 	REV8(f) \
-	MX(f, rvv_gather) \
-	f(rvv_m1_gathers_m2) \
-	f(rvv_m1_gathers_m4) \
-	f(rvv_m1_gathers_m8) \
+	IMPLS_RVV(f)
 
 typedef void Func(uint32_t *ptr, size_t n);
 
