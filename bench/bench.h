@@ -61,7 +61,7 @@ void bench_main(void);
 ux checksum(size_t n);
 void init(void);
 
-#if __STDC_HOSTED__
+#if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
 # include <stdlib.h>
 #else
 static ux heap[1 + MAX_MEM / sizeof(ux)];
@@ -72,7 +72,7 @@ int
 main(void)
 {
 
-#if __STDC_HOSTED__
+#if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
 	mem = malloc(MAX_MEM);
 #else
 	mem = (unsigned char*)heap;
@@ -87,7 +87,7 @@ main(void)
 
 	init();
 	bench_main();
-#if __STDC_HOSTED__
+#if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
 	free(mem);
 #endif
 	return 0;
