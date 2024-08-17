@@ -1,6 +1,6 @@
 #include "bench.h"
 #if __riscv_xlen != 32
-#include "../thirdparty/boring.h"
+#include "../thirdparty/rvv-chacha-poly/boring.h"
 
 uint8_t *dest, *src;
 uint8_t key[32], nonce[12];
@@ -52,7 +52,7 @@ Bench benches[] = {
 }; BENCH_MAIN(benches)
 
 
-#include "../thirdparty/boring.c"
+#include "../thirdparty/rvv-chacha-poly/boring.c"
 #else
 void init(void) {}
 Impl impls[] = {};
