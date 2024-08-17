@@ -1,4 +1,20 @@
 #if HAS_RVV_1_0
+
+#if defined(MX) && __riscv_zvbb
+.global MX(byteswap32_rvv_vrev8_)
+MX(byteswap32_rvv_vrev8_):
+1:
+	vsetvli t0, a1, e32, MX(), ta, ma
+	vle32.v v0, (a0)
+	vrev8.v v8, v0
+	vse32.v v8, (a0)
+	sub a1, a1, t0
+	slli t1, t0, 2
+	add a0, a0, t1
+	bnez a1, 1b
+	ret
+#endif
+
 #if MX_N == 4 || MX_N == 2 || MX_N == 1
 
 # a0 = ptr, a1 = len

@@ -53,10 +53,18 @@ byteswap32_SWAR_rev8(uint32_t *ptr, size_t n)
 	f(rvv_m1_gatherei16s_m8)
 #endif
 
+#if __riscv_zvbb
+#define IMPLS_ZVBB(f) MX(f,rvv_vrev8)
+#else
+#define IMPLS_ZVBB(f)
+#endif
+
+
 #define IMPLS(f) \
 	f(scalar) \
 	f(scalar_autovec) \
 	REV8(f) \
+	IMPLS_ZVBB(f) \
 	IMPLS_RVV(f)
 
 typedef void Func(uint32_t *ptr, size_t n);
