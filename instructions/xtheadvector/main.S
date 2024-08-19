@@ -272,6 +272,7 @@ vmseq.vx v8, v0, t0
 
 
 
+.balign 8
 .global benchmarks
 benchmarks:
 .macro gen_function_pointers name type setup code:vararg
@@ -280,6 +281,7 @@ benchmarks:
 m_benchmarks_all gen_function_pointers
 .quad 0 # zero termination
 
+.balign 8
 .global benchmark_types
 benchmark_types:
 .macro gen_types name type setup code:vararg
@@ -299,6 +301,7 @@ m_benchmarks_all gen_types
 
 m_benchmarks_all gen_strings
 
+.balign 8
 .global benchmark_names
 benchmark_names:
 m_benchmarks_all gen_string_arr

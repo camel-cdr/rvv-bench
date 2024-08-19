@@ -350,21 +350,25 @@ define(`m_format',`$2 shift(shift($*))')
 define(`m_gen_strings', `.string "m_format(,shift(shift(shift($*))))"')
 
 
+.balign 8
 define(`m_LMUL', 1)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
 
+.balign 8
 define(`m_LMUL', 2)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
 
+.balign 8
 define(`m_LMUL', 4)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
 
+.balign 8
 define(`m_LMUL', 8)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
@@ -372,14 +376,17 @@ define(`m_LMUL', 8)
 
 pushdef(`m_ifmx',`m_ifmx_t($*)')
 
+.balign 8
 .global bench_types
 	bench_types:
 	m_bench_all(`gen_types')
 
+.balign 8
 .global bench_names
 	bench_names:
 	m_bench_all(`gen_strings')
 
+.balign 8
 define(`m_1p', 1+)
 .global bench_count
 bench_count:

@@ -297,6 +297,7 @@ fabs.d  fa0,fa0
 #define defptr .dword
 #endif
 
+.balign 8
 .global benchmarks
 benchmarks:
 .macro gen_function_pointers name setup code:vararg
@@ -310,6 +311,7 @@ defptr 0 # zero termination
 	.string "\code"
 .endm
 
+.balign 8
 .global benchmark_names
 benchmark_names:
 m_benchmarks_all gen_strings
