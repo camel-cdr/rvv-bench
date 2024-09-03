@@ -15,11 +15,9 @@ mandelbrot_scalar_f32(size_t width, size_t maxIter, uint32_t *res)
 			zxS = zxS - zyS + cx;
 			zy = 2 * zx * zy + cy;
 			zx = zxS;
-			BENCH_VOLATILE_REG(zx);
 			zxS = zx*zx;
 			zyS = zy*zy;
 			++iter;
-			BENCH_CLOBBER();
 		}
 		*res++ = iter;
 	}
@@ -41,7 +39,6 @@ mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 			zxS = zxS - zyS + cx;
 			zy = 2 * zx * zy + cy;
 			zx = zxS;
-			BENCH_VOLATILE_REG(zx);
 			zxS = zx*zx;
 			zyS = zy*zy;
 			++iter;

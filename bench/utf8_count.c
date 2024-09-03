@@ -71,7 +71,7 @@ upopcnt(ux x)
 	x = (x & (-(ux)1/15*3)) + ((x >> 2) & (-(ux)1/15*3));
 	/* 8-bit sums */
 	x = (x + (x >> 4)) & (-(ux)1/255*15);
-	BENCH_VOLATILE_REG(x);
+	BENCH_CLOBBER();
 	/* now we can just add the sums together, because can't overflow,
 	 * since there can't be more than 255 bits set */
 	x += (x >>  8); /* 16-bit sums */

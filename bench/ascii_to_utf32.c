@@ -3,7 +3,7 @@
 void
 ascii_to_utf32_scalar(uint32_t *restrict dest, uint8_t const *restrict src, size_t len)
 {
-	while (len--) *dest++ = *src++, BENCH_CLOBBER();
+	while (len--)  BENCH_CLOBBER(), *dest++ = *src++;
 }
 
 void
