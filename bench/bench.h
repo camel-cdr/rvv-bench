@@ -15,8 +15,6 @@
 # define BENCH_VOLATILE(x) ({__asm volatile("" : "+g"(x) : "g"(x) : "memory");})
 # define BENCH_VOLATILE_REG(x) ({__asm volatile("" : "+r"(x) : "r"(x) : "memory");})
 # define BENCH_VOLATILE_MEM(x) ({__asm volatile("" : "+m"(x) : "m"(x) : "memory");})
-# define BENCH_FENCE() ({__asm volatile("fence.i");})
-
 
 #define BENCH_MAY_ALIAS __attribute__((__may_alias__))
 
@@ -164,7 +162,7 @@ bench_run(Bench *benches, size_t nBenches)
 
 #define TIME \
 	for (ux beg = rv_cycles(), _once = 1; _once; \
-	       BENCH_FENCE(), \
+	       rv_fencei(), \
 	       _cycles += rv_cycles() - beg, _once = 0)
 
 #define BENCH_BEG(name) \

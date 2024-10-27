@@ -1,0 +1,3 @@
+[submodule "thirdparty/veclibm"]
+	path = thirdparty/veclibm
+	url = https://github.com/rivosinc/veclibm
