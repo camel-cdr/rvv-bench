@@ -85,7 +85,7 @@ LUT6_rvv_m1m2m4_gathers_m4:
 	vle8.v v8, (a1)
 	vand.vv v8, v8, v24
 	beqz t1, 1b
-	beqz t1, 2f
+	beqz t0, 2f
 	vrgather.vv v16, v0, v8
 	j 8b
 2:
