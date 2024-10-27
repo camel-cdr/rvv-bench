@@ -8,7 +8,7 @@ LUT6_scalar(uint8_t lut[64], uint8_t *ptr, size_t n)
 }
 
 void
-LUT6_scalar_autovec(uint8_t lut[64], uint8_t *ptr, size_t n)
+LUT6_scalar_autovec(uint8_t lut[restrict 64], uint8_t *restrict ptr, size_t n)
 {
 	for (; n--; ++ptr)
 		*ptr = lut[*ptr & 63];
