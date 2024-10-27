@@ -78,7 +78,7 @@ main(void)
 
 	size_t x;
 	randState.x ^= rv_cycles()*7;
-	randState.y += rv_cycles() ^ (uintptr_t)&x + 666*(uintptr_t)mem;
+	randState.y += rv_cycles() ^ ((uintptr_t)&x + 666*(uintptr_t)mem);
 
 	/* initialize memory */
 	bench_memrand(mem, MAX_MEM);
