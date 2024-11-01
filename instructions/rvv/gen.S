@@ -107,8 +107,8 @@ define(`m_bench_wxi',
 
 define(`m_ifmx_t', `m_$3(shift(shift(shift($*))))')
 define(`m_ifmx_f', `m_$3($4, 0, m_nop, m_unimpl)')
-define(`m_ifmx',`ifelse(eval($1 <= m_LMUL && $2 >= m_LMUL),1,`m_ifmx_t($*)',`m_ifmx_f($*)')')
-
+define(`m_ifmx_lmul_to_i', `ifelse(regexp($1,f), -1, $1, 0)')
+define(`m_ifmx',`ifelse(eval($1 <= m_ifmx_lmul_to_i(m_LMUL) && $2 >= m_ifmx_lmul_to_i(m_LMUL)),1,`m_ifmx_t($*)',`m_ifmx_f($*)')')
 
 # calls $1 with: name type setup code:vararg
 define(`m_bench_all',`
@@ -344,32 +344,56 @@ define(`m_bench_all',`
 #define defptr .dword
 #endif
 
-define(`m_gen_function_pointers', `defptr $1_m`'m_LMUL')
+define(`m_gen_function_pointers', `defptr $1_m`'m_benchLMUL')
 define(`m_gen_types', `defptr $2')
 define(`m_format',`$2 shift(shift($*))')
 define(`m_gen_strings', `.string "m_format(,shift(shift(shift($*))))"')
 
+.balign 8
+define(`m_LMUL', f8)
+define(`m_benchLMUL', 1)
+.global bench_m`'m_LMUL
+	bench_m`'m_LMUL:
+	m_bench_all(`gen_function_pointers')
+
+.balign 8
+define(`m_LMUL', f4)
+define(`m_benchLMUL', 1)
+.global bench_m`'m_LMUL
+	bench_m`'m_LMUL:
+	m_bench_all(`gen_function_pointers')
+
+.balign 8
+define(`m_LMUL', f2)
+define(`m_benchLMUL', 1)
+.global bench_m`'m_LMUL
+	bench_m`'m_LMUL:
+	m_bench_all(`gen_function_pointers')
 
 .balign 8
 define(`m_LMUL', 1)
+define(`m_benchLMUL', 1)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
 
 .balign 8
 define(`m_LMUL', 2)
+define(`m_benchLMUL', 2)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
 
 .balign 8
 define(`m_LMUL', 4)
+define(`m_benchLMUL', 4)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
 
 .balign 8
 define(`m_LMUL', 8)
+define(`m_benchLMUL', 8)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
