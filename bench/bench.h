@@ -40,6 +40,7 @@ compare_ux(void const *a, void const *b)
 
 static URand randState = { 123, 456, 789 };
 static ux bench_urand(void) { return urand(&randState); }
+static float bench_urandf(void) { return urandf(&randState); }
 static void bench_memrand(void *ptr, size_t n) { return memrand(&randState, ptr, n); }
 
 typedef struct {

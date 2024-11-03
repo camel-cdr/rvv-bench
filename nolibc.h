@@ -281,6 +281,12 @@ urand(URand *r)
 	return xp;
 }
 
+static inline float
+urandf(URand *r) {
+	uint32_t x = urand(r);
+	return (x >> (32-24)) * (1.0f / (((uint32_t)1) << 24));
+}
+
 static void
 memrand(URand *r, void *ptr, size_t n)
 {
