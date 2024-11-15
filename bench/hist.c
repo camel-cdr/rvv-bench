@@ -1,19 +1,11 @@
 #include "bench.h"
 
-#if __STDC_HOSTED__
-#include <math.h>
-#endif
-
 void
 hist_scalar(uint32_t *hist, float *x, float *y, size_t n)
 {
 	for (size_t i = 0; i < n; ++i) {
 		float dist = x[i]*x[i] + y[i]*y[i];
-#if __STDC_HOSTED__
-		dist = sqrtf(dist);
-#else
 		__asm volatile("fsqrt.s %0, %0\n" : "+f"(dist));
-#endif
 		size_t idx = dist;
 		idx = idx > 100 ? 100 : dist;
 		++hist[idx];
