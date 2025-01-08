@@ -53,7 +53,7 @@ MX(mandelbrot_rvv_f16_):
 	beqz a0, 9f
 	li a6, 0
 	vsetvli a3, zero, e16, MX(), ta, ma
-	fcvt.s.lu fa5, a0
+	fcvt.s.wu fa5, a0
 	la a3, MX(rvv_f16_p4)
 	flh fa4, (a3)
 	lui a3, 262144
@@ -78,7 +78,7 @@ MX(mandelbrot_rvv_f16_):
 	beq a6, a0, 9f
 2:
 	li a4, 0
-	fcvt.h.lu fa2, a6
+	fcvt.h.wu fa2, a6
 	vsetvli a1, zero, e16, MX(), ta, ma
 	vfmv.v.f v10, fa2
 	vfmul.vf v10, v10, fa3
@@ -135,7 +135,7 @@ MX(mandelbrot_rvv_f32_):
 	li a6, 0
 	vsetvli a3, zero, e32, MX(), ta, ma
 	lui a3, 264192
-	fcvt.s.lu fa4, a0
+	fcvt.s.wu fa4, a0
 	vmv.v.x v8, a3
 	lui a3, 262144
 	fmv.w.x fa3, a3
@@ -156,7 +156,7 @@ MX(mandelbrot_rvv_f32_):
 	beq a6, a0, 9f
 2:
 	li a4, 0
-	fcvt.s.lu fa2, a6
+	fcvt.s.wu fa2, a6
 	vsetvli a1, zero, e32, MX(), ta, ma
 	vfmv.v.f v12, fa2
 	vfmul.vf v12, v12, fa4
@@ -213,7 +213,7 @@ MX(mandelbrot_rvv_f64_):
 	beqz a0, 9f
 	li a6, 0
 	vsetvli a3, zero, e64, MX(), ta, ma
-	fcvt.s.lu fa5, a0
+	fcvt.s.wu fa5, a0
 	la a3, MX(rvv_f64_p4)
 	fld fa4, (a3)
 	lui a3, 262144
