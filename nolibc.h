@@ -216,7 +216,7 @@ qsort(void *base, size_t len, size_t size, int (*cmp)(const void *, const void *
 		while (cmp(b + l*size, b + pivot*size) < 0) ++l;
 		while (cmp(b + h*size, b + pivot*size) > 0) --h;
 		if (l >= h) break;
-		memswap( b + l*size, b + h*size, size);
+		memswap(b + l*size, b + h*size, size);
 		pivot = pivot == l ? h : pivot == h ? l : pivot;
 	}
 	qsort(b, l, size, cmp);
@@ -375,6 +375,7 @@ print_raw(const char *s, size_t len)
 }
 
 static void print_s(const char *s) { print_raw(s, strlen(s)); }
+static void print_c(const char s) { print_raw(&s, 1); }
 
 static void
 print_u(ux val)

@@ -225,7 +225,7 @@ utf8_to_utf32_rvv(char const *src, size_t count, uintOut_t *dest)
 		 * us to terminate early. */
 		{
 			size_t vlOutm2 = vlOut;
-			vlOut = __riscv_vsetvl_e8m1(vlOut);
+			vlOut = __riscv_vsetvl_e8m1(vlOut < vl8m1 ? vlOut : vl8m1);
 			M1_COMMON(0)
 			M1_STORE
 			if (vlOutm2 == vlOut) {

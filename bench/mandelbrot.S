@@ -3,40 +3,36 @@
 void
 mandelbrot_rvv(size_t width, size_t maxIter, uint32_t *res)
 {
+	size_t VL2 = __riscv_vsetvlmax_e32m2();
+	vfloat32m2_t v4 = __riscv_vfmv_v_f_f32m2(4, VL2);
+	vuint32m2_t vid = __riscv_vid_v_u32m2(VL2);
 	vfloat32m2_t cx, cy, zx, zy, zx2, zy2;
-	vuint32m2_t viter;
-	vbool16_t mask;
 
 	for (size_t y = 0; y < width; ++y) {
-		size_t vl, x = width;
-		while (x > 0) {
-			x -= vl = __riscv_vsetvl_e32m2(x);
+		cy = __riscv_vfmv_v_f_f32m2(y, VL2);
+		cy = __riscv_vfadd(__riscv_vfmul(cy, 2.0f / width, VL2), -1, VL2);
 
-			mask = __riscv_vmset_m_b16(vl);
-			viter = __riscv_vmv_v_x_u32m2(0, vl);
+		for (size_t vl, x = 0, n = width; n > 0; n -= vl, res += vl, x += vl) {
+			vl = __riscv_vsetvl_e32m2(n);
 
-			cx = __riscv_vfcvt_f_xu_v_f32m2(__riscv_vadd_vx_u32m2(__riscv_viota_m_u32m2(mask, vl), x, vl), vl);
-			cy = __riscv_vfmv_v_f_f32m2(y, vl);
-
-			cx = __riscv_vfadd_vf_f32m2(__riscv_vfmul_vf_f32m2(cx, 2.0f / width, vl), -1.5f, vl);
-			cy = __riscv_vfadd_vf_f32m2(__riscv_vfmul_vf_f32m2(cy, 2.0f / width, vl), -1, vl);
-
-			zx = zy = zx2 = zy2 = __riscv_vfmv_v_f_f32m2(0, vl);
+			cx = __riscv_vfcvt_f(__riscv_vadd(vid, x, vl), vl);
+			cx = __riscv_vfadd(__riscv_vfmul(cx, 2.0f / width, vl), -1.5f, vl);
 
 			size_t iter = 0;
-			while (iter < maxIter && __riscv_vfirst_m_b16(mask, vl) >= 0) {
-				mask = __riscv_vmflt_vf_f32m2_b16(__riscv_vfadd_vv_f32m2(zx2, zy2, vl), 4, vl);
-				zx2 = __riscv_vfadd_vv_f32m2(__riscv_vfsub_vv_f32m2(zx2, zy2, vl), cx, vl);
-				zy = __riscv_vfmacc_vv_f32m2(cy, __riscv_vfadd_vv_f32m2(zx, zx, vl), zy, vl);
-				zx = zx2;
-				zx2 = __riscv_vfmul_vv_f32m2(zx, zx, vl);
-				zy2 = __riscv_vfmul_vv_f32m2(zy, zy, vl);
+			vuint32m2_t viter = __riscv_vmv_v_x_u32m2(0, vl);
+			vbool16_t mask = __riscv_vmset_m_b16(vl);
+			zx = zy = zx2 = zy2 = __riscv_vfmv_v_f_f32m2(0, vl);
+			do {
+				mask = __riscv_vmflt(__riscv_vfadd(zx2, zy2, vl), v4, vl);
+				viter = __riscv_vadc(viter, 0, mask, vl);
+				zy = __riscv_vfmacc(cy, __riscv_vfadd(zx, zx, vl), zy, vl);
+				zx = __riscv_vfadd(__riscv_vfsub(zx2, zy2, vl), cx, vl);
+				zx2 = __riscv_vfmul(zx, zx, vl);
+				zy2 = __riscv_vfmul(zy, zy, vl);
 				++iter;
-				viter = __riscv_vmerge_vxm_u32m2(viter, iter, mask, vl);
-			}
-			__riscv_vse32_v_u32m2(res + x, viter, vl);
+			} while (iter < maxIter && __riscv_vfirst(mask, vl) >= 0);
+			__riscv_vse32(res, viter, vl);
 		}
-		res += width;
 	}
 }
 
@@ -54,201 +50,157 @@ MX(rvv_f16_m1):
 MX(rvv_f16_p4):
 	.half 0x4400 # half 4
 MX(mandelbrot_rvv_f16_):
-	beqz a0, MX(rvv_f16_13)
-	beqz a1, MX(rvv_f16_9)
-	li a7, 0
-	fcvt.s.wu fa2, a0
-	lui a3, 262144
-	fmv.w.x fa1, a3
-	la a3, MX(rvv_f16_m1p5)
-	flh fa5, (a3)
-	la a3, MX(rvv_f16_m1)
-	flh fa4, (a3)
+	beqz a0, 9f
+	li a6, 0
+	vsetvli a3, zero, e16, MX(), ta, ma
+	fcvt.s.lu fa5, a0
 	la a3, MX(rvv_f16_p4)
-	flh fa3, (a3)
-	fdiv.s fa2, fa1, fa2
-	fcvt.h.s fa2, fa2
-	slli a6, a0, 2
-	j MX(rvv_f16_4)
-MX(rvv_f16_3):
-	addi a7, a7, 1
-	add a2, a2, a6
-	beq a7, a0, MX(rvv_f16_13)
-MX(rvv_f16_4):
-	fcvt.s.wu fa1, a7
-	fcvt.h.s fa1, fa1
-	mv t0, a0
-	j MX(rvv_f16_6)
-MX(rvv_f16_5):
-	slli a3, t0, 2
-	add a3, a3, a2
+	flh fa4, (a3)
+	lui a3, 262144
+	fmv.w.x fa3, a3
+	fdiv.s fa3, fa3, fa5
+	la a3, MX(rvv_f16_m1)
+	flh fa5, (a3)
+	vfmv.v.f v8, fa4
+	la a3, MX(rvv_f16_m1p5)
+	flh fa4, (a3)
+	addi a3, a1, -1
+	sltu a1, a1, a3
+	addi a1, a1, -1
+	and a1, a1, a3
 	vsetvli zero, zero, e32, MX2(), ta, ma
-	vse32.v v8, (a3)
-	beqz t0, MX(rvv_f16_3)
-MX(rvv_f16_6):
-	vsetvli a3, t0, e32, MX2(), ta, ma
-	sub t0, t0, a3
-	vmset.m v0
-	vmv.v.i v8, 0
+	vid.v v12
+	fcvt.h.s fa3, fa3
+	addi a7, a1, 1
+	j 2f
+1:
+	addi a6, a6, 1
+	beq a6, a0, 9f
+2:
+	li a4, 0
+	fcvt.h.lu fa2, a6
+	vsetvli a1, zero, e16, MX(), ta, ma
+	vfmv.v.f v10, fa2
+	vfmul.vf v10, v10, fa3
+	vfadd.vf v10, v10, fa5
+	mv a5, a0
+	j 4f
+3:
+	vsetvli zero, zero, e32, MX2(), ta, ma
+	vse32.v v16, (a2)
+	sub a5, a5, t0
+	slli a1, t0, 2
+	add a2, a2, a1
+	add a4, a4, t0
+	beqz a5, 1b
+4:
+	vsetvli t0, a5, e32, MX2(), ta, ma
+	vadd.vx v16, v12, a4
 	vsetvli zero, zero, e16, MX(), ta, ma
-	viota.m v12, v0
-	vadd.vx v12, v12, t0
-	vfcvt.f.xu.v v12, v12
-	vfmv.v.f v14, fa1
-	vfmul.vf v12, v12, fa2
-	vfadd.vf v12, v12, fa5
-	vfmul.vf v14, v14, fa2
-	vfadd.vf v14, v14, fa4
-	vmv.v.i v20, 0
-	li a4, 1
-	mv a3, a1
-	vmv.v.i v16, 0
-	vmv.v.i v18, 0
 	vmv.v.i v22, 0
-MX(rvv_f16_7):
-#if HAS_RVV_1_0 || MX_N >= 2
-	vsetvli zero, zero, e8, MXf2(), ta, ma
-#else
-	vsetvli zero, zero, e8, m1, ta, ma
-#endif
-	vfirst.m a5, v0
-	bltz a5, MX(rvv_f16_5)
-	vsetvli zero, zero, e16, MX(), ta, ma
-	vfadd.vv v24, v18, v22
-	vmflt.vf v0, v24, fa3
-	vfsub.vv v18, v18, v22
-	vfadd.vv v20, v20, v20
-	vfadd.vv v24, v18, v12
-	vfmadd.vv v16, v20, v14
-	vfmul.vv v18, v24, v24
-	vfmul.vv v22, v16, v16
+	vfncvt.f.xu.w v20, v16
+	vfmul.vf v16, v20, fa3
+	vfadd.vf v20, v16, fa4
 	vsetvli zero, zero, e32, MX2(), ta, ma
-	vmerge.vxm v8, v8, a4, v0
-	addi a3, a3, -1
-	addi a4, a4, 1
-#if HAS_RVV_1_0
-	vmv2r.v v20, v24
-#else
-	vsetvli  zero, zero, e32, m2
-	vmv.v.v v20, v24
-#endif
-	bnez a3, MX(rvv_f16_7)
-	j MX(rvv_f16_5)
-MX(rvv_f16_9):
-	slli a3, a0, 2
-MX(rvv_f16_10):
-	mv a4, a0
-MX(rvv_f16_11):
-	vsetvli a5, a4, e32, MX2(), ta, ma
-	sub a4, a4, a5
-	vmv.v.i v8, 0
-	slli a5, a4, 2
-	add a5, a5, a2
-	vse32.v v8, (a5)
-	bnez a4, MX(rvv_f16_11)
-	addi a1, a1, 1
-	add a2, a2, a3
-	bne a1, a0, MX(rvv_f16_10)
-MX(rvv_f16_13):
+	vmv.v.i v16, 0
+	mv a1, a7
+	vmv2r.v v26, v22
+	vmv2r.v v24, v22
+	vmv2r.v v28, v22
+5:
+	vsetvli zero, zero, e16, MX(), ta, ma
+	vfadd.vv v30, v26, v22
+	vmflt.vv v0, v30, v8
+	addi a1, a1, -1
+	vsetvli zero, zero, e32, MX2(), ta, ma
+	vadc.vim v16, v16, 0, v0
+	beqz a1, 3b
+	vsetvli zero, zero, e16, MX(), ta, ma
+	vfadd.vv v28, v28, v28
+	vfsub.vv v22, v26, v22
+	vfmadd.vv v24, v28, v10
+	vfadd.vv v28, v22, v20
+	vfmul.vv v22, v24, v24
+	vfirst.m a3, v0
+	vfmul.vv v26, v28, v28
+	bgez a3, 5b
+	j 3b
+9:
 	ret
 #endif
-
 
 .global MX(mandelbrot_rvv_f32_) # generated by clang
 MX(mandelbrot_rvv_f32_):
-	beqz a0, MX(rvv_f32_13)
-	beqz a1, MX(rvv_f32_9)
-	li a7, 0
-	fcvt.s.wu fa5, a0
-	lui a3, 262144
-	fmv.w.x fa4, a3
-	fdiv.s fa5, fa4, fa5
-	lui a3, 785408
-	fmv.w.x fa4, a3
-	lui a3, 784384
-	fmv.w.x fa3, a3
+	beqz a0, 9f
+	li a6, 0
+	vsetvli a3, zero, e32, MX(), ta, ma
 	lui a3, 264192
-	fmv.w.x fa2, a3
-	slli a6, a0, 2
-	j MX(rvv_f32_4)
-MX(rvv_f32_3):
-	addi a7, a7, 1
-	add a2, a2, a6
-	beq a7, a0, MX(rvv_f32_13)
-MX(rvv_f32_4):
-	fcvt.s.wu fa1, a7
-	mv t0, a0
-	j MX(rvv_f32_6)
-MX(rvv_f32_5):
-	slli a3, t0, 2
-	add a3, a3, a2
-	vsetvli zero, zero, e32, MX(), ta, ma
-	vse32.v v8, (a3)
-	beqz t0, MX(rvv_f32_3)
-MX(rvv_f32_6):
-	vsetvli t1, t0, e32, MX(), ta, ma
-	sub t0, t0, t1
-	vmset.m v0
-	vmv.v.i v8, 0
-	viota.m v10, v0
-	vadd.vx v10, v10, t0
-	vfcvt.f.xu.v v10, v10
-	vfmv.v.f v12, fa1
-	vfmul.vf v10, v10, fa5
-	vfadd.vf v10, v10, fa4
-	vfmul.vf v12, v12, fa5
-	vfadd.vf v12, v12, fa3
+	fcvt.s.lu fa4, a0
+	vmv.v.x v8, a3
+	lui a3, 262144
+	fmv.w.x fa3, a3
+	lui a3, 784384
+	fmv.w.x fa5, a3
+	lui a3, 785408
+	fdiv.s fa4, fa3, fa4
+	fmv.w.x fa3, a3
+	addi a3, a1, -1
+	sltu a1, a1, a3
+	addi a1, a1, -1
+	and a1, a1, a3
+	vid.v v10
+	addi a7, a1, 1
+	j 2f
+1:
+	addi a6, a6, 1
+	beq a6, a0, 9f
+2:
+	li a4, 0
+	fcvt.s.lu fa2, a6
+	vsetvli a1, zero, e32, MX(), ta, ma
+	vfmv.v.f v12, fa2
+	vfmul.vf v12, v12, fa4
+	vfadd.vf v12, v12, fa5
+	mv a5, a0
+	j 4f
+3:
+	vse32.v v14, (a2)
+	sub a5, a5, t0
+	slli a1, t0, 2
+	add a2, a2, a1
+	add a4, a4, t0
+	beqz a5, 1b
+4:
+	vsetvli t0, a5, e32, MX(), ta, ma
+	vadd.vx v14, v10, a4
 	vmv.v.i v18, 0
-	li a3, 1
-	mv a5, a1
+	vfcvt.f.xu.v v14, v14
+	vfmul.vf v14, v14, fa4
+	vfadd.vf v16, v14, fa3
 	vmv.v.i v14, 0
-	vmv.v.i v16, 0
+	mv a1, a7
+	vmv.v.i v22, 0
 	vmv.v.i v20, 0
-MX(rvv_f32_7):
-#if HAS_RVV_1_0
-	vsetvli zero, t1, e8, MXf4(), ta, ma
-#else
-	vsetvli zero, t1, e8, m1, ta, ma
-#endif
-	vfirst.m a4, v0
-	bltz a4, MX(rvv_f32_5)
-	vsetvli zero, zero, e32, MX(), ta, ma
-	vfadd.vv v22, v16, v20
-	vmflt.vf v0, v22, fa2
-	vfsub.vv v16, v16, v20
-	vfadd.vv v18, v18, v18
-	vfadd.vv v22, v16, v10
-	vfmadd.vv v14, v18, v12
-	vfmul.vv v16, v22, v22
-	vfmul.vv v20, v14, v14
-	vmerge.vxm v8, v8, a3, v0
-	addi a5, a5, -1
-	addi a3, a3, 1
-	vmv.v.v v18, v22
-	bnez a5, MX(rvv_f32_7)
-	j MX(rvv_f32_5)
-MX(rvv_f32_9):
-	slli a3, a0, 2
-MX(rvv_f32_10):
-	mv a4, a0
-MX(rvv_f32_11):
-	vsetvli a5, a4, e32, MX(), ta, ma
-	sub a4, a4, a5
-	vmv.v.i v8, 0
-	slli a5, a4, 2
-	add a5, a5, a2
-	vse32.v v8, (a5)
-	bnez a4, MX(rvv_f32_11)
-	addi a1, a1, 1
-	add a2, a2, a3
-	bne a1, a0, MX(rvv_f32_10)
-MX(rvv_f32_13):
+	vmv.v.i v24, 0
+5:
+	vfadd.vv v26, v22, v18
+	vmflt.vv v0, v26, v8
+	addi a1, a1, -1
+	vadc.vim v14, v14, 0, v0
+	beqz a1, 3b
+	vfadd.vv v24, v24, v24
+	vfsub.vv v18, v22, v18
+	vfmadd.vv v20, v24, v12
+	vfadd.vv v24, v18, v16
+	vfmul.vv v18, v20, v20
+	vfirst.m a3, v0
+	vfmul.vv v22, v24, v24
+	bgez a3, 5b
+	j 3b
+9:
 	ret
 
-#endif
-
-#if MX_N == 2 && HAS_E64
-
+#if HAS_E64
 .balign 8
 .global MX(mandelbrot_rvv_f64_) # generated by clang
 MX(rvv_f64_m1p5):
@@ -258,102 +210,95 @@ MX(rvv_f64_m1):
 MX(rvv_f64_p4):
 	.quad 0x4010000000000000 # double 4
 MX(mandelbrot_rvv_f64_):
-	beqz a0, MX(rvv_f64_13)
-	beqz a1, MX(rvv_f64_9)
-	li a7, 0
-	fcvt.s.wu fa2, a0
-	lui a3, 262144
-	fmv.w.x fa1, a3
-	la a3, MX(rvv_f64_m1p5)
-	fld fa5, (a3)
-	la a3, MX(rvv_f64_m1)
-	fld fa4, (a3)
+	beqz a0, 9f
+	li a6, 0
+	vsetvli a3, zero, e64, MX(), ta, ma
+	fcvt.s.lu fa5, a0
 	la a3, MX(rvv_f64_p4)
-	fld fa3, (a3)
-	fdiv.s fa2, fa1, fa2
-	fcvt.d.s fa2, fa2
-	slli a6, a0, 2
-	j MX(rvv_f64_4)
-MX(rvv_f64_3):
-	addi a7, a7, 1
-	add a2, a2, a6
-	beq a7, a0, MX(rvv_f64_13)
-MX(rvv_f64_4):
-	fcvt.d.wu fa1, a7
-	mv t0, a0
-	j MX(rvv_f64_6)
-MX(rvv_f64_5):
-	slli a3, t0, 2
-	add a3, a3, a2
+	fld fa4, (a3)
+	lui a3, 262144
+	fmv.w.x fa3, a3
+	fdiv.s fa3, fa3, fa5
+	la a3, MX(rvv_f64_m1)
+	fld fa5, (a3)
+	vfmv.v.f v8, fa4
+	la a3, MX(rvv_f64_m1p5)
+	fld fa4, (a3)
+	addi a3, a1, -1
+	sltu a1, a1, a3
+	addi a1, a1, -1
+	and a1, a1, a3
+	vid.v v10
+	fcvt.d.s fa3, fa3
+	addi a7, a1, 1
+	j 2f
+1:
+	addi a6, a6, 1
+	beq a6, a0, 9f
+2:
+	li a4, 0
+	fcvt.d.lu fa2, a6
+	vsetvli a1, zero, e64, MX(), ta, ma
+	vfmv.v.f v12, fa2
+	vfmul.vf v12, v12, fa3
+	vfadd.vf v12, v12, fa5
+	mv a5, a0
+	j 4f
+3:
+#if HAS_RVV_1_0 || MX_N >= 2
+	vsetvli zero, zero, e32, MXf2(), ta, ma
+#else
 	vsetvli zero, zero, e32, m1, ta, ma
-	vse32.v v8, (a3)
-	beqz t0, MX(rvv_f64_3)
-MX(rvv_f64_6):
-	vsetvli a3, t0, e32, m1, ta, ma
-	sub t0, t0, a3
-	vmset.m v0
-	vmv.v.i v8, 0
-	vsetvli zero, zero, e64, m2, ta, ma
-	viota.m v10, v0
-	vadd.vx v10, v10, t0
-	vfcvt.f.xu.v v10, v10
-	vfmv.v.f v12, fa1
-	vfmul.vf v10, v10, fa2
-	vfadd.vf v10, v10, fa5
-	vfmul.vf v12, v12, fa2
-	vfadd.vf v12, v12, fa4
+#endif
+	vse32.v v14, (a2)
+	sub a5, a5, t0
+	slli a1, t0, 2
+	add a2, a2, a1
+	add a4, a4, t0
+	beqz a5, 1b
+4:
+	vsetvli t0, a5, e64, MX(), ta, ma
+	vadd.vx v14, v10, a4
 	vmv.v.i v18, 0
-	li a4, 1
-	mv a3, a1
-	vmv.v.i v14, 0
-	vmv.v.i v16, 0
-	vmv.v.i v20, 0
-MX(rvv_f64_7):
-#if HAS_RVV_1_0
-	vsetvli zero, zero, e8, MXf8e8(), ta, ma
+	vfcvt.f.xu.v v14, v14
+	vfmul.vf v14, v14, fa3
+	vfadd.vf v16, v14, fa4
+#if HAS_RVV_1_0 || MX_N >= 2
+	vsetvli zero, zero, e32, MXf2(), ta, ma
 #else
-	vsetvli zero, t1, e8, m1, ta, ma
-#endif
-	vfirst.m a5, v0
-	bltz a5, MX(rvv_f64_5)
-	vsetvli zero, zero, e64, m2, ta, ma
-	vfadd.vv v22, v16, v20
-	vmflt.vf v0, v22, fa3
-	vfsub.vv v16, v16, v20
-	vfadd.vv v18, v18, v18
-	vfadd.vv v22, v16, v10
-	vfmadd.vv v14, v18, v12
-	vfmul.vv v16, v22, v22
-	vfmul.vv v20, v14, v14
 	vsetvli zero, zero, e32, m1, ta, ma
-	vmerge.vxm v8, v8, a4, v0
-	addi a3, a3, -1
-	addi a4, a4, 1
-#if HAS_RVV_1_0
-	vmv2r.v v18, v22
-#else
-	vsetvli  zero, zero, e32, m2
-	vmv.v.v v18, v22
 #endif
-	bnez a3, MX(rvv_f64_7)
-	j MX(rvv_f64_5)
-MX(rvv_f64_9):
-	slli a3, a0, 2
-MX(rvv_f64_10):
-	mv a4, a0
-MX(rvv_f64_11):
-	vsetvli a5, a4, e32, m1, ta, ma
-	sub a4, a4, a5
-	vmv.v.i v8, 0
-	slli a5, a4, 2
-	add a5, a5, a2
-	vse32.v v8, (a5)
-	bnez a4, MX(rvv_f64_11)
-	addi a1, a1, 1
-	add a2, a2, a3
-	bne a1, a0, MX(rvv_f64_10)
-MX(rvv_f64_13):
+	vmv.v.i v14, 0
+	mv a1, a7
+	vmv2r.v v22, v18
+	vmv2r.v v20, v18
+	vmv2r.v v24, v18
+5:
+	vsetvli zero, zero, e64, MX(), ta, ma
+	vfadd.vv v26, v22, v18
+	vmflt.vv v0, v26, v8
+	addi a1, a1, -1
+#if HAS_RVV_1_0 || MX_N >= 2
+	vsetvli zero, zero, e32, MXf2(), ta, ma
+#else
+	vsetvli zero, zero, e32, m1, ta, ma
+#endif
+	vadc.vim v14, v14, 0, v0
+	beqz a1, 3b
+	vsetvli zero, zero, e64, MX(), ta, ma
+	vfadd.vv v24, v24, v24
+	vfsub.vv v18, v22, v18
+	vfmadd.vv v20, v24, v12
+	vfadd.vv v24, v18, v16
+	vfmul.vv v18, v20, v20
+	vfirst.m a3, v0
+	vfmul.vv v22, v24, v24
+	bgez a3, 5b
+	j 3b
+9:
 	ret
+
+#endif
 
 #endif
 

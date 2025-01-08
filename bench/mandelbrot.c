@@ -60,6 +60,7 @@ mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 	IMPLS_F16(f) \
 	f(rvv_f32_m1) \
 	f(rvv_f32_m2) \
+	IF64(f(rvv_f64_m1)) \
 	IF64(f(rvv_f64_m2)) \
 
 typedef void Func(size_t width, size_t maxIter, uint32_t *res);
