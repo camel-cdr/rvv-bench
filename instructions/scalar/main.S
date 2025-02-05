@@ -10,6 +10,18 @@
 #define sx sd
 #endif
 
+#if defined (__riscv_flen) && __riscv_flen == 64
+#define IF_F64(...) __VA_ARGS__
+#else
+#define IF_F64(...)
+#endif
+
+#if defined (__riscv_v_elen_fp) && __riscv_v_elen_fp == 64
+#define IF_VF64(...) __VA_ARGS__
+#else
+#define IF_VF64(...)
+#endif
+
 .macro m_nop
 .endm
 
