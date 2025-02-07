@@ -13,13 +13,13 @@
 #define sx sd
 #endif
 
-#if defined (__riscv_flen) && __riscv_flen == 64
+#if __riscv_flen == 64
 #define IF_F64(...) __VA_ARGS__
 #else
 #define IF_F64(...)
 #endif
 
-#if defined (__riscv_v_elen_fp) && __riscv_v_elen_fp == 64
+#if __riscv_v_elen_fp == 64
 #define IF_VF64(...) __VA_ARGS__
 #else
 #define IF_VF64(...)
@@ -575,10 +575,11 @@ randomize:
 
 
 	# zero floating point exponent bit to avoid NaN/Inf
-	vsetvli a4, x0, e16, m8, ta, ma
 #if __riscv_xlen == 32
+	vsetvli a4, x0, e32, m8, ta, ma
 	li a4, ~0x40004000 # zero upper f16/f32/f64 exponent bit
 #else
+	vsetvli a4, x0, e64, m8, ta, ma
 	li a4, ~0x4000000040004000 # zero upper f16/f32/f64 exponent bit
 #endif
 	vand.vx v0, v0, a4

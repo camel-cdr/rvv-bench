@@ -1,5 +1,3 @@
-#define HAS_E64 (__riscv_v_elen >= 64)
-#define HAS_F16 1
 #define MAX_MEM (4096*8)
 #define NEXT(c) (c + c/3 + 3)
 #define VALIDATE 1

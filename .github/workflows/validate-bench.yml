@@ -14,9 +14,9 @@ jobs:
     - name: Install packages
       run: |
         git submodule update --init --recursive
-        sudo sed 's/jammy/devel/g' -i /etc/apt/sources.list
-        sudo apt-get update -q -y
+        sudo apt-get update -y
         sudo apt-get install -y make qemu-user-static clang-17 lld-17
+        sed 's/zfh_zvfh//g' -i ./config.mk
     - name: Validate RV64
       run: |
         cp .github/workflows/rv64-config.mk ./config.mk

@@ -26,9 +26,7 @@ typedef void *Func(void const *src, size_t n);
 
 Impl impls[] = {
 	{ "boring", &poly1305_boring },
-#if HAS_E64
-	{ "rvv", &poly1305_rvv },
-#endif
+	IF_VE64({ "rvv", &poly1305_rvv },)
 };
 
 void init(void) {

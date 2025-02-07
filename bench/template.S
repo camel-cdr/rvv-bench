@@ -1,3 +1,5 @@
+#define NOLIBC_DEFINE_ONLY
+#include "../nolibc.h"
 #ifndef __riscv_vector
 # include "../thirdparty/rvv-rollback.S"
 #else
@@ -26,7 +28,7 @@
 #if HAS_RVV_1_0
 #define MXf2(x) x##mf2
 #define MXf4(x) x##mf4
-#if HAS_E64
+#if __riscv_v_elen >= 64
 #define MXf8e8(x) x##mf8
 #else
 #define MXf8e8(x) x##mf4

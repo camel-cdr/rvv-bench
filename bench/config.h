@@ -1,7 +1,3 @@
-/* processor specific configs */
-#define HAS_E64 (__riscv_v_elen >= 64)
-#define HAS_F16 0
-
 /* the maximum number of bytes to allocate, minimum of 4096 */
 #define MAX_MEM (1024*1024*32)
 /* the byte count for the next run */

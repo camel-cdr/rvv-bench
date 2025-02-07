@@ -1,6 +1,8 @@
 #ifndef NOLIBC_H
 #define NOLIBC_H
 
+#ifndef NOLIBC_DEFINE_ONLY
+
 #include <limits.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -9,25 +11,10 @@
 #if __riscv_xlen == 32
 typedef uint32_t ux;
 typedef float fx;
-#define IF64(...)
 #else
 typedef uint64_t ux;
 typedef double fx;
-#define IF64(...) __VA_ARGS__
 #endif
-
-#if defined (__riscv_flen) && __riscv_flen == 64
-#define IF_F64(...) __VA_ARGS__
-#else
-#define IF_F64(...)
-#endif
-
-#if defined (__riscv_v_elen_fp) && __riscv_v_elen_fp == 64
-#define IF_VF64(...) __VA_ARGS__
-#else
-#define IF_VF64(...)
-#endif
-
 
 static void print_flush(void);
 
@@ -454,6 +441,44 @@ static const char PRINT_A = 0, PRINT_B = 0;
 # undef PRINT_B
 # define PRINT_B(...)  PRINT_NEXT(__VA_ARGS__) PRINT_B1
 # define PRINT_B1(...) PRINT_NEXT(__VA_ARGS__) PRINT_B2
+#endif
+
+#endif
+
+#if __riscv_xlen == 32
+#define IF64(...)
+#else
+#define IF64(...) __VA_ARGS__
+#endif
+
+#if __riscv_v_elen >= 64
+#define IF_VE64(...) __VA_ARGS__
+#else
+#define IF_VE64(...)
+#endif
+
+#if __riscv_zfh >= 1000000
+#define IF_F16(...) __VA_ARGS__
+#else
+#define IF_F16(...)
+#endif
+
+#if __riscv_zvfh >= 1000000 && IF_F16(1)+0
+#define IF_VF16(...) __VA_ARGS__
+#else
+#define IF_VF16(...)
+#endif
+
+#if __riscv_flen == 64
+#define IF_F64(...) __VA_ARGS__
+#else
+#define IF_F64(...)
+#endif
+
+#if __riscv_v_elen_fp == 64
+#define IF_VF64(...) __VA_ARGS__
+#else
+#define IF_VF64(...)
 #endif
 
 #endif

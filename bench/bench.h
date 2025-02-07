@@ -134,9 +134,8 @@ bench_run(Bench *benches, size_t nBenches)
 		for (Impl *i = b->impls; i != b->impls + b->nImpls; ++i) {
 			print("[");
 			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
-				ux si = 0, s0 = 0;
-
 #if VALIDATE
+				ux si = 0, s0 = 0;
 				if (i != b->impls) {
 					URand seed = randState;
 					(void)b->func(i->func, n);

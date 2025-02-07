@@ -23,7 +23,7 @@ mandelbrot_scalar_f32(size_t width, size_t maxIter, uint32_t *res)
 	}
 }
 
-#if defined (__riscv_flen) && __riscv_flen == 64
+#if __riscv_flen == 64
 void
 mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 {
@@ -48,16 +48,11 @@ mandelbrot_scalar_f64(size_t width, size_t maxIter, uint32_t *res)
 }
 #endif
 
-#if HAS_F16
-# define IMPLS_F16(f) f(rvv_f16_m1) f(rvv_f16_m2)
-#else
-# define IMPLS_F16(f)
-#endif
-
 #define IMPLS(f) \
 	f(scalar_f32) \
 	IF_F64(f(scalar_f64)) \
-	IMPLS_F16(f) \
+	IF_VF16(f(rvv_f16_m1)) \
+	IF_VF16(f(rvv_f16_m2)) \
 	f(rvv_f32_m1) \
 	f(rvv_f32_m2) \
 	IF_VF64(f(rvv_f64_m1)) \
