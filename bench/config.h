@@ -22,4 +22,3 @@
 
 /* benchmark specific configurations */
 #define mandelbrot_ITER 100
-

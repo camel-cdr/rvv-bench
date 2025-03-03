@@ -75,7 +75,7 @@ run_all_types(char const *name, ux bIdx, ux vl, int ta, int ma)
 		for (ux i = 0; i < RUNS; ++i)
 			sum += arr[i];
 #endif
-		print("<td>")(fn,1,sum * 1.0f/(UNROLL*LOOP*count*8))("</td>");
+		print("<td>")(fn,2,sum * 1.0f/(UNROLL*LOOP*count*8))("</td>");
 		continue;
 skip:
 		print("<td></td>");

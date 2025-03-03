@@ -7,6 +7,7 @@ utf8_to_utf16_scalar(const char *buf, size_t len, uint16_t *utf16_output)
 	const uint8_t *data = (const uint8_t *)buf;
 	size_t pos = 0;
 	uint16_t *start = utf16_output;
+#if 1
 	while (pos < len) {
 		// try to convert the next block of 16 ASCII bytes
 		if (pos + 16 <= len) { // if it is safe to read 16 more bytes, check that they are ascii
@@ -24,6 +25,27 @@ utf8_to_utf16_scalar(const char *buf, size_t len, uint16_t *utf16_output)
 				continue;
 			}
 		}
+#else
+	// only uses aligned load/stores
+	size_t aligned = 8 - ((uintptr_t)data & 7);
+	while (pos < len) {
+		// try to convert the next block of 16 ASCII bytes
+		if ((pos & 7) == aligned && pos + 16 <= len) {
+			uintptr_t p = (uintptr_t)(data+pos) & ~7ull; // compiler hint
+			uint64_t v1;
+			memcpy(&v1, (const uint8_t*)p, sizeof(uint64_t));
+			uint64_t v2;
+			memcpy(&v2, (const uint8_t*)p + sizeof(uint64_t), sizeof(uint64_t));
+
+			uint64_t v = v1 | v2;
+			if ((v & 0x8080808080808080) == 0) {
+				for (size_t i = 0; i < 16; ++i)
+					*utf16_output++ = (uint16_t)buf[pos++];
+				continue;
+			}
+		}
+#endif
+
 
 		uint8_t leading_byte = data[pos]; // leading byte
 		if (leading_byte < 0b10000000) {
