@@ -1,4 +1,3 @@
-#if HAS_RVV_1_0
 
 #if defined(MX) && __riscv_zvbb
 .global MX(byteswap32_rvv_vrev8_)
@@ -89,4 +88,3 @@ byteswap32_rvv_m1_gatherei16s 4
 byteswap32_rvv_m1_gatherei16s 8
 #endif
 
-#endif

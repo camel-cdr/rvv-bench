@@ -245,11 +245,7 @@ MX(mandelbrot_rvv_f64_):
 	mv a5, a0
 	j 4f
 3:
-#if HAS_RVV_1_0 || MX_N >= 2
 	vsetvli zero, zero, e32, MXf2(), ta, ma
-#else
-	vsetvli zero, zero, e32, m1, ta, ma
-#endif
 	vse32.v v14, (a2)
 	sub a5, a5, t0
 	slli a1, t0, 2
@@ -263,11 +259,7 @@ MX(mandelbrot_rvv_f64_):
 	vfcvt.f.xu.v v14, v14
 	vfmul.vf v14, v14, fa3
 	vfadd.vf v16, v14, fa4
-#if HAS_RVV_1_0 || MX_N >= 2
 	vsetvli zero, zero, e32, MXf2(), ta, ma
-#else
-	vsetvli zero, zero, e32, m1, ta, ma
-#endif
 	vmv.v.i v14, 0
 	mv a1, a7
 	vmv2r.v v22, v18
@@ -278,11 +270,7 @@ MX(mandelbrot_rvv_f64_):
 	vfadd.vv v26, v22, v18
 	vmflt.vv v0, v26, v8
 	addi a1, a1, -1
-#if HAS_RVV_1_0 || MX_N >= 2
 	vsetvli zero, zero, e32, MXf2(), ta, ma
-#else
-	vsetvli zero, zero, e32, m1, ta, ma
-#endif
 	vadc.vim v14, v14, 0, v0
 	beqz a1, 3b
 	vsetvli zero, zero, e64, MX(), ta, ma

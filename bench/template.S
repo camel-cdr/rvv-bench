@@ -1,10 +1,5 @@
 #define NOLIBC_DEFINE_ONLY
 #include "../nolibc.h"
-#ifndef __riscv_vector
-# include "../thirdparty/rvv-rollback.S"
-#else
-# define HAS_RVV_1_0 1
-#endif
 #include "config.h"
 .text
 .balign 8
@@ -25,14 +20,12 @@
 #define MX4(x) x##m4
 #define MX2(x) x##m2
 #define MX(x) x##m1
-#if HAS_RVV_1_0
 #define MXf2(x) x##mf2
 #define MXf4(x) x##mf4
 #if __riscv_v_elen >= 64
 #define MXf8e8(x) x##mf8
 #else
 #define MXf8e8(x) x##mf4
-#endif
 #endif
 #include STRe(INC)
 
@@ -51,11 +44,9 @@
 #define MX2(x) x##m4
 #define MX(x) x##m2
 #define MXf2(x) x##m1
-#if HAS_RVV_1_0
 #define MXf4(x) x##mf2
 #define MXf8(x) x##mf4
 #define MXf8e8(x) x##mf4
-#endif
 #include STRe(INC)
 
 #undef MX_N
@@ -72,10 +63,8 @@
 #define MX(x) x##m4
 #define MXf2(x) x##m2
 #define MXf4(x) x##m1
-#if HAS_RVV_1_0
 #define MXf8(x) x##mf2
 #define MXf8e8(x) x##mf2
-#endif
 #include STRe(INC)
 
 #undef MX_N
