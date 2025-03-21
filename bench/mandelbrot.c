@@ -69,7 +69,17 @@ Impl impls[] = { IMPLS(EXTRACT) };
 void init(void) { }
 
 /* disabled, because of rounding errors, please independently verify */
-ux checksum(size_t n) { return 0; }
+ux checksum(size_t n) {
+#if 0
+	double sum = 0;
+	uint32_t *ptr = (uint32_t*)mem;
+	n = usqrt(n);
+	for (size_t i = 0; i < n*n; ++i)
+		sum += *ptr++;
+	print("<")(f,sum/(n*n+1))(">");
+#endif
+	return 0;
+}
 
 BENCH_BEG(base) {
 	n = usqrt(n);
