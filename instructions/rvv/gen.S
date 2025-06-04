@@ -166,8 +166,13 @@ define(`m_bench_all',`
 
 	m_bench_vxim($1, T_A, vadc)
 	m_bench_vxim($1, T_A, vmadc)
+	m_$1(bench_vmadcvv, T_A, m_nop, vmadc.vv, v8, v16, v24)
+	m_$1(bench_vmadcvx, T_A, m_nop, vmadc.vx, v8, v16, t0)
+	m_$1(bench_vmadcvi, T_A, m_nop, vmadc.vi, v8, v16, 13)
 	m_bench_vxm($1,  T_A, vsbc)
 	m_bench_vxm($1,  T_A, vmsbc)
+	m_$1(bench_vmsbcvv, T_A, m_nop, vmsbc.vv, v8, v16, v24)
+	m_$1(bench_vmsbcvx, T_A, m_nop, vmsbc.vx, v8, v16, t0)
 
 	m_bench_vxim($1, T_A, vmerge)
 	m_$1(bench_vmvvv, T_A, m_nop, vmv.v.v, v8, v16)
@@ -227,9 +232,11 @@ define(`m_bench_all',`
 
 	m_bench_vx($1, T_W, vwaddu)
 	m_bench_vx($1, T_W, vwadd)
+	m_bench_vx($1, T_W, vwsubu)
 	m_bench_vx($1, T_W, vwsub)
 	m_bench_wx($1, T_W, vwaddu)
 	m_bench_wx($1, T_W, vwadd)
+	m_bench_wx($1, T_W, vwsubu)
 	m_bench_wx($1, T_W, vwsub)
 	m_bench_vx($1, T_W, vwmulu)
 	m_bench_vx($1, T_W, vwmulsu)
