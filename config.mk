@@ -1,5 +1,6 @@
-
 WARN=-Wall -Wextra -Wno-unused-function -Wno-unused-parameter
+
+# append -DUSE_PERF_EVENT to CFLAGS, if the cycle csr isn't exposed
 
 # freestanding using any recent clang build
 CC=clang
@@ -14,4 +15,5 @@ CFLAGS=--target=riscv64 -march=rv64gcv_zba_zbb_zbs -O3 ${WARN} -nostdlib -fno-bu
 # native build
 #CC=cc
 #CFLAGS=-march=rv64gcv -O3 ${WARN}
+
 

@@ -8,10 +8,6 @@ Benchmark results can be found at: https://camel-cdr.github.io/rvv-bench-results
 
 Contains a bunch of benchmark of different implementations of certain algorithms.
 
-RVV code is currently only written in assembly, and uses [`./thirdparty/rvv-rollback.S`](./thirdparty/rvv-rollback.S) to support XTheadVector and RVV 1.0.
-
-Note: *The support XTheadVector hasn't been tested in some time, and will be depricated soon.*
-
 ## Instruction cycle count ([./instructions/](./instructions/))
 
 Measures the cycle count of RVV instructions by unrolling and looping over the given instruction repeatedly.
@@ -22,17 +18,12 @@ Start by configuring [./config.mk](./config.mk), such that `make` works and opti
 
 The default configuration should work with all recent clang builds and doesn't require a full cross compilation toolchain, because it builds in freestanding mode.
 This means it will only work on linux, or linux syscall compatible OS.
-Alternatively you can configure [./config.mk](./config.mk) to build a hosted build or configure it with your custom toolchain, add the `-DCUSTOM_HOST` define, and implement the unimplemented functions under `#ifdef CUSTOM_HOST` in [./nolibc.h](./nolibc.h). Add the `-DREAD_MCYCLE` define, if you need to read from the `mcycle` instead of the `cycle` csr.
 
-If you have a XTheadVector supporting board, make sure to the rvv 0.7.1 compatible toolchain. I've used [this one](https://github.com/brucehoult/riscv-gnu-toolchain) for development.
+On recent linux versions, the performance counters aren't exposed by default, you may have to execute `echo 2 >/proc/sys/kernel/perf_user_access` and append `-DREAD_MCYCLE` to the `CFLAGS=...` line in [./config.mk](./config.mk).
 
-### Enable user level performance counter access
+You can configure [./config.mk](./config.mk) to build a hosted build or configure it with your custom toolchain, add the `-DCUSTOM_HOST` define, and implement the unimplemented functions under `#ifdef CUSTOM_HOST` in [./nolibc.h](./nolibc.h).
 
-If you want to run the benchmarks on real hardware and are on linux kernel version version v6.5-rc1 or newer enable the `sysctl` `perf_user_access` (see [this article](https://lwn.net/Articles/939436/)), to allow the benchmarks to access the performance counters directly.
-
-On older kernel versions, you may need to add the `-DENABLE_RDCYCLE_HACK` define to attempt to gain user space access via the `perf_event_open` syscall.
-
-If that doesn't work, another option is to build the kernel without the PMU enabled by disabeling `CONFIG_RISCV_PMU`.
+XTheadVector isn't supported anymore.
 
 ### Running benchmarks ([./bench/](./bench/))
 
@@ -40,14 +31,13 @@ To run the benchmarks, first look through ([./bench/config.h](./bench/config.h))
 
 Now you can just run the benchmarks using `make run` in the ([./bench/](./bench/)) directory, or `make` to just build the executables.
 
-
 ### Measuring cycle count ([./instructions/](./instructions/))
 
-To run the cycle count measurement, first configure [instructions/rvv-1.0/config.h](instructions/rvv-1.0/config.h) to your processor.
+To run the cycle count measurement, first configure [instructions/rvv/config.h](instructions/rvv/config.h) to your processor.
 
-Now you can run the measurement using `make run` in the ([./instructions/rvv-1.0/](./instructions/rvv-1.0/)) directory, or `make` to just build the executables.
+Now you can run the measurement using `make run` in the ([./instructions/rvv/](./instructions/rvv/)) directory, or `make` to just build the executables.
 
-For RVV 0.7.1 use the ([./instructions/thead-0.7.1/](./instructions/thead-0.7.1/)) directory instead.
+For XTheadVector use the ([./instructions/xtheadvector/](./instructions/xtheadvector/)) directory instead. (this isn't maintained anymore)
 
 ## Contributing
 

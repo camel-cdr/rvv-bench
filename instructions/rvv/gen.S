@@ -438,6 +438,12 @@ bench_count:
 popdef(`m_ifmx')
 
 
+#if defined(USE_PERF_EVENT)
+.balign 8
+u64_cycle:
+.quad 0
+#endif
+
 .text
 .balign 8
 
@@ -507,12 +513,19 @@ ifelse(m_LMUL,4,`m_gen_code_m4(m_code)')
 ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	addi a0, a0, -1
 	bnez a0, 1b
-	li a0, LOOP
-#ifdef READ_MCYCLE
-	csrr a1, mcycle
+#if defined(USE_PERF_EVENT)
+	ld a0, perf_event_fd
+	la a1, u64_cycle
+	li a2, 8
+	li a7, 63
+	ecall
+	ld a3, u64_cycle
+#elif defined(READ_MCYCLE)
+	csrr a3, mcycle
 #else
-	csrr a1, cycle
+	csrr a3, cycle
 #endif
+	li a0, LOOP
 1:
 .rept UNROLL
 ifelse(m_LMUL,1,`m_gen_code_m1(m_code)')
@@ -523,12 +536,19 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	addi a0, a0, -1
 	bnez a0, 1b
 	fence.i
-#ifdef READ_MCYCLE
+#if defined(USE_PERF_EVENT)
+	ld a0, perf_event_fd
+	la a1, u64_cycle
+	li a2, 8
+	li a7, 63
+	ecall
+	ld a0, u64_cycle
+#elif defined(READ_MCYCLE)
 	csrr a0, mcycle
 #else
 	csrr a0, cycle
 #endif
-	sub a0, a0, a1
+	sub a0, a0, a3
 ret	popdef(`m_code')
 ')
 

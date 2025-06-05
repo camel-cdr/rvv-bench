@@ -8,6 +8,12 @@
 #include <stddef.h>
 #include <float.h>
 
+#ifdef USE_PERF_EVENT
+long perf_event_fd = 0;
+#endif
+
+static void nolibc_init(void);
+
 #if __riscv_xlen == 32
 typedef uint32_t ux;
 typedef float fx;
@@ -37,6 +43,7 @@ exit(int x) { __asm volatile("unimp\n"); }
 int main(void);
 
 void _start(void) {
+	nolibc_init();
 	int x = main();
 	print_flush();
 	exit(x);
@@ -62,32 +69,12 @@ memread(void *ptr, size_t len)
 {
 	return fread(ptr, 1, len, stdin);
 }
-#ifndef ENABLE_RDCYCLE_HACK
 int main(void) {
+	nolibc_init();
 	int x = nolibc_main();
 	print_flush();
 	exit(x);
 }
-#else
-#include <linux/perf_event.h>
-#include <asm/unistd.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-
-int main(void) {
-	struct perf_event_attr pe = { 0 };
-	pe.type = PERF_TYPE_HARDWARE;
-	pe.size = sizeof pe;
-	pe.config = PERF_COUNT_HW_CPU_CYCLES;
-	pe.disabled = 0;
-	pe.exclude_kernel = 1;
-	long fd = syscall(__NR_perf_event_open, &pe, 0, -1, -1, 0);
-	if (fd < 0) perror("perf_event_open"),exit(EXIT_FAILURE);
-	int x = nolibc_main();
-	print_flush();
-	exit(x);
-}
-#endif
 #define main nolibc_main
 
 #else
@@ -145,6 +132,7 @@ memread(void *ptr, size_t len)
 int main(void);
 
 void _start(void) {
+	nolibc_init();
 	int x = main();
 	print_flush();
 	exit(x);
@@ -152,13 +140,61 @@ void _start(void) {
 
 #endif
 
+static void
+nolibc_init(void)
+{
+#ifdef USE_PERF_EVENT
+	struct fake_perf_event_attr {
+		uint32_t type;
+		uint32_t size;
+		uint64_t config;
+		uint64_t pad0[3];
+		uint64_t flags;
+		uint64_t pad1[10];
+	} pe = {0};
+	pe.size = sizeof pe;
+	pe.flags = 1 << 5;
+
+	__asm volatile(
+		"mv a0, %1\n"
+		"li a1, 0\n"
+		"li a2, -1\n"
+		"li a3, -1\n"
+		"li a4, 0\n"
+		"li a7, 241\n"
+		"ecall\n"
+		"mv %0, a0\n"
+	: "=r"(perf_event_fd)
+	: "r"(&pe)
+	: "a0", "a1", "a2", "a4", "a7", "memory"
+	);
+
+	if (perf_event_fd <= 0) {
+		memwrite("ERROR: perf_event_open failed", 30);
+		exit(EXIT_FAILURE);
+	}
+#endif
+}
+
+
 /* utils */
 
 static inline ux
 rv_cycles(void)
 {
 	ux cycle;
-#ifdef READ_MCYCLE
+#if defined(USE_PERF_EVENT)
+	__asm volatile(
+		"mv a0, %0\n"
+		"mv a1, %1\n"
+		"li a2, 8\n"
+		"li a7, 63\n"
+		"ecall\n"
+	:
+	: "r"(perf_event_fd), "r"(&cycle)
+	: "a0", "a1", "a2", "a7", "memory"
+	);
+#elif defined(READ_MCYCLE)
 	__asm volatile ("csrr %0, mcycle" : "=r"(cycle));
 #else
 	__asm volatile ("csrr %0, cycle" : "=r"(cycle));
