@@ -313,7 +313,7 @@ precomp:
 	blt a4, a5, precomp
 
 	# store post-precomputation instruction counter
-	rdinstret s11
+	#rdinstret s11
 
 
 	# From v11-14, separate out into 5 26-bit limbs: v20-v24
