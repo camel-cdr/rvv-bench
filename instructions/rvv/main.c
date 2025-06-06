@@ -3,6 +3,10 @@
 
 static ux seed = 123456;
 
+#if defined(USE_PERF_EVENT)
+uint64_t u64_cycle = 0;
+#endif
+
 typedef ux (*BenchFunc)(void);
 extern size_t bench_count;
 extern char bench_names;

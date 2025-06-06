@@ -438,12 +438,6 @@ bench_count:
 popdef(`m_ifmx')
 
 
-#if defined(USE_PERF_EVENT)
-.balign 8
-u64_cycle:
-.quad 0
-#endif
-
 .text
 .balign 8
 
@@ -518,8 +512,12 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	la a1, u64_cycle
 	li a2, 8
 	li a7, 63
-	ecall
+	ecall # clobbers vregs and vtype
 	ld a3, u64_cycle
+	vsetvl VL, VL, s2
+	bnez VL, 2f
+	vsetvl VL, x0, s2
+	2:
 #elif defined(READ_MCYCLE)
 	csrr a3, mcycle
 #else
@@ -541,8 +539,12 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	la a1, u64_cycle
 	li a2, 8
 	li a7, 63
-	ecall
+	ecall # clobbers vregs and vtype
 	ld a0, u64_cycle
+	vsetvl VL, VL, s2
+	bnez VL, 2f
+	vsetvl VL, x0, s2
+	2:
 #elif defined(READ_MCYCLE)
 	csrr a0, mcycle
 #else

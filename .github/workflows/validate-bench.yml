@@ -58,14 +58,10 @@ jobs:
         make -C instructions/rvv clean
         make -C instructions/scalar
         make -C instructions/scalar clean
-        make -C single -j$(nproc)
-        make -C single  clean
-        sed '/CFLAGS/s/$/ -DUSE_PERF_EVENT/' -i rv64-config-hosted.mk
+        sed '/CFLAGS/s/$/ -DUSE_PERF_EVENT/' -i ./config.mk
         make -C bench -j$(nproc)
         make -C bench clean
         make -C instructions/rvv
         make -C instructions/rvv clean
         make -C instructions/scalar
         make -C instructions/scalar clean
-        make -C single -j$(nproc)
-        make -C single  clean
