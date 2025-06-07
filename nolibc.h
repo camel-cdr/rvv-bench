@@ -38,7 +38,7 @@ memwrite(void const *ptr, size_t len) { }
 // memread(void *ptr, size_t len) { }
 
 static void
-exit(int x) { __asm volatile("unimp\n"); }
+exit(int x) { __asm__ volatile("unimp\n"); }
 
 int main(void);
 
@@ -84,49 +84,42 @@ int main(void) {
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
 
+__attribute__((naked))
 static void
 exit(int x)
 {
-	__asm volatile(
-		"mv a0, %0\n"
+	__asm__ volatile(
 		"li a7, 93\n"
 		"ecall\n"
-	:
-	: "r"(x)
-	: "a0", "a7");
+		"ret\n"
+	);
 }
 
+__attribute__((naked))
 static void
 memwrite(void const *ptr, size_t len)
 {
-	__asm volatile(
+	__asm__ volatile(
+		"mv a2, a1\n"
+		"mv a1, a0\n"
 		"li a0, 1\n"
-		"mv a1, %0\n"
-		"mv a2, %1\n"
 		"li a7, 64\n"
 		"ecall\n"
-	:
-	: "r"(ptr), "r"(len)
-	: "a0", "a1", "a2", "a7"
+		"ret\n"
 	);
 }
 
+__attribute__((naked))
 static size_t
 memread(void *ptr, size_t len)
 {
-	size_t ret;
-	__asm volatile(
+	__asm__ volatile(
+		"mv a2, a1\n"
+		"mv a1, a0\n"
 		"li a0, 0\n"
-		"mv a1, %1\n"
-		"mv a2, %2\n"
 		"li a7, 63\n"
 		"ecall\n"
-		"mv %0, a0\n"
-	: "=r"(ret)
-	: "r"(ptr), "r"(len)
-	: "a0", "a1", "a2", "a7"
 	);
-	return ret;
 }
 
 int main(void);
@@ -178,9 +171,9 @@ rv_cycles(void)
 #if defined(USE_PERF_EVENT)
 	read(perf_event_fd, &cycle, sizeof cycle);
 #elif defined(READ_MCYCLE)
-	__asm volatile ("csrr %0, mcycle" : "=r"(cycle));
+	__asm__ volatile ("csrr %0, mcycle" : "=r"(cycle));
 #else
-	__asm volatile ("csrr %0, cycle" : "=r"(cycle));
+	__asm__ volatile ("csrr %0, cycle" : "=r"(cycle));
 #endif
 	return cycle;
 }

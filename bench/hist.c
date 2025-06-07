@@ -5,11 +5,10 @@ hist_scalar(uint32_t *hist, float *x, float *y, size_t n)
 {
 	for (size_t i = 0; i < n; ++i) {
 		float dist = x[i]*x[i] + y[i]*y[i];
-		__asm volatile("fsqrt.s %0, %0\n" : "+f"(dist));
+		__asm__ ("fsqrt.s %0, %0\n" : "+f"(dist));
 		size_t idx = dist;
 		idx = idx > 100 ? 100 : dist;
 		++hist[idx];
-
 	}
 }
 

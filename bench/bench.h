@@ -11,10 +11,10 @@
 
 #if defined(__clang__) || defined(__GNUC__) || defined(__INTEL_COMPILER)
 
-# define BENCH_CLOBBER() ({__asm volatile("":::"memory");})
-# define BENCH_VOLATILE(x) ({__asm volatile("" : "+g"(x) : "g"(x) : "memory");})
-# define BENCH_VOLATILE_REG(x) ({__asm volatile("" : "+r"(x) : "r"(x) : "memory");})
-# define BENCH_VOLATILE_MEM(x) ({__asm volatile("" : "+m"(x) : "m"(x) : "memory");})
+# define BENCH_CLOBBER() ({__asm__ volatile("":::"memory");})
+# define BENCH_VOLATILE(x) ({__asm__ volatile("" : "+g"(x) : "g"(x) : "memory");})
+# define BENCH_VOLATILE_REG(x) ({__asm__ volatile("" : "+r"(x) : "r"(x) : "memory");})
+# define BENCH_VOLATILE_MEM(x) ({__asm__ volatile("" : "+m"(x) : "m"(x) : "memory");})
 
 #define BENCH_MAY_ALIAS __attribute__((__may_alias__))
 
