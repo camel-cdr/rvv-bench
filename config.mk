@@ -1,6 +1,7 @@
 WARN=-Wall -Wextra -Wno-unused-function -Wno-unused-parameter
 
 # append -DUSE_PERF_EVENT to CFLAGS, if the cycle csr isn't exposed
+# try -DUSE_PERF_EVENT_SLOW if the abvoe doesn't work
 
 # freestanding using any recent clang build
 CC=clang

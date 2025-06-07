@@ -8,8 +8,11 @@
 #include <stddef.h>
 #include <float.h>
 
+#ifdef USE_PERF_EVENT_SLOW
+#define USE_PERF_EVENT
+#endif
 #ifdef USE_PERF_EVENT
-long perf_event_fd = 0;
+long nolibc_perf_event_fd = 0;
 #endif
 
 static void nolibc_init(void);
@@ -88,7 +91,7 @@ __attribute__((naked))
 static void
 exit(int x)
 {
-	__asm__ volatile(
+	__asm__ (
 		"li a7, 93\n"
 		"ecall\n"
 		"ret\n"
@@ -99,7 +102,7 @@ __attribute__((naked))
 static void
 memwrite(void const *ptr, size_t len)
 {
-	__asm__ volatile(
+	__asm__ (
 		"mv a2, a1\n"
 		"mv a1, a0\n"
 		"li a0, 1\n"
@@ -113,12 +116,13 @@ __attribute__((naked))
 static size_t
 memread(void *ptr, size_t len)
 {
-	__asm__ volatile(
+	__asm__ (
 		"mv a2, a1\n"
 		"mv a1, a0\n"
 		"li a0, 0\n"
 		"li a7, 63\n"
 		"ecall\n"
+		"ret\n"
 	);
 }
 
@@ -133,28 +137,48 @@ void _start(void) {
 
 #endif
 
-#if USE_PERF_EVENT
-#if IFHOSTED(1)+0 == 0
-#error USE_PERF_EVENT requires a hosted build
-#endif
-#include <linux/perf_event.h>
-#include <asm/unistd.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
+__attribute__((naked))
+static int
+nolibc_perf_event_open(void *ptr)
+{
+	__asm__ (
+		"li a1, 0\n"
+		"li a2, -1\n"
+		"li a3, -1\n"
+		"li a4, 0\n"
+		"li a7, 241\n"
+		"ecall\n"
+		"ret\n"
+	);
+}
+
+#if defined(USE_PERF_EVENT) && (IFHOSTED(1)+0 == 1)
+# include <linux/perf_event.h>
+# include <asm/unistd.h>
+# include <unistd.h>
+# include <sys/ioctl.h>
 #endif
 
 static void
 nolibc_init(void)
 {
-#ifdef USE_PERF_EVENT
+#if defined(USE_PERF_EVENT)
+#if IFHOSTED(1)+0
 	struct perf_event_attr pe = {0};
 	pe.exclude_kernel = 1;
 	pe.type = PERF_TYPE_HARDWARE;
-	pe.size = sizeof pe;
 	pe.config = PERF_COUNT_HW_CPU_CYCLES;
 	pe.exclude_kernel = 1;
-	perf_event_fd = syscall(__NR_perf_event_open, &pe, 0, -1, -1, 0);
-	if (perf_event_fd <= 0) {
+#else
+	struct nolibc_perf_event_attr {
+		uint32_t type, size;
+		uint64_t config, pad0[3], flags, pad1[10];
+	} pe = {0};
+	pe.flags = 1 << 5;
+#endif
+	pe.size = sizeof pe;
+	nolibc_perf_event_fd = nolibc_perf_event_open(&pe);
+	if (nolibc_perf_event_fd <= 0) {
 		memwrite("ERROR: perf_event_open failed", 30);
 		exit(EXIT_FAILURE);
 	}
@@ -164,19 +188,34 @@ nolibc_init(void)
 
 /* utils */
 
+#ifndef USE_PERF_EVENT_SLOW
 static inline ux
 rv_cycles(void)
 {
 	ux cycle;
-#if defined(USE_PERF_EVENT)
-	read(perf_event_fd, &cycle, sizeof cycle);
-#elif defined(READ_MCYCLE)
+#if defined(READ_MCYCLE)
 	__asm__ volatile ("csrr %0, mcycle" : "=r"(cycle));
 #else
 	__asm__ volatile ("csrr %0, cycle" : "=r"(cycle));
 #endif
 	return cycle;
 }
+#else
+uint64_t nolibc_perf_event_buf;
+__attribute((naked))
+static ux
+rv_cycles(void)
+{
+	__asm__ (
+		"ld a0, nolibc_perf_event_fd\n"
+		"la a1, nolibc_perf_event_buf\n"
+		"li a2, 8\n"
+		"li a7, 63\n"
+		"ecall\n"
+		"ld a0, nolibc_perf_event_buf\n"
+	);
+}
+#endif
 
 
 static void

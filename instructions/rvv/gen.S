@@ -437,6 +437,9 @@ bench_count:
 
 popdef(`m_ifmx')
 
+.balign 8
+u64_cycle:
+.dword 0
 
 .text
 .balign 8
@@ -507,8 +510,8 @@ ifelse(m_LMUL,4,`m_gen_code_m4(m_code)')
 ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	addi a0, a0, -1
 	bnez a0, 1b
-#if defined(USE_PERF_EVENT)
-	ld a0, perf_event_fd
+#if defined(USE_PERF_EVENT_SLOW)
+	ld a0, nolibc_perf_event_fd
 	la a1, u64_cycle
 	li a2, 8
 	li a7, 63
@@ -534,8 +537,8 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	addi a0, a0, -1
 	bnez a0, 1b
 	fence.i
-#if defined(USE_PERF_EVENT)
-	ld a0, perf_event_fd
+#if defined(USE_PERF_EVENT_SLOW)
+	ld a0, nolibc_perf_event_fd
 	la a1, u64_cycle
 	li a2, 8
 	li a7, 63

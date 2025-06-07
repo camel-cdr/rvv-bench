@@ -19,7 +19,7 @@ Start by configuring [./config.mk](./config.mk), such that `make` works and opti
 The default configuration should work with all recent clang builds and doesn't require a full cross compilation toolchain, because it builds in freestanding mode.
 This means it will only work on linux, or linux syscall compatible OS.
 
-On recent linux versions, the performance counters aren't exposed by default, you may have to execute `echo 2 >/proc/sys/kernel/perf_user_access` and append `-DREAD_MCYCLE` to the `CFLAGS=...` line in [./config.mk](./config.mk).
+On recent linux versions, the performance counters aren't exposed by default, you may have to execute `echo 2 >/proc/sys/kernel/perf_user_access` and append `-DUSE_PERF_EVENT` to the `CFLAGS=...` line in [./config.mk](./config.mk) (if that doesn't work, try `-DUSE_PERF_EVENT_SLOW` instead).
 
 You can configure [./config.mk](./config.mk) to build a hosted build or configure it with your custom toolchain, add the `-DCUSTOM_HOST` define, and implement the unimplemented functions under `#ifdef CUSTOM_HOST` in [./nolibc.h](./nolibc.h).
 

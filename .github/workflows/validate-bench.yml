@@ -65,3 +65,10 @@ jobs:
         make -C instructions/rvv clean
         make -C instructions/scalar
         make -C instructions/scalar clean
+        sed 's/-DUSE_PERF_EVENT/-DUSE_PERF_EVENT_SLOW/' -i ./config.mk
+        make -C bench -j$(nproc)
+        make -C bench clean
+        make -C instructions/rvv
+        make -C instructions/rvv clean
+        make -C instructions/scalar
+        make -C instructions/scalar clean

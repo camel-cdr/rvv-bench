@@ -331,7 +331,7 @@ m_benchmarks_all gen_strings
 
 .balign 8
 u64_cycle:
-.quad 0
+.dword 0
 
 .text
 .balign 8
@@ -344,8 +344,8 @@ u64_cycle:
 		\code
 		addi a0, a0, -1
 		bnez a0, 1b
-#if defined(USE_PERF_EVENT)
-		ld a0, perf_event_fd
+#if defined(USE_PERF_EVENT_SLOW)
+		ld a0, nolibc_perf_event_fd
 		la a1, u64_cycle
 		li a2, 8
 		li a7, 63
@@ -364,8 +364,8 @@ u64_cycle:
 		addi a0, a0, -1
 		bnez a0, 1b
 		fence.i
-#if defined(USE_PERF_EVENT)
-		ld a0, perf_event_fd
+#if defined(USE_PERF_EVENT_SLOW)
+		ld a0, nolibc_perf_event_fd
 		la a1, u64_cycle
 		li a2, 8
 		li a7, 63
