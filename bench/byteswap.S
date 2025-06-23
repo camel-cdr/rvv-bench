@@ -17,8 +17,8 @@ MX(byteswap32_rvv_vrev8_):
 #if MX_N == 4 || MX_N == 2 || MX_N == 1
 
 # a0 = ptr, a1 = len
-.global MX(byteswap32_rvv_gatherei16_)
-MX(byteswap32_rvv_gatherei16_):
+.global MX(byteswap32_rvv_vrgatherei16_)
+MX(byteswap32_rvv_vrgatherei16_):
 	vsetvli t0, x0, e16, MX2(), ta, ma
 	vid.v v0
 	vand.vi v8, v0, 3
@@ -42,9 +42,9 @@ MX(byteswap32_rvv_gatherei16_):
 
 #if MX_N == 2
 
-.macro byteswap32_rvv_m1_gatherei16s n
-	.global byteswap32_rvv_m1_gatherei16s_m\n
-	byteswap32_rvv_m1_gatherei16s_m\n:
+.macro byteswap32_rvv_m1_vrgatherei16s n
+	.global byteswap32_rvv_m1_vrgatherei16s_m\n
+	byteswap32_rvv_m1_vrgatherei16s_m\n:
 		vsetvli t0, x0, e16, MX(), ta, ma
 		vid.v v0
 		vand.vi v8, v0, 3
@@ -79,12 +79,12 @@ MX(byteswap32_rvv_gatherei16_):
 		ret
 .endm
 
-byteswap32_rvv_m1_gatherei16s 2
+byteswap32_rvv_m1_vrgatherei16s 2
 #endif
 #if MX_N == 4
-byteswap32_rvv_m1_gatherei16s 4
+byteswap32_rvv_m1_vrgatherei16s 4
 #endif
 #if MX_N == 8
-byteswap32_rvv_m1_gatherei16s 8
+byteswap32_rvv_m1_vrgatherei16s 8
 #endif
 

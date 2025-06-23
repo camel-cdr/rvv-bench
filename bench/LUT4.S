@@ -27,8 +27,8 @@ MX(LUT4_rvv_vluxei8_):
 	ret
 
 # a0 = lut, a1 = ptr, a2 = len
-.global MX(LUT4_rvv_gather_)
-MX(LUT4_rvv_gather_):
+.global MX(LUT4_rvv_vrgather_)
+MX(LUT4_rvv_vrgather_):
 	li t0, 16
 	vsetvli zero, t0, e8, m1, ta, ma
 	vle8.v v0, (a0)
@@ -46,9 +46,9 @@ MX(LUT4_rvv_gather_):
 
 #if MX_N == 2
 
-.macro LUT4_rvv_m1_gathers n
-	.global LUT4_rvv_m1_gathers_m\n
-	LUT4_rvv_m1_gathers_m\n:
+.macro LUT4_rvv_m1_vrgathers n
+	.global LUT4_rvv_m1_vrgathers_m\n
+	LUT4_rvv_m1_vrgathers_m\n:
 		li t0, 16
 		vsetvli zero, t0, e8, m1, ta, ma
 		vle8.v v0, (a0)
@@ -79,13 +79,13 @@ MX(LUT4_rvv_gather_):
 		ret
 .endm
 
-LUT4_rvv_m1_gathers 2
+LUT4_rvv_m1_vrgathers 2
 #endif
 #if MX_N == 4
-LUT4_rvv_m1_gathers 4
+LUT4_rvv_m1_vrgathers 4
 #endif
 #if MX_N == 8
-LUT4_rvv_m1_gathers 8
+LUT4_rvv_m1_vrgathers 8
 #endif
 
 

@@ -18,10 +18,10 @@ LUT4_scalar_autovec(uint8_t lut[restrict 16], uint8_t *restrict ptr, size_t n)
 #define IMPLS(f) \
 	f(scalar) \
 	f(scalar_autovec) \
-	MX(f, rvv_gather) \
-	f(rvv_m1_gathers_m2) \
-	f(rvv_m1_gathers_m4) \
-	f(rvv_m1_gathers_m8) \
+	MX(f, rvv_vrgather) \
+	f(rvv_m1_vrgathers_m2) \
+	f(rvv_m1_vrgathers_m4) \
+	f(rvv_m1_vrgathers_m8) \
 	MX(f, rvv_vluxei8) \
 	MX(f, rvv_vloxei8) \
 

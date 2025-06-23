@@ -45,12 +45,12 @@ byteswap32_SWAR_rev8(uint32_t *ptr, size_t n)
 #define IMPLS_RVV(f)
 #else
 #define IMPLS_RVV(f) \
-	f(rvv_gatherei16_m1) \
-	f(rvv_gatherei16_m2) \
-	f(rvv_gatherei16_m4) \
-	f(rvv_m1_gatherei16s_m2) \
-	f(rvv_m1_gatherei16s_m4) \
-	f(rvv_m1_gatherei16s_m8)
+	f(rvv_vrgatherei16_m1) \
+	f(rvv_vrgatherei16_m2) \
+	f(rvv_vrgatherei16_m4) \
+	f(rvv_m1_vrgatherei16s_m2) \
+	f(rvv_m1_vrgatherei16s_m4) \
+	f(rvv_m1_vrgatherei16s_m8)
 #endif
 
 #if __riscv_zvbb

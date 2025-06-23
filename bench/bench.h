@@ -20,7 +20,7 @@
 
 #else
 
-# define BENCH_CLOBBER()
+# define BENCH_CLOBBER() 1
 # define BENCH_CLOBBER_WITH(x) (bench__use_ptr(&(x)), BENCH_CLOBBER())
 # define BENCH_CLOBBER_WITH_REG(x) (bench__use_ptr(&(x)), BENCH_CLOBBER())
 # define BENCH_CLOBBER_WITH_MEM(x) (bench__use_ptr(&(x)), BENCH_CLOBBER())

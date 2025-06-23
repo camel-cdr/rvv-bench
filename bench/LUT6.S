@@ -33,8 +33,8 @@ LUT6_rvv_vluxei8_m4:
 	ret
 
 # a0 = lut, a1 = ptr, a2 = len
-.global LUT6_rvv_gather_m4
-LUT6_rvv_gather_m4:
+.global LUT6_rvv_vrgather_m4
+LUT6_rvv_vrgather_m4:
 	li t0, 64
 	vsetvli zero, t0, e8, m4, ta, ma
 	vle8.v v0, (a0)
@@ -53,8 +53,8 @@ LUT6_rvv_gather_m4:
 	bnez a2, 1b
 	ret
 
-.global LUT6_rvv_m1m2m4_gathers_m4
-LUT6_rvv_m1m2m4_gathers_m4:
+.global LUT6_rvv_m1m2m4_vrgathers_m4
+LUT6_rvv_m1m2m4_vrgathers_m4:
 	li t0, 64
 	vsetvli zero, t0, e8, m4, ta, ma
 	vle8.v v0, (a0)
