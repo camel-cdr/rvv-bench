@@ -60,10 +60,11 @@ void bench_main(void);
 ux checksum(size_t n);
 void init(void);
 
+#define MEM_ALIGN 4096
 #if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
 # include <stdlib.h>
 #else
-static ux heap[1 + MAX_MEM / sizeof(ux)];
+static unsigned char heap[1 + MAX_MEM + MEM_ALIGN];
 #endif
 
 
@@ -72,10 +73,11 @@ main(void)
 {
 
 #if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
-	mem = malloc(MAX_MEM);
+	mem = malloc(MAX_MEM + MEM_ALIGN);
 #else
-	mem = (unsigned char*)heap;
+	mem = heap;
 #endif
+	mem = (unsigned char*)(((uintptr_t)mem + MEM_ALIGN-1) & ~(MEM_ALIGN-1));
 
 	size_t x;
 	randState.x ^= rv_cycles()*7;
