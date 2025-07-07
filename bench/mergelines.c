@@ -30,7 +30,7 @@ typedef size_t Func(char *buf, size_t len);
 #define DECLARE(f) extern Func mergelines_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &mergelines_##f },
+#define EXTRACT(f) { #f, &mergelines_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 char *str;

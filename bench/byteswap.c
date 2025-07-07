@@ -72,7 +72,7 @@ typedef void Func(uint32_t *ptr, size_t n);
 #define DECLARE(f) extern Func byteswap32_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &byteswap32_##f },
+#define EXTRACT(f) { #f, &byteswap32_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 uint32_t *ptr;

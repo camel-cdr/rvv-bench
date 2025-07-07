@@ -23,7 +23,7 @@ typedef void Func(uint16_t *restrict dest, uint8_t const *restrict src, size_t l
 #define DECLARE(f) extern Func ascii_to_utf16_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &ascii_to_utf16_##f },
+#define EXTRACT(f) { #f, &ascii_to_utf16_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 uint16_t *dest;

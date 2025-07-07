@@ -103,7 +103,7 @@ typedef size_t Func(char const *str, size_t len);
 #define DECLARE(f) extern Func utf8_count_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &utf8_count_##f },
+#define EXTRACT(f) { #f, &utf8_count_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 char *str;

@@ -25,7 +25,7 @@ typedef void Func(uint32_t *hist, float *x, float *y, size_t n);
 #define DECLARE(f) extern Func hist_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &hist_##f },
+#define EXTRACT(f) { #f, &hist_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 static uint32_t hist[100 * (1<<16>>4)];

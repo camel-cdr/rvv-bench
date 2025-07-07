@@ -125,7 +125,7 @@ typedef void *Func(void *dest, int c, size_t n);
 #define DECLARE(f) extern Func memset_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &memset_##f },
+#define EXTRACT(f) { #f, &memset_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 uint8_t *dest;

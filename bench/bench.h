@@ -44,7 +44,7 @@ static float bench_urandf(void) { return urandf(&randState); }
 static void bench_memrand(void *ptr, size_t n) { return memrand(&randState, ptr, n); }
 
 typedef struct {
-	char const *name; void *func;
+	char const *name; void *func; int skipCheck;
 } Impl;
 typedef struct {
 	Impl *impls;
@@ -73,7 +73,7 @@ main(void)
 {
 
 #if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
-	mem = malloc(MAX_MEM + MEM_ALIGN);
+	void *ptr = mem = malloc(MAX_MEM + MEM_ALIGN);
 #else
 	mem = heap;
 #endif
@@ -89,7 +89,7 @@ main(void)
 	init();
 	bench_main();
 #if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
-	free(mem);
+	free(ptr);
 #endif
 	return 0;
 }
@@ -138,7 +138,7 @@ bench_run(Bench *benches, size_t nBenches)
 			for (size_t n = 1; n < N; n = BENCH_NEXT(n)) {
 #if VALIDATE
 				ux si = 0, s0 = 0;
-				if (i != b->impls) {
+				if (i != b->impls && !i->skipCheck) {
 					URand seed = randState;
 					(void)b->func(i->func, n);
 					si = checksum(n);

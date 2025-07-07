@@ -63,7 +63,7 @@ typedef void Func(size_t width, size_t maxIter, uint32_t *res);
 #define DECLARE(f) extern Func mandelbrot_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &mandelbrot_##f },
+#define EXTRACT(f) { #f, &mandelbrot_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 void init(void) { }

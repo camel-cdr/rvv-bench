@@ -51,7 +51,7 @@ typedef size_t Func(char const *s);
 #define DECLARE(f) extern Func strlen_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &strlen_##f },
+#define EXTRACT(f) { #f, &strlen_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 ux last;

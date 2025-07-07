@@ -48,7 +48,7 @@ typedef size_t Func(uint8_t *dst, const uint8_t *src, size_t length, const uint8
 #define DECLARE(f) extern Func b64_encode_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &b64_encode_##f },
+#define EXTRACT(f) { #f, &b64_encode_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 uint8_t *dest, *src;

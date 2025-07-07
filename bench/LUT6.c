@@ -28,7 +28,7 @@ typedef void Func(uint8_t lut[64], uint8_t *ptr, size_t n);
 #define DECLARE(f) extern Func LUT6_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &LUT6_##f },
+#define EXTRACT(f) { #f, &LUT6_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 uint8_t *ptr;

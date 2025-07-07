@@ -160,7 +160,7 @@ typedef void *Func(void *restrict dest, void const *restrict src, size_t n);
 #define DECLARE(f) extern Func memcpy_##f;
 IMPLS(DECLARE)
 
-#define EXTRACT(f) { #f, &memcpy_##f },
+#define EXTRACT(f) { #f, &memcpy_##f, 0 },
 Impl impls[] = { IMPLS(EXTRACT) };
 
 uint8_t *dest, *src;

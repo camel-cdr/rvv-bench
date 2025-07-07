@@ -25,8 +25,8 @@ chacha20_rvv(void *restrict dest, void const *restrict src, size_t n) {
 typedef void *Func(void *restrict dest, void const *restrict src, size_t n);
 
 Impl impls[] = {
-	{ "boring", &chacha20_boring },
-	{ "rvv", &chacha20_rvv },
+	{ "boring", &chacha20_boring, 0 },
+	{ "rvv", &chacha20_rvv, 0 },
 };
 
 void init(void) {
