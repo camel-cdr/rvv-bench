@@ -164,7 +164,6 @@ bench_run(Bench *benches, size_t nBenches)
 
 #define TIME \
 	for (ux beg = rv_cycles(), _once = 1; _once; \
-	       rv_fencei(), \
 	       _cycles += rv_cycles() - beg, _once = 0)
 
 #define BENCH_BEG(name) \

@@ -536,7 +536,6 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 .endr
 	addi a0, a0, -1
 	bnez a0, 1b
-	fence.i
 #if defined(USE_PERF_EVENT_SLOW)
 	ld a0, nolibc_perf_event_fd
 	la a1, u64_cycle

@@ -73,19 +73,15 @@ main(void)
 		struct Func f = funcs[i];
 		printf("%s libm: ", f.name);
 		for (size_t i = 0; i < 3; ++i) {
-			__asm__ volatile("fence.i");
 			__asm__ volatile ("csrr %0, cycle" : "=r"(beg));
 			f.lm(N, in, out);
-			__asm__ volatile("fence.i");
 			__asm__ volatile ("csrr %0, cycle" : "=r"(end));
 			printf(" %f", ((double)N) / (end-beg));
 		}
 		printf(" elements/cycle\n%s rvvlm:", f.name);
 		for (size_t i = 0; i < 3; ++i) {
-			__asm__ volatile("fence.i");
 			__asm__ volatile ("csrr %0, cycle" : "=r"(beg));
 			f.rvvlm(N, in, out);
-			__asm__ volatile("fence.i");
 			__asm__ volatile ("csrr %0, cycle" : "=r"(end));
 			printf(" %f", ((double)N) / (end-beg));
 		}

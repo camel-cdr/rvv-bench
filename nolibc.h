@@ -274,9 +274,6 @@ qsort(void *base, size_t len, size_t size, int (*cmp)(const void *, const void *
 }
 #endif
 
-static void
-rv_fencei() { __asm volatile("fence.i"); }
-
 static ux
 usqrt(ux y)
 {
