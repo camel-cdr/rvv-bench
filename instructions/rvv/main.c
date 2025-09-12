@@ -4,6 +4,7 @@
 static ux seed = 123456;
 
 typedef ux (*BenchFunc)(void);
+extern void *aligned, *misaligned;
 extern size_t bench_count;
 extern char bench_names;
 extern ux bench_types;
@@ -24,7 +25,6 @@ static void
 run_all_types(char const *name, ux bIdx, ux vl, int ta, int ma)
 {
 	ux arr[RUNS];
-
 
 	print("<tr><td>")(s,name)("</td>");
 	ux mask = bIdx[&bench_types];
@@ -83,12 +83,28 @@ skip:
 	print("</tr>\n")(flush,);
 }
 
+#if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
+# include <stdlib.h>
+#else
+static unsigned char heap[1 + MAX_MEM + MEM_ALIGN];
+#endif
+
 int
 main(void)
 {
 	size_t x;
-	seed = rv_cycles();
+	seed += rv_cycles();
 	seed ^= (uintptr_t)&x;
+
+#if __STDC_HOSTED__ && !defined(CUSTOM_HOST)
+	aligned = malloc(MAX_MEM + MEM_ALIGN);
+#else
+	aligned = heap;
+#endif
+	aligned = (unsigned char*)(((uintptr_t)aligned + MEM_ALIGN-1) & ~(MEM_ALIGN-1));
+	memset(aligned, 33, MAX_MEM);
+	misaligned = (unsigned char*)aligned - 3;
+
 
 	ux vlarr[] = { 0, 1 };
 	for (ux i = 0; i < 2; ++i) {

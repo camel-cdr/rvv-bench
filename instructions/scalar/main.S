@@ -400,7 +400,7 @@ randomize:
 		xor \x, a6, a7
 		and a5, \x, a4 # zero upper f16/f32/f64 exponent bit
 		fmv.w.x f\()\x, a5
-		.ifnb
+		.ifnb \xs
 			randomize_reg \xs
 		.endif
 	.endm

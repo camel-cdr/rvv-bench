@@ -32,12 +32,6 @@ changecom(`#', `')
 .macro m_nop
 .endm
 
-.macro m_1bit
-vid.v v0
-remu t0, t0, VL
-vmseq.vx v8, v0, t0
-.endm
-
 define(`m_mask',
 	`m_$1($2, shift(shift($*)))
 	m_$1( $2`'m, shift(shift($*)), v0.t)')
@@ -93,6 +87,28 @@ define(`m_bench_wxi',
 	m_mask( $1, bench_$3`'wx, $2, m_nop, $3.wx, v8, v16, t0)
 	m_mask( $1, bench_$3`'wi, $2, m_nop, $3.wi, v8, v16, 13)')
 
+define(`m_loadff',
+	`m_mask($1, bench_vl$3`'8ffv,  $2`'8,  m_mem8,  vl$3`'8ff.v,  shift(shift(shift($*))))
+	m_mask( $1, bench_vl$3`'16ffv, $2`'16, m_mem16, vl$3`'16ff.v, shift(shift(shift($*))))
+	m_mask( $1, bench_vl$3`'32ffv, $2`'32, m_mem32, vl$3`'32ff.v, shift(shift(shift($*))))
+	m_mask( $1, bench_vl$3`'64ffv, $2`'64, m_mem64, vl$3`'64ff.v, shift(shift(shift($*))))')
+
+define(`m_loadstore',
+	`m_mask($1, bench_vl$3`'8v,  $2`'8,  m_mem8,  vl$3`'8.v,  shift(shift(shift($*))))
+	m_mask( $1, bench_vl$3`'16v, $2`'16, m_mem16, vl$3`'16.v, shift(shift(shift($*))))
+	m_mask( $1, bench_vl$3`'32v, $2`'32, m_mem32, vl$3`'32.v, shift(shift(shift($*))))
+	m_mask( $1, bench_vl$3`'64v, $2`'64, m_mem64, vl$3`'64.v, shift(shift(shift($*))))
+	m_mask( $1, bench_vs$3`'8v,  $2`'8,  m_mem8,  vs$3`'8.v,  shift(shift(shift($*))))
+	m_mask( $1, bench_vs$3`'16v, $2`'16, m_mem16, vs$3`'16.v, shift(shift(shift($*))))
+	m_mask( $1, bench_vs$3`'32v, $2`'32, m_mem32, vs$3`'32.v, shift(shift(shift($*))))
+	m_mask( $1, bench_vs$3`'64v, $2`'64, m_mem64, vs$3`'64.v, shift(shift(shift($*))))')
+
+
+.macro m_1bit
+	vid.v v0
+	remu t0, t0, VL
+	vmseq.vx v8, v0, t0
+.endm
 
 .macro m_mod_v24_e8_vl
 	csrr t8, vtype
@@ -112,6 +128,44 @@ define(`m_bench_wxi',
 	remu t0, t0, VL
 .endm
 
+/* we want to roughly access the memory range of vlenb*8*4 */
+.macro m_mem shift
+	csrr t8, vlenb
+	la t1, aligned
+	ld t1, (t1) /* index base */
+
+	slli t7, t8, 4
+	addi t7, t7, -1
+	and t0, t0, t7
+	add t0, t0, t1 /* unit-stride base */
+
+	slli t7, t8, 3
+	addi t7, t7, -1
+	and t2, t2, t7
+	add t2, t2, t1   /* strided base */
+	li t3, 3<<\shift /* strided stride */
+
+	srli t0, t0, \shift
+	slli t0, t0, \shift
+
+	srli t2, t2, \shift
+	slli t2, t2, \shift
+.endm
+
+.macro m_mem8
+	m_mem 0
+.endm
+.macro m_mem16
+	m_mem 1
+.endm
+.macro m_mem32
+	m_mem 2
+.endm
+.macro m_mem64
+	m_mem 3
+.endm
+
+
 .macro m_unimpl
 	li a0, -1
 	ret
@@ -122,9 +176,10 @@ define(`m_ifmx_f', `m_$3($4, 0, m_nop, m_unimpl)')
 define(`m_ifmx_lmul_to_i', `ifelse(regexp($1,f), -1, $1, 0)')
 define(`m_ifmx',`ifelse(eval($1 <= m_ifmx_lmul_to_i(m_LMUL) && $2 >= m_ifmx_lmul_to_i(m_LMUL)),1,`m_ifmx_t($*)',`m_ifmx_f($*)')')
 
-# calls $1 with: name type setup code:vararg
+/* calls $1 with: name type setup code:vararg */
 define(`m_bench_all',`
 	m_$1(bench_add, T_A, m_nop, add, t0, t1, t2)
+
 	m_$1(bench_mul, T_A, m_nop, mul, t0, t1, t2)
 	m_bench_vxi($1, T_A, vadd)
 	m_bench_vx($1,  T_A, vsub)
@@ -306,12 +361,12 @@ define(`m_bench_all',`
 
 	m_mask($1, bench_vcpopm,   T_m1,  m_nop,  vcpop.m,   t0, v8)
 	m_mask($1, bench_vfirstm,  T_m1,  m_1bit, vfirst.m,  t0, v8)
-	m_mask($1, bench_vzextvf2, T_E2, m_1bit, vzext.vf2, v8, v16)
-	m_mask($1, bench_vsextvf2, T_E2, m_1bit, vsext.vf2, v8, v16)
-	m_mask($1, bench_vzextvf4, T_E4, m_1bit, vzext.vf4, v8, v16)
-	m_mask($1, bench_vsextvf4, T_E4, m_1bit, vsext.vf4, v8, v16)
-	m_mask($1, bench_vzextvf8, T_E8, m_1bit, vzext.vf8, v8, v16)
-	m_mask($1, bench_vsextvf8, T_E8, m_1bit, vsext.vf8, v8, v16)
+	m_mask($1, bench_vzextvf2, T_VF2, m_1bit, vzext.vf2, v8, v16)
+	m_mask($1, bench_vsextvf2, T_VF2, m_1bit, vsext.vf2, v8, v16)
+	m_mask($1, bench_vzextvf4, T_VF4, m_1bit, vzext.vf4, v8, v16)
+	m_mask($1, bench_vsextvf4, T_VF4, m_1bit, vsext.vf4, v8, v16)
+	m_mask($1, bench_vzextvf8, T_VF8, m_1bit, vzext.vf8, v8, v16)
+	m_mask($1, bench_vsextvf8, T_VF8, m_1bit, vsext.vf8, v8, v16)
 
 	m_$1(bench_vfmvfs, T_F, m_nop, vfmv.f.s, ft0, v8)
 	m_$1(bench_vfmvsf, T_F, m_nop, vfmv.s.f, v8,  ft0)
@@ -351,8 +406,42 @@ define(`m_bench_all',`
 	m_mask($1, bench_viotam,   T_A, m_nop,  viota.m,   v8, v16)
 	m_mask($1, bench_vidv,     T_A, m_nop,  vid.v,     v8)
 
+
+	m_loadstore($1, T_E, e, v8, (t0))
+	m_loadff(   $1, T_E, e, v8, (t0))
+
+	m_$1(bench_vlm, T_E8, m_mem8, vlm.v, v8, (t0))
+	m_$1(bench_vsm, T_E8, m_mem8, vsm.v, v8, (t0))
+
+	m_loadstore($1, T_E, se, v8, (t2), t3)
+
+	m_loadstore($1, (T_A>> 4)&T_E, seg2e, v8, (t0))
+	m_loadstore($1, (T_A>> 8)&T_E, seg3e, v8, (t0))
+	m_loadstore($1, (T_A>> 8)&T_E, seg4e, v8, (t0))
+	m_loadstore($1, (T_A>>12)&T_E, seg5e, v8, (t0))
+	m_loadstore($1, (T_A>>12)&T_E, seg6e, v8, (t0))
+	m_loadstore($1, (T_A>>12)&T_E, seg7e, v8, (t0))
+	m_loadstore($1, (T_A>>12)&T_E, seg8e, v8, (t0))
+
+	m_loadff(   $1, (T_A>> 4)&T_E, seg2e, v8, (t0))
+	m_loadff(   $1, (T_A>> 8)&T_E, seg3e, v8, (t0))
+	m_loadff(   $1, (T_A>> 8)&T_E, seg4e, v8, (t0))
+	m_loadff(   $1, (T_A>>12)&T_E, seg5e, v8, (t0))
+	m_loadff(   $1, (T_A>>12)&T_E, seg6e, v8, (t0))
+	m_loadff(   $1, (T_A>>12)&T_E, seg7e, v8, (t0))
+	m_loadff(   $1, (T_A>>12)&T_E, seg8e, v8, (t0))
+
+	m_loadstore($1, (T_A>> 4)&T_E, sseg2e, v8, (t2), t3)
+	m_loadstore($1, (T_A>> 8)&T_E, sseg3e, v8, (t2), t3)
+	m_loadstore($1, (T_A>> 8)&T_E, sseg4e, v8, (t2), t3)
+	m_loadstore($1, (T_A>>12)&T_E, sseg5e, v8, (t2), t3)
+	m_loadstore($1, (T_A>>12)&T_E, sseg6e, v8, (t2), t3)
+	m_loadstore($1, (T_A>>12)&T_E, sseg7e, v8, (t2), t3)
+	m_loadstore($1, (T_A>>12)&T_E, sseg8e, v8, (t2), t3)
 ')
 
+
+/* TODO: indexed load/stores */
 
 .data
 
@@ -367,6 +456,15 @@ define(`m_gen_function_pointers', `defptr $1_m`'m_benchLMUL')
 define(`m_gen_types', `defptr $2')
 define(`m_format',`$2 shift(shift($*))')
 define(`m_gen_strings', `.string "m_format(,shift(shift(shift($*))))"')
+
+.balign 8
+.global aligned
+aligned:
+defptr 0
+.global misaligned
+misaligned:
+defptr 0
+
 
 .balign 8
 define(`m_LMUL', f8)
@@ -437,6 +535,7 @@ bench_count:
 
 popdef(`m_ifmx')
 
+
 .balign 8
 u64_cycle:
 .dword 0
@@ -445,14 +544,14 @@ u64_cycle:
 .balign 8
 
 
-# x off
+/* x off */
 define(`m_offset1',
 	`ifelse(`$1',`t0',t$2,
 	 ifelse(`$1',`ft0',ft$2,
 	 ifelse(`$1',`v8',v`'eval(8+$2),
 	 ifelse(`$1',v16,v`'eval(16+$2),
 	 ifelse(`$1',v24,v`'eval(24+$2),$1)))))')
-# acc off code:vararg
+/* acc off code:vararg */
 define(`m_offset',
 	`ifelse(`$3',,`m_format($1)',
 		`m_offset(`$1,m_offset1($3,$2)',$2,$4,$5,$6,$7,$8,$9)')')
@@ -498,7 +597,7 @@ m_format(,$*)
 m_format(,$*)')
 
 
-# name type setup code:vararg
+/* name type setup code:vararg */
 define(`m_gen_bench',`
 $1`'_m`'m_LMUL:	pushdef(`m_code', `shift(shift(shift($*)))')
 	$3
@@ -515,7 +614,7 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	la a1, u64_cycle
 	li a2, 8
 	li a7, 63
-	ecall # clobbers vregs and vtype
+	ecall /* clobbers vregs and vtype */
 	ld a3, u64_cycle
 	vsetvl VL, VL, s2
 	bnez VL, 2f
@@ -541,7 +640,7 @@ ifelse(m_LMUL,8,`m_gen_code_m8(m_code)')
 	la a1, u64_cycle
 	li a2, 8
 	li a7, 63
-	ecall # clobbers vregs and vtype
+	ecall /* clobbers vregs and vtype */
 	ld a0, u64_cycle
 	vsetvl VL, VL, s2
 	bnez VL, 2f
@@ -585,7 +684,7 @@ randomize:
 	vadd.vv v0, v0, v8
 	vxor.vx v0, v0, a0
 
-	# murmurhash32 finalizer
+	/* murmurhash32 finalizer */
 	vsetvli a4, x0, e32, m8, ta, ma
 
 	vsrl.vi v8, v8, 16
@@ -599,43 +698,42 @@ randomize:
 	vsrl.vi v8, v8, 16
 	vxor.vv v0, v0, v8
 
-	# mix to other registers
+	/* mix to other registers */
 	vmul.vx v8,  v0, a1
 	vmul.vx v16, v0, a2
 	vmul.vx v24, v0, a3
 
 
-	# zero floating point exponent bit to avoid NaN/Inf
+	/* zero floating point exponent bit to avoid NaN/Inf */
 #if __riscv_xlen == 32
 	vsetvli a4, x0, e32, m8, ta, ma
-	li a4, ~0x40004000 # zero upper f16/f32/f64 exponent bit
+	li a4, ~0x40004000 /* zero upper f16/f32/f64 exponent bit */
 #else
 	vsetvli a4, x0, e64, m8, ta, ma
-	li a4, ~0x4000000040004000 # zero upper f16/f32/f64 exponent bit
+	li a4, ~0x4000000040004000 /* zero upper f16/f32/f64 exponent bit */
 #endif
 	vand.vx v0, v0, a4
 	vand.vx v8, v8, a4
 	vand.vx v16, v16, a4
 	vand.vx v24, v24, a4
 
-	# fill t* & ft* with wyhash
+	/* fill t* & ft* with wyhash */
 	.macro randomize_reg x xs:vararg
 		add a0, a0, a1
 		xor a5, a0, a2
 		mulh a6, a0, a5
 		mulhu a7, a0, a5
 		xor \x, a6, a7
-		and a5, \x, a4 # zero upper f16/f32/f64 exponent bit
+		and a5, \x, a4 /* zero upper f16/f32/f64 exponent bit */
 		fmv.w.x f\()\x, a5
-		.ifnb
+		.ifnb \xs
 			randomize_reg \xs
 		.endif
 	.endm
 	randomize_reg t0, t1, t2, t3, t4, t5, t6, t7, t8
-
 	ret
 
-# u64 f(u64 (*bench)(void), u64 type, u64 vl, u64 seed)
+/* u64 f(u64 (*bench)(void), u64 type, u64 vl, u64 seed) */
 .global run_bench
 run_bench:
 	addi sp, sp, -48
@@ -646,9 +744,9 @@ run_bench:
 	sx VL, 40(sp)
 
 	mv s1, a0
-	mv s2, a1 # type
+	mv s2, a1 /* type */
 	mv VL, a2
-	mv a0, a3 # seed
+	mv a0, a3 /* seed */
 	call randomize
 	vsetvl VL, VL, s2
 	bnez VL, 1f

@@ -10,7 +10,7 @@ rvv: gen.S main.c config.h
 	rm main.S
 
 clean:
-	rm -f rvv
+	rm -f rvv main.S
 
 run: rvv
 	../../run.sh ./rvv
