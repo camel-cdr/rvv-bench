@@ -1,6 +1,6 @@
 #include "../nolibc.h"
 
-#define SCALE (1024*1024*4)
+#define SCALE (1024*1024)
 #define BESTOF 8
 
 extern size_t get_vlenb(void);
@@ -46,15 +46,15 @@ main(void)
 
 
 	print("\nMeasures how LMUL scheduling impacts when results are ready:\n")(flush,);
-	measure(measure_overlap_v0,  seed, SCALE, "LMUL=8 v0 overlap with LMUL=1 v0:     ");
-	measure(measure_overlap_v3,  seed, SCALE, "LMUL=8 v0 overlap with LMUL=1 v3:     ");
-	measure(measure_overlap_v7,  seed, SCALE, "LMUL=8 v0 overlap with LMUL=1 v7:     ");
-	measure(measure_overlap_v8,  seed, SCALE, "LMUL=8 v0 overlap with LMUL=1 v8:     ");
-	measure(measure_overlap_all, seed, SCALE, "LMUL=8 v0 overlap with LMUL=1 v0..v8: ");
+	measure(measure_overlap_v0,  seed, SCALE, "A) LMUL=8 v0 overlap with LMUL=1 v0:     ");
+	measure(measure_overlap_v3,  seed, SCALE, "B) LMUL=8 v0 overlap with LMUL=1 v3:     ");
+	measure(measure_overlap_v7,  seed, SCALE, "C) LMUL=8 v0 overlap with LMUL=1 v7:     ");
+	measure(measure_overlap_v8,  seed, SCALE, "D) LMUL=8 v0 overlap with LMUL=1 v8:     ");
+	measure(measure_overlap_all, seed, SCALE, "E) LMUL=8 v0 overlap with LMUL=1 v0..v8: ");
 
 	print("\nMeasures overhead of reinterpreting a mask as a vector:\n")(flush,);
-	measure(measure_mask_reinterpret_on,  seed, SCALE, "reinterpret:       ");
-	measure(measure_mask_reinterpret_off, seed, SCALE, "don't reinterpret: ");
+	measure(measure_mask_reinterpret_on,  seed, SCALE, "A) reinterpret:       ");
+	measure(measure_mask_reinterpret_off, seed, SCALE, "B) don't reinterpret: ");
 
 	return 0;
 }

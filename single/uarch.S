@@ -120,9 +120,10 @@ measure_overlap_\vN:
 	beqz a1, 2f
 1:
 	vsetvli t0, x0, e64, m8, ta, ma
+	vadd.vv v8, v0, v24
 	vdiv.vv v0, v8, v16
 	vsetvli t0, x0, e64, m1, ta, ma
-	.rept 128
+	.rept 64
 		vadd.vv \vN, \vN, v24
 	.endr
 	addi a1, a1, -1
@@ -142,9 +143,10 @@ measure_overlap_all:
 	beqz a1, 2f
 1:
 	vsetvli t0, x0, e64, m8, ta, ma
+	vadd.vv v8, v0, v24
 	vdiv.vv v0, v8, v16
 	vsetvli t0, x0, e64, m1, ta, ma
-	.rept 128/8
+	.rept 64/8
 		vadd.vv v0, v0, v7
 		vadd.vv v1, v1, v0
 		vadd.vv v2, v2, v1
@@ -165,17 +167,11 @@ measure_mask_reinterpret_on:
 	randomize a0
 	beqz a1, 2f
 1:
-	vsetvli t0, x0, e16, m4, ta, ma
-	vadd.vi v8, v8, 3
-	vadd.vi v16, v16, 3
+	vsetvli t0, x0, e16, m2, ta, ma
 	vmslt.vv v0, v8, v16
 	vmslt.vv v1, v16, v24
-	vsetvli t0, x0, e16, m1, ta, ma
 	vadd.vi v0, v0, 1
-	vadd.vi v1, v1, 2
-	vmand.mm v0, v0, v1
-	vadd.vi v0, v0, 1
-	vadd.vv v8, v9, v10, v0.t
+	vadd.vv v8, v16, v24, v0.t
 	addi a1, a1, -1
 	bnez a1, 1b
 2:
@@ -186,17 +182,11 @@ measure_mask_reinterpret_off:
 	randomize a0
 	beqz a1, 2f
 1:
-	vsetvli t0, x0, e16, m4, ta, ma
-	vadd.vi v8, v8, 3
-	vadd.vi v16, v16, 3
+	vsetvli t0, x0, e16, m2, ta, ma
+	vadd.vi v8, v8, 1
 	vmslt.vv v0, v8, v16
 	vmslt.vv v1, v16, v24
-	vsetvli t0, x0, e16, m1, ta, ma
-	vadd.vi v8, v8, 1
-	vadd.vi v9, v9, 2
-	vmand.mm v0, v0, v1
-	vadd.vv v8, v9, v10, v0.t
-	vadd.vi v8, v8, 1
+	vadd.vv v8, v16, v24, v0.t
 	addi a1, a1, -1
 	bnez a1, 1b
 2:
