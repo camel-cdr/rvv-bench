@@ -45,6 +45,7 @@ jobs:
         cp .github/workflows/rv32-config.mk ./config.mk
         make -C bench -j$(nproc)
         make -C bench clean
+        sed '/define.*M4_RV64/d' -i instructions/rvv/gen.S
         make -C instructions/rvv
         make -C instructions/rvv clean
         make -C instructions/scalar

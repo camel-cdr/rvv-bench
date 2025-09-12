@@ -1,3 +1,5 @@
+define(`M4_RV64', 0)
+
 #define VL s3
 
 #define t7 a6
@@ -91,17 +93,17 @@ define(`m_loadff',
 	`m_mask($1, bench_vl$3`'8ffv,  $2`'8,  m_mem8,  vl$3`'8ff.v,  shift(shift(shift($*))))
 	m_mask( $1, bench_vl$3`'16ffv, $2`'16, m_mem16, vl$3`'16ff.v, shift(shift(shift($*))))
 	m_mask( $1, bench_vl$3`'32ffv, $2`'32, m_mem32, vl$3`'32ff.v, shift(shift(shift($*))))
-	m_mask( $1, bench_vl$3`'64ffv, $2`'64, m_mem64, vl$3`'64ff.v, shift(shift(shift($*))))')
+	ifelse(M4_RV64, 1, `m_mask( $1, bench_vl$3`'64ffv, $2`'64, m_mem64, vl$3`'64ff.v, shift(shift(shift($*))))')')
 
 define(`m_loadstore',
 	`m_mask($1, bench_vl$3`'8v,  $2`'8,  m_mem8,  vl$3`'8.v,  shift(shift(shift($*))))
 	m_mask( $1, bench_vl$3`'16v, $2`'16, m_mem16, vl$3`'16.v, shift(shift(shift($*))))
 	m_mask( $1, bench_vl$3`'32v, $2`'32, m_mem32, vl$3`'32.v, shift(shift(shift($*))))
-	m_mask( $1, bench_vl$3`'64v, $2`'64, m_mem64, vl$3`'64.v, shift(shift(shift($*))))
+	ifelse(M4_RV64, 1, `m_mask( $1, bench_vl$3`'64v, $2`'64, m_mem64, vl$3`'64.v, shift(shift(shift($*))))')
 	m_mask( $1, bench_vs$3`'8v,  $2`'8,  m_mem8,  vs$3`'8.v,  shift(shift(shift($*))))
 	m_mask( $1, bench_vs$3`'16v, $2`'16, m_mem16, vs$3`'16.v, shift(shift(shift($*))))
 	m_mask( $1, bench_vs$3`'32v, $2`'32, m_mem32, vs$3`'32.v, shift(shift(shift($*))))
-	m_mask( $1, bench_vs$3`'64v, $2`'64, m_mem64, vs$3`'64.v, shift(shift(shift($*))))')
+	ifelse(M4_RV64, 1, `m_mask( $1, bench_vs$3`'64v, $2`'64, m_mem64, vs$3`'64.v, shift(shift(shift($*))))')')
 
 
 .macro m_1bit
@@ -132,7 +134,7 @@ define(`m_loadstore',
 .macro m_mem shift
 	csrr t8, vlenb
 	la t1, aligned
-	ld t1, (t1) /* index base */
+	lx t1, (t1) /* index base */
 
 	slli t7, t8, 4
 	addi t7, t7, -1
