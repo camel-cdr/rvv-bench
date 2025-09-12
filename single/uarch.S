@@ -167,12 +167,15 @@ measure_mask_reinterpret_on:
 1:
 	vsetvli t0, x0, e16, m4, ta, ma
 	vadd.vi v8, v8, 3
+	vadd.vi v16, v16, 3
 	vmslt.vv v0, v8, v16
 	vmslt.vv v1, v16, v24
+	vsetvli t0, x0, e16, m1, ta, ma
+	vadd.vi v0, v0, 1
+	vadd.vi v1, v1, 2
 	vmand.mm v0, v0, v1
-	vmxor.mm v2, v0, v1
-	vsetvli t0, x0, e8, m1, ta, ma
-	vadd.vi v3, v3, 1
+	vadd.vi v0, v0, 1
+	vadd.vv v8, v9, v10, v0.t
 	addi a1, a1, -1
 	bnez a1, 1b
 2:
@@ -185,14 +188,16 @@ measure_mask_reinterpret_off:
 1:
 	vsetvli t0, x0, e16, m4, ta, ma
 	vadd.vi v8, v8, 3
+	vadd.vi v16, v16, 3
 	vmslt.vv v0, v8, v16
 	vmslt.vv v1, v16, v24
-	vsetvli t0, x0, e8, m1, ta, ma
+	vsetvli t0, x0, e16, m1, ta, ma
+	vadd.vi v8, v8, 1
+	vadd.vi v9, v9, 2
 	vmand.mm v0, v0, v1
-	vmxor.mm v2, v0, v1
-	vadd.vi v3, v3, 1
+	vadd.vv v8, v9, v10, v0.t
+	vadd.vi v8, v8, 1
 	addi a1, a1, -1
 	bnez a1, 1b
-	vmv1r.v v0, v2
 2:
 	ret
