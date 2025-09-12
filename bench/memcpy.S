@@ -92,6 +92,22 @@ MX(memcpy_rvv_align_dest_hybrid_):
 	bnez a2, 1b
 	ret
 
+.global MX(memcpy_rvv_vlmax_)
+MX(memcpy_rvv_vlmax_):
+	mv a3, a0
+	vsetvli t0, x0, e8, MX(), ta, ma
+	addi t0, t0, -1
+	and t0, a2, t0 # tail = n % vlenb
+	vsetvli t0, t0, e8, MX(), ta, ma
+1:
+	vle8.v v0, (a1)
+	add a1, a1, t0
+	sub a2, a2, t0
+	vse8.v v0, (a3)
+	add a3, a3, t0
+	vsetvli t0, x0, e8, MX(), ta, ma
+	bnez a2, 1b
+	ret
 
 .global MX(memcpy_rvv_tail_)
 MX(memcpy_rvv_tail_):

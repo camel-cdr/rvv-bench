@@ -117,6 +117,7 @@ memset_musl(void *dest, int c, size_t n)
 	f(scalar_autovec) \
 	MX(f, rvv) \
 	MX(f, rvv_align) \
+	MX(f, rvv_vlmax) \
 	MX(f, rvv_tail) \
 	MX(f, rvv_tail_4x) \
 

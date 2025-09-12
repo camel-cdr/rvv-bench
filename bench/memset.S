@@ -47,6 +47,22 @@ MX(memset_rvv_align_):
 	bnez a2, 1b
 	ret
 
+.global MX(memset_rvv_vlmax_)
+MX(memset_rvv_vlmax_):
+	vsetvli t0, x0, e8, MX(), ta, ma
+	vmv.v.x v8, a1
+	mv a1, a0
+	addi t0, t0, -1
+	and t0, a2, t0 # tail = n % vlenb
+	vsetvli t0, t0, e8, MX(), ta, ma
+1:
+	vse8.v v8, (a1)
+	sub a2, a2, t0
+	add a1, a1, t0
+	vsetvli t0, x0, e8, MX(), ta, ma
+	bnez a2, 1b
+	ret
+
 .global MX(memset_rvv_tail_)
 MX(memset_rvv_tail_):
 	vsetvli t0, a2, e8, MX(), ta, ma

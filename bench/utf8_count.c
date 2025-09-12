@@ -93,6 +93,7 @@ GEN_SWAR(SWAR_popc_bithack_autovec,upopcnt,(void)0)
 	f(SWAR_popc_bithack_autovec) \
 	MX(f, rvv) \
 	MX(f, rvv_align) \
+	MX(f, rvv_vlmax) \
 	MX(f, rvv_tail) \
 	MX(f, rvv_128) \
 	MX(f, rvv_4x) \

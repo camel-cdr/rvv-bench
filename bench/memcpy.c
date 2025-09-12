@@ -152,6 +152,7 @@ memcpy_musl(void *restrict dest, void const *restrict src, size_t n)
 	MX(f, rvv_align_dest) \
 	MX(f, rvv_align_src) \
 	MX(f, rvv_align_dest_hybrid) \
+	MX(f, rvv_vlmax) \
 	MX(f, rvv_tail) \
 	MX(f, rvv_128) \
 

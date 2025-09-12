@@ -52,6 +52,27 @@ MX(utf8_count_rvv_align_):
 	bnez a1, 1b
 	ret
 
+.global MX(utf8_count_rvv_vlmax_)
+MX(utf8_count_rvv_vlmax_):
+	vsetvli t0, x0, e8, MX(), ta, ma
+	addi t0, t0, -1
+	and t0, a1, t0 # tail = n % vlenb
+	vsetvli t0, t0, e8, MX(), ta, ma
+	li a2, 0
+	li a3, -65
+1:
+	vle8.v v8, (a0)
+	vmsgt.vx v16, v8, a3
+	vcpop.m a5, v16
+	sub a1, a1, t0
+	add a0, a0, t0
+	vsetvli t0, x0, e8, MX(), ta, ma
+	add a2, a2, a5
+	bnez a1, 1b
+	mv a0, a2
+	ret
+
+
 .global MX(utf8_count_rvv_tail_)
 MX(utf8_count_rvv_tail_):
 	vsetvli t0, a1, e8, MX(), ta, ma
