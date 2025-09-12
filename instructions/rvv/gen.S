@@ -1,5 +1,3 @@
-define(`M4_RV64', 0)
-
 #define VL s3
 
 #define t7 a6
@@ -93,17 +91,23 @@ define(`m_loadff',
 	`m_mask($1, bench_vl$3`'8ffv,  $2`'8,  m_mem8,  vl$3`'8ff.v,  shift(shift(shift($*))))
 	m_mask( $1, bench_vl$3`'16ffv, $2`'16, m_mem16, vl$3`'16ff.v, shift(shift(shift($*))))
 	m_mask( $1, bench_vl$3`'32ffv, $2`'32, m_mem32, vl$3`'32ff.v, shift(shift(shift($*))))
-	ifelse(M4_RV64, 1, `m_mask( $1, bench_vl$3`'64ffv, $2`'64, m_mem64, vl$3`'64ff.v, shift(shift(shift($*))))')')
+#if __riscv_v_elen >= 64
+	m_mask( $1, bench_vl$3`'64ffv, $2`'64, m_mem64, vl$3`'64ff.v, shift(shift(shift($*))))
+#endif')
 
 define(`m_loadstore',
 	`m_mask($1, bench_vl$3`'8v,  $2`'8,  m_mem8,  vl$3`'8.v,  shift(shift(shift($*))))
 	m_mask( $1, bench_vl$3`'16v, $2`'16, m_mem16, vl$3`'16.v, shift(shift(shift($*))))
 	m_mask( $1, bench_vl$3`'32v, $2`'32, m_mem32, vl$3`'32.v, shift(shift(shift($*))))
-	ifelse(M4_RV64, 1, `m_mask( $1, bench_vl$3`'64v, $2`'64, m_mem64, vl$3`'64.v, shift(shift(shift($*))))')
+#if __riscv_v_elen >= 64
+	m_mask( $1, bench_vl$3`'64v, $2`'64, m_mem64, vl$3`'64.v, shift(shift(shift($*))))
+#endif
 	m_mask( $1, bench_vs$3`'8v,  $2`'8,  m_mem8,  vs$3`'8.v,  shift(shift(shift($*))))
 	m_mask( $1, bench_vs$3`'16v, $2`'16, m_mem16, vs$3`'16.v, shift(shift(shift($*))))
 	m_mask( $1, bench_vs$3`'32v, $2`'32, m_mem32, vs$3`'32.v, shift(shift(shift($*))))
-	ifelse(M4_RV64, 1, `m_mask( $1, bench_vs$3`'64v, $2`'64, m_mem64, vs$3`'64.v, shift(shift(shift($*))))')')
+#if __riscv_v_elen >= 64
+	m_mask( $1, bench_vs$3`'64v, $2`'64, m_mem64, vs$3`'64.v, shift(shift(shift($*))))
+#endif')
 
 
 .macro m_1bit
@@ -440,7 +444,32 @@ define(`m_bench_all',`
 	m_loadstore($1, (T_A>>12)&T_E, sseg6e, v8, (t2), t3)
 	m_loadstore($1, (T_A>>12)&T_E, sseg7e, v8, (t2), t3)
 	m_loadstore($1, (T_A>>12)&T_E, sseg8e, v8, (t2), t3)
+
+#if __riscv_zvbb
+	m_bench_vx($1, T_A, vandn)
+	m_mask($1, bench_vbrevv,  T_A, m_nop, vbrev.v,  v8, v16)
+	m_mask($1, bench_vbrev8v, T_A, m_nop, vbrev8.v, v8, v16)
+	m_mask($1, bench_vclzv,   T_A, m_nop, vclz.v,   v8, v16)
+	m_mask($1, bench_vctzv,   T_A, m_nop, vctz.v,   v8, v16)
+	m_mask($1, bench_vcpopv,  T_A, m_nop, vcpop.v,  v8, v16)
+	m_bench_vx($1, T_A, vrol)
+	m_bench_vx($1, T_A, vror)
+	m_bench_vx($1, T_W, vwsll)
+#endif
+
+#if __riscv_zvbc
+	m_bench_vx($1, T_64, vclmul)
+	m_bench_vx($1, T_64, vclmulh)
+#endif
+
+#if __riscv_zvkg
+	m_$1(bench_vghsh, T_GSH, m_nop, vghsh.vv, v8, v16, v24)
+	m_$1(bench_vgmul, T_GSH, m_nop, vgmul.vv, v8, v16)
+#endif
+
 ')
+
+
 
 
 /* TODO: indexed load/stores */
@@ -474,6 +503,7 @@ define(`m_benchLMUL', 1)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
+	defptr 0
 
 .balign 8
 define(`m_LMUL', f4)
@@ -481,6 +511,7 @@ define(`m_benchLMUL', 1)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
+	defptr 0
 
 .balign 8
 define(`m_LMUL', f2)
@@ -488,6 +519,7 @@ define(`m_benchLMUL', 1)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
+	defptr 0
 
 .balign 8
 define(`m_LMUL', 1)
@@ -495,6 +527,7 @@ define(`m_benchLMUL', 1)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
+	defptr 0
 
 .balign 8
 define(`m_LMUL', 2)
@@ -502,6 +535,7 @@ define(`m_benchLMUL', 2)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
+	defptr 0
 
 .balign 8
 define(`m_LMUL', 4)
@@ -509,6 +543,7 @@ define(`m_benchLMUL', 4)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
+	defptr 0
 
 .balign 8
 define(`m_LMUL', 8)
@@ -516,6 +551,7 @@ define(`m_benchLMUL', 8)
 .global bench_m`'m_LMUL
 	bench_m`'m_LMUL:
 	m_bench_all(`gen_function_pointers')
+	defptr 0
 
 pushdef(`m_ifmx',`m_ifmx_t($*)')
 
@@ -523,17 +559,13 @@ pushdef(`m_ifmx',`m_ifmx_t($*)')
 .global bench_types
 	bench_types:
 	m_bench_all(`gen_types')
+	defptr 0
 
 .balign 8
 .global bench_names
 	bench_names:
 	m_bench_all(`gen_strings')
-
-.balign 8
-define(`m_1p', 1+)
-.global bench_count
-bench_count:
-	defptr eval(m_bench_all(`1p')0)
+	defptr 0
 
 popdef(`m_ifmx')
 

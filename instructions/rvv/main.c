@@ -5,7 +5,6 @@ static ux seed = 123456;
 
 typedef ux (*BenchFunc)(void);
 extern void *aligned, *misaligned;
-extern size_t bench_count;
 extern char bench_names;
 extern ux bench_types;
 extern BenchFunc bench_mf8, bench_mf4, bench_mf2, bench_m1, bench_m2, bench_m4, bench_m8;
@@ -116,7 +115,7 @@ main(void)
 				print("vl=VLMAX");
 			print(s,j & 2 ? " ta" : " tu")(s,j & 1 ? " ma" : " mu")("\n\n");
 			char const *name = &bench_names;
-			for (ux bIdx = 0; bIdx < bench_count; ++bIdx) {
+			for (ux bIdx = 0; *name; ++bIdx) {
 				run_all_types(name, bIdx, vlarr[i], j >> 1, j & 1);
 				while (*name++);
 			}
