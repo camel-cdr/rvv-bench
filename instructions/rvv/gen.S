@@ -467,9 +467,27 @@ define(`m_bench_all',`
 	m_$1(bench_vgmul, T_GSH, m_nop, vgmul.vv, v8, v16)
 #endif
 
+#if __riscv_zvkned
+	m_$1(bench_vaesemvv,  T_AES,  m_nop, vaesem.vv,  v8, v16)
+	m_$1(bench_vaesemvs,  T_AES,  m_nop, vaesem.vs,  v8, v16)
+	m_$1(bench_vaesdmvv,  T_AES,  m_nop, vaesdm.vv,  v8, v16)
+	m_$1(bench_vaesdmvs,  T_AES,  m_nop, vaesdm.vs,  v8, v16)
+	m_$1(bench_vaesefvv,  T_AES,  m_nop, vaesef.vv,  v8, v16)
+	m_$1(bench_vaesefvs,  T_AES,  m_nop, vaesef.vs,  v8, v16)
+	m_$1(bench_vaesdfvv,  T_AES,  m_nop, vaesdf.vv,  v8, v16)
+	m_$1(bench_vaesdfvs,  T_AES,  m_nop, vaesdf.vs,  v8, v16)
+	m_$1(bench_vaeskf1vi, T_AES,  m_nop, vaeskf1.vi, v8, v16, 3)
+	m_$1(bench_vaeskf2vi, T_AES2, m_nop, vaeskf2.vi, v8, v16, 3)
+	m_$1(bench_vaeszvs,   T_AES,  m_nop, vaesz.vs,   v8, v16)
+#endif
+
+#if __riscv_zvknha || __riscv_zvknhb
+	m_$1(bench_vsha2msvv, T_SHA,  m_nop, vsha2ms.vv,  v8, v16, v24)
+	m_$1(bench_vsha2chvv, T_SHA,  m_nop, vsha2ch.vv,  v8, v16, v24)
+	m_$1(bench_vsha2clvv, T_SHA,  m_nop, vsha2cl.vv,  v8, v16, v24)
+#endif
+
 ')
-
-
 
 
 /* TODO: indexed load/stores */

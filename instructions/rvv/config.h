@@ -26,6 +26,19 @@
 #define T_E32  0b1100110011001100111011111111 // EEW=32
 #define T_E64  0b1000100010001000110011101111 // EEW=64
 
+#define T_64   0b1000100010001000100000000000 // only SEW=64
+#define T_GSH  0b0100010001000100000000000000 // gash
+#define T_AES  0b0100010001000100000000000000 // SEW=32 128-bit element group
+#define T_AES2 0b0100010001000000000000000000 // SEW=32 256-bit element group
+
+#if __riscv_zvknha && __riscv_zvknhb
+#define T_SHA  0b1100110001000000000000000000
+#elif __riscv_zvknha
+#define T_SHA  0b0100010001000000000000000000
+#elif __riscv_zvknhb
+#define T_SHA  0b1000100000000000000000000000
+#endif
+
 // special:
 #define T_m1 ((1 << 28) | T_A) // emul<=1
 
