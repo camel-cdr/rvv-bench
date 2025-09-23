@@ -30,6 +30,9 @@ run_all_types(char const *name, ux bIdx, ux vl, int ta, int ma)
 
 	ux lmuls[] = { 5, 6, 7, 0, 1, 2, 3 };
 
+	if (mask == T_GSH || mask == T_AES || mask == T_AES2 || mask == T_SHA)
+		vl = 4;
+
 	for (ux sew = 0; sew < 4; ++sew)
 	for (ux lmul_idx = 0; lmul_idx < 7; ++lmul_idx) {
 		ux lmul = lmuls[lmul_idx];
