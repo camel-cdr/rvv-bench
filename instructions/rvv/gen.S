@@ -32,9 +32,14 @@ changecom(`#', `')
 .macro m_nop
 .endm
 
+
+define(`shift2',`shift(shift($*))')
+define(`shift3',`shift(shift(shift($*)))')
+define(`shift4',`shift(shift(shift(shift($*))))')
+
 define(`m_mask',
-	`m_$1($2, shift(shift($*)))
-	m_$1( $2`'m, shift(shift($*)), v0.t)')
+	`m_$1($2, shift2($*))
+	m_$1( $2`'m, shift2($*), v0.t)')
 
 define(`m_bench_vx',
 	`m_mask($1, bench_$3`'vv, $2, m_nop, $3.vv, v8, v16, v24)
@@ -88,26 +93,32 @@ define(`m_bench_wxi',
 	m_mask( $1, bench_$3`'wi, $2, m_nop, $3.wi, v8, v16, 13)')
 
 define(`m_loadff',
-	`m_mask($1, bench_vl$3`'8ffv,  $2`'8,  m_mem8,  vl$3`'8ff.v,  shift(shift(shift($*))))
-	m_mask( $1, bench_vl$3`'16ffv, $2`'16, m_mem16, vl$3`'16ff.v, shift(shift(shift($*))))
-	m_mask( $1, bench_vl$3`'32ffv, $2`'32, m_mem32, vl$3`'32ff.v, shift(shift(shift($*))))
+	`m_mask($1, bench_vl$3`'8ffv,  $2`'8,  m_mem8,  vl$3`'8ff.v,  shift3($*))
+	m_mask( $1, bench_vl$3`'16ffv, $2`'16, m_mem16, vl$3`'16ff.v, shift3($*))
+	m_mask( $1, bench_vl$3`'32ffv, $2`'32, m_mem32, vl$3`'32ff.v, shift3($*))
 #if __riscv_v_elen >= 64
-	m_mask( $1, bench_vl$3`'64ffv, $2`'64, m_mem64, vl$3`'64ff.v, shift(shift(shift($*))))
+	m_mask( $1, bench_vl$3`'64ffv, $2`'64, m_mem64, vl$3`'64ff.v, shift3($*))
 #endif')
 
+define(`m_stride',
+	`m_mask($1, $2`'t3, shift2($*), t3)
+	m_mask( $1, $2`'x0, shift2($*), x0)
+	m_mask( $1, $2`'t1, shift2($*), t1/*-1*/)')
+
 define(`m_loadstore',
-	`m_mask($1, bench_vl$3`'8v,  $2`'8,  m_mem8,  vl$3`'8.v,  shift(shift(shift($*))))
-	m_mask( $1, bench_vl$3`'16v, $2`'16, m_mem16, vl$3`'16.v, shift(shift(shift($*))))
-	m_mask( $1, bench_vl$3`'32v, $2`'32, m_mem32, vl$3`'32.v, shift(shift(shift($*))))
+	`m_$1($2, bench_vl$4`'8v,  $3`'8,  m_mem8,  vl$4`'8.v,  shift4($*))
+	m_$1( $2, bench_vl$4`'16v, $3`'16, m_mem16, vl$4`'16.v, shift4($*))
+	m_$1( $2, bench_vl$4`'32v, $3`'32, m_mem32, vl$4`'32.v, shift4($*))
 #if __riscv_v_elen >= 64
-	m_mask( $1, bench_vl$3`'64v, $2`'64, m_mem64, vl$3`'64.v, shift(shift(shift($*))))
+	m_$1( $2, bench_vl$4`'64v, $3`'64, m_mem64, vl$4`'64.v, shift4($*))
 #endif
-	m_mask( $1, bench_vs$3`'8v,  $2`'8,  m_mem8,  vs$3`'8.v,  shift(shift(shift($*))))
-	m_mask( $1, bench_vs$3`'16v, $2`'16, m_mem16, vs$3`'16.v, shift(shift(shift($*))))
-	m_mask( $1, bench_vs$3`'32v, $2`'32, m_mem32, vs$3`'32.v, shift(shift(shift($*))))
+	m_$1( $2, bench_vs$4`'8v,  $3`'8,  m_mem8,  vs$4`'8.v,  shift4($*))
+	m_$1( $2, bench_vs$4`'16v, $3`'16, m_mem16, vs$4`'16.v, shift4($*))
+	m_$1( $2, bench_vs$4`'32v, $3`'32, m_mem32, vs$4`'32.v, shift4($*))
 #if __riscv_v_elen >= 64
-	m_mask( $1, bench_vs$3`'64v, $2`'64, m_mem64, vs$3`'64.v, shift(shift(shift($*))))
+	m_$1( $2, bench_vs$4`'64v, $3`'64, m_mem64, vs$4`'64.v, shift4($*))
 #endif')
+
 
 
 .macro m_1bit
@@ -156,6 +167,8 @@ define(`m_loadstore',
 
 	srli t2, t2, \shift
 	slli t2, t2, \shift
+
+	li t1, -1
 .endm
 
 .macro m_mem8
@@ -177,7 +190,7 @@ define(`m_loadstore',
 	ret
 .endm
 
-define(`m_ifmx_t', `m_$3(shift(shift(shift($*))))')
+define(`m_ifmx_t', `m_$3(shift3($*))')
 define(`m_ifmx_f', `m_$3($4, 0, m_nop, m_unimpl)')
 define(`m_ifmx_lmul_to_i', `ifelse(regexp($1,f), -1, $1, 0)')
 define(`m_ifmx',`ifelse(eval($1 <= m_ifmx_lmul_to_i(m_LMUL) && $2 >= m_ifmx_lmul_to_i(m_LMUL)),1,`m_ifmx_t($*)',`m_ifmx_f($*)')')
@@ -413,21 +426,21 @@ define(`m_bench_all',`
 	m_mask($1, bench_vidv,     T_A, m_nop,  vid.v,     v8)
 
 
-	m_loadstore($1, T_E, e, v8, (t0))
+	m_loadstore(mask, $1, T_E, e, v8, (t0))
 	m_loadff(   $1, T_E, e, v8, (t0))
 
 	m_$1(bench_vlm, T_E8, m_mem8, vlm.v, v8, (t0))
 	m_$1(bench_vsm, T_E8, m_mem8, vsm.v, v8, (t0))
 
-	m_loadstore($1, T_E, se, v8, (t2), t3)
+	m_loadstore(stride, $1, T_E, se, v8, (t2))
 
-	m_loadstore($1, (T_A>> 4)&T_E, seg2e, v8, (t0))
-	m_loadstore($1, (T_A>> 8)&T_E, seg3e, v8, (t0))
-	m_loadstore($1, (T_A>> 8)&T_E, seg4e, v8, (t0))
-	m_loadstore($1, (T_A>>12)&T_E, seg5e, v8, (t0))
-	m_loadstore($1, (T_A>>12)&T_E, seg6e, v8, (t0))
-	m_loadstore($1, (T_A>>12)&T_E, seg7e, v8, (t0))
-	m_loadstore($1, (T_A>>12)&T_E, seg8e, v8, (t0))
+	m_loadstore(mask, $1, (T_A>> 4)&T_E, seg2e, v8, (t0))
+	m_loadstore(mask, $1, (T_A>> 8)&T_E, seg3e, v8, (t0))
+	m_loadstore(mask, $1, (T_A>> 8)&T_E, seg4e, v8, (t0))
+	m_loadstore(mask, $1, (T_A>>12)&T_E, seg5e, v8, (t0))
+	m_loadstore(mask, $1, (T_A>>12)&T_E, seg6e, v8, (t0))
+	m_loadstore(mask, $1, (T_A>>12)&T_E, seg7e, v8, (t0))
+	m_loadstore(mask, $1, (T_A>>12)&T_E, seg8e, v8, (t0))
 
 	m_loadff(   $1, (T_A>> 4)&T_E, seg2e, v8, (t0))
 	m_loadff(   $1, (T_A>> 8)&T_E, seg3e, v8, (t0))
@@ -437,13 +450,14 @@ define(`m_bench_all',`
 	m_loadff(   $1, (T_A>>12)&T_E, seg7e, v8, (t0))
 	m_loadff(   $1, (T_A>>12)&T_E, seg8e, v8, (t0))
 
-	m_loadstore($1, (T_A>> 4)&T_E, sseg2e, v8, (t2), t3)
-	m_loadstore($1, (T_A>> 8)&T_E, sseg3e, v8, (t2), t3)
-	m_loadstore($1, (T_A>> 8)&T_E, sseg4e, v8, (t2), t3)
-	m_loadstore($1, (T_A>>12)&T_E, sseg5e, v8, (t2), t3)
-	m_loadstore($1, (T_A>>12)&T_E, sseg6e, v8, (t2), t3)
-	m_loadstore($1, (T_A>>12)&T_E, sseg7e, v8, (t2), t3)
-	m_loadstore($1, (T_A>>12)&T_E, sseg8e, v8, (t2), t3)
+	m_loadstore(stride, $1, (T_A>> 4)&T_E, sseg2e, v8, (t2))
+	m_loadstore(stride, $1, (T_A>> 8)&T_E, sseg3e, v8, (t2))
+	m_loadstore(stride, $1, (T_A>> 8)&T_E, sseg4e, v8, (t2))
+	m_loadstore(stride, $1, (T_A>>12)&T_E, sseg5e, v8, (t2))
+	m_loadstore(stride, $1, (T_A>>12)&T_E, sseg6e, v8, (t2))
+	m_loadstore(stride, $1, (T_A>>12)&T_E, sseg7e, v8, (t2))
+	m_loadstore(stride, $1, (T_A>>12)&T_E, sseg8e, v8, (t2))
+
 
 #if __riscv_zvbb
 	m_bench_vx($1, T_A, vandn)
@@ -503,8 +517,8 @@ define(`m_bench_all',`
 
 define(`m_gen_function_pointers', `defptr $1_m`'m_benchLMUL')
 define(`m_gen_types', `defptr $2')
-define(`m_format',`$2 shift(shift($*))')
-define(`m_gen_strings', `.string "m_format(,shift(shift(shift($*))))"')
+define(`m_format',`$2 shift2($*)')
+define(`m_gen_strings', `.string "m_format(,shift3($*))"')
 
 .balign 8
 .global aligned
@@ -651,7 +665,7 @@ m_format(,$*)')
 
 /* name type setup code:vararg */
 define(`m_gen_bench',`
-$1`'_m`'m_LMUL:	pushdef(`m_code', `shift(shift(shift($*)))')
+$1`'_m`'m_LMUL:	pushdef(`m_code', `shift3($*)')
 	$3
 	li a0, WARMUP
 1:
