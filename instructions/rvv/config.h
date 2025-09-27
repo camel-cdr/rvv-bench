@@ -1,7 +1,8 @@
-#define WARMUP 1000
-#define UNROLL 8 // automatically *8
-#define LOOP 512
-#define RUNS 32
+
+#define WARMUP 2//1000
+#define UNROLL 2//8 // automatically *8
+#define LOOP 2// 512
+#define RUNS 2// 32
 
 // processor specific configs
 //                      m8  m4  m2  m1  mf2 mf4 mf8
@@ -56,6 +57,8 @@
 #define T_SHA  0b0100010001000000000000000000
 #elif __riscv_zvknhb
 #define T_SHA  0b1000100000000000000000000000
+#else
+#define T_SHA  0b0000000000000000000000000000
 #endif
 
 // special:
