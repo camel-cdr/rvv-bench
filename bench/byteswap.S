@@ -1,5 +1,6 @@
 
 #if defined(MX) && __riscv_zvbb
+# a0 = ptr, a1 = len
 .global MX(byteswap32_rvv_vrev8_)
 MX(byteswap32_rvv_vrev8_):
 1:
@@ -14,9 +15,32 @@ MX(byteswap32_rvv_vrev8_):
 	ret
 #endif
 
-#if MX_N == 4 || MX_N == 2 || MX_N == 1
+#if MX_N == 1 || MX_N == 2
+.global MX(byteswap32_rvv_seg4_)
+MX(byteswap32_rvv_seg4_):
+1:
+	vsetvli t0, a1, e8, MX(), ta, ma
+	vlseg4e8.v v0, (a0)
+#if MX_N == 1
+	vmv1r.v v11, v0
+	vmv1r.v v10, v1
+	vmv1r.v  v9, v2
+	vmv1r.v  v8, v3
+#else
+	vmv2r.v v14, v0
+	vmv2r.v v12, v2
+	vmv2r.v v10, v4
+	vmv2r.v  v8, v6
+#endif
+	vsseg4e8.v v8, (a0)
+	sub a1, a1, t0
+	slli t1, t0, 2
+	add a0, a0, t1
+	bnez a1, 1b
+	ret
+#endif
 
-# a0 = ptr, a1 = len
+#if MX_N == 4 || MX_N == 2 || MX_N == 1
 .global MX(byteswap32_rvv_vrgatherei16_)
 MX(byteswap32_rvv_vrgatherei16_):
 	vsetvli t0, x0, e16, MX2(), ta, ma
