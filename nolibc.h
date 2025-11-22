@@ -27,6 +27,21 @@ typedef double fx;
 
 static void print_flush(void);
 
+/* needing to do this is so stupid */
+#define SYSCALL_VREGS \
+	"v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", \
+	"v10", "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18", "v19", \
+	"v20", "v21", "v22", "v23", "v24", "v25", "v26", "v27", "v28", "v29", \
+	"v30", "v31"
+#if (__clang_major__ <= 17 && __clang_major__ >= 13) || __GNUC__ == 13
+# define SYSCALL_CLOBBERS "a7", "memory", SYSCALL_VREGS
+#elif defined(__riscv_vector) || __clang_major__ >= 18 || __GNUC__ > 13
+# define SYSCALL_CLOBBERS "a7", "memory", \
+	SYSCALL_VREGS, "vl", "vtype", "vxrm", "vxsat"
+#else
+# define SYSCALL_CLOBBERS "a7", "memory"
+#endif
+
 #ifdef CUSTOM_HOST
 
 #define IFHOSTED(...)
@@ -87,43 +102,50 @@ int main(void) {
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
 
-__attribute__((naked))
 static void
 exit(int x)
 {
 	__asm__ (
+		"mv a0, %0\n"
 		"li a7, 93\n"
 		"ecall\n"
-		"ret\n"
+		:
+		: "r"(x)
+		: "a0", SYSCALL_CLOBBERS
 	);
 }
 
-__attribute__((naked))
 static void
 memwrite(void const *ptr, size_t len)
 {
 	__asm__ (
-		"mv a2, a1\n"
-		"mv a1, a0\n"
+		"mv a1, %0\n"
+		"mv a2, %1\n"
 		"li a0, 1\n"
 		"li a7, 64\n"
 		"ecall\n"
-		"ret\n"
+		:
+		: "r"(ptr), "r"(len)
+		: "a0", "a1", "a2", SYSCALL_CLOBBERS
 	);
 }
 
-__attribute__((naked))
 static size_t
 memread(void *ptr, size_t len)
 {
+	size_t ret;
 	__asm__ (
-		"mv a2, a1\n"
-		"mv a1, a0\n"
+		"mv a1, %1\n"
+		"mv a2, %2\n"
 		"li a0, 0\n"
 		"li a7, 63\n"
 		"ecall\n"
-		"ret\n"
+		"mv %0, a0\n"
+		: "=r"(ret)
+		: "r"(ptr), "r"(len)
+		: "a0", "a1", "a2", SYSCALL_CLOBBERS
 	);
+	return ret;
 }
 
 int main(void);
@@ -137,19 +159,24 @@ void _start(void) {
 
 #endif
 
-__attribute__((naked))
 static int
 nolibc_perf_event_open(void *ptr)
 {
+	int ret;
 	__asm__ (
+		"mv a0, %1\n"
 		"li a1, 0\n"
 		"li a2, -1\n"
 		"li a3, -1\n"
 		"li a4, 0\n"
 		"li a7, 241\n"
 		"ecall\n"
-		"ret\n"
+		"mv %0, a0\n"
+		: "=r"(ret)
+		:  "r"(ptr)
+		: "a0", "a1", "a2", "a3", "a4", SYSCALL_CLOBBERS
 	);
+	return ret;
 }
 
 #if defined(USE_PERF_EVENT) && (IFHOSTED(1)+0 == 1)
@@ -202,18 +229,20 @@ rv_cycles(void)
 }
 #else
 uint64_t nolibc_perf_event_buf;
-__attribute((naked))
 static ux
 rv_cycles(void)
 {
+	uint64_t ret;
 	__asm__ (
 		"ld a0, nolibc_perf_event_fd\n"
 		"la a1, nolibc_perf_event_buf\n"
 		"li a2, 8\n"
 		"li a7, 63\n"
 		"ecall\n"
-		"ld a0, nolibc_perf_event_buf\n"
+		"ld %0, nolibc_perf_event_buf\n"
+		: "=r"(ret) :: "a0", "a1", "a2", SYSCALL_CLOBBERS
 	);
+	return ret;
 }
 #endif
 
@@ -311,7 +340,7 @@ typedef struct { ux x, y, z; } URand;
 
 #define ROTL(x,n) (((x) << (n)) | ((x) >> (8*sizeof(x) - (n))))
 
-/* RomuDuoJr, see https://romu-random.org/ */
+/* RomuTrio, see https://romu-random.org/ */
 static inline ux
 urand(URand *r)
 {

@@ -5,11 +5,11 @@
 .balign 8
 
 #ifdef __riscv_zbb
-.macro MINU a0, a1, a2
+.macro XMINU a0, a1, a2
 	minu \a0, \a1, \a2
 .endm
 #else
-.macro MINU a0, a1, a2
+.macro XMINU a0, a1, a2
 	.ifnc \a0, \a1
 		mv \a0, \a1
 	.endif

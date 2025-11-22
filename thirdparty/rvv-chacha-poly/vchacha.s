@@ -52,7 +52,7 @@ vector_chacha20:
 	srli a7, a7, 2
 encrypt_blocks:
 	# initialize vector state
-	MINU t1, t3, a7
+	XMINU t1, t3, a7
 	vsetvli t1, t1, e32, m1, ta, ma
 	# Load 128 bit constant
 	li t0, 0x61707865 # "expa" little endian
@@ -178,7 +178,7 @@ round_loop:
 
 	# load in vector lanes with two strided segment loads
 	# in case this is the final block, reset vl to full blocks
-	MINU t5, t4, a7
+	XMINU t5, t4, a7
 	vsetvli t5, t5, e32, m1, ta, ma
 	li t0, 64
 	vlsseg8e32.v v16, (a1), t0

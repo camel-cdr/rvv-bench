@@ -193,7 +193,7 @@ MX(hist_rvv_dup_entries_):
 	vfcvt.rtz.xu.f.v v12, v12
 	vminu.vx v12, v12, a7
 	vmadd.vv v12, v8, v10
-	MINU a5, a4, a6
+	XMINU a5, a4, a6
 	vsetvli a5, a5, e32, m1, ta, ma
 	vluxei32.v v14, (a0), v12
 	sub a5, a4, a5
@@ -251,19 +251,19 @@ MX(hist_rvv_dup_entries_):
 	vfcvt.rtz.xu.f.v        v16, v16
 	vminu.vx        v16, v16, a6
 	vmadd.vv        v16, v8, v12
-	MINU a4, a5, t1
+	XMINU a4, a5, t1
 	vsetvli a4, a4, e32, m1, ta, ma
 	vluxei32.v      v20, (a0), v16
 	sub     a4, a5, a4
 	vadd.vi v20, v20, 1
 	vsuxei32.v      v20, (a0), v16
-	MINU t0, a4, t1
+	XMINU t0, a4, t1
 	vsetvli t0, t0, e32, m1, ta, ma
 	vluxei32.v      v16, (a0), v17
 	sub     a4, a4, t0
 	vadd.vi v16, v16, 1
 	vsuxei32.v      v16, (a0), v17
-	MINU t0, a4, t1
+	XMINU t0, a4, t1
 	vsetvli t0, t0, e32, m1, ta, ma
 	vluxei32.v      v16, (a0), v18
 	sub     a4, a4, t0
