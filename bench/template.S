@@ -4,6 +4,21 @@
 .text
 .balign 8
 
+#ifdef __riscv_zbb
+.macro MINU a0, a1, a2
+	minu \a0, \a1, \a2
+.endm
+#else
+.macro MINU a0, a1, a2
+	.ifnc \a0, \a1
+		mv \a0, \a1
+	.endif
+	bltu \a1, \a2, 999f
+	mv \a0, \a2
+	999:
+.endm
+#endif
+
 #define CAT_(a,b) a##b
 #define CAT(a,b) CAT_(a,b)
 

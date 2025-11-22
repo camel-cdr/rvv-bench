@@ -96,13 +96,7 @@
 	\trans8x8
 	kernel_v16_v16
 
-#ifdef __riscv_zbb
-	minu t0, t0, a3
-#else
-	bltu t0, a3, 2f
-	mv t0, a3
-2:
-#endif
+	MINU t0, t0, a3
 	vsetvli t0, t0, e\SEW, m1, ta, ma
 	sub a3, a3, t0 /* dec n */
 .ifc \SEW, 16
@@ -191,13 +185,7 @@
 	\trans8x8
 	kernel_v16_v16
 
-#ifdef __riscv_zbb
-	minu t0, t0, a3
-#else
-	bltu t0, a3, 2f
-	mv t0, a3
-2:
-#endif
+	MINU t0, t0, a3
 	vsetvli t0, t0, e\SEW, m1, ta, ma
 	sub a3, a3, t0 /* dec n */
 .ifc \SEW, 16

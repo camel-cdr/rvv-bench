@@ -193,7 +193,8 @@ MX(hist_rvv_dup_entries_):
 	vfcvt.rtz.xu.f.v v12, v12
 	vminu.vx v12, v12, a7
 	vmadd.vv v12, v8, v10
-	vsetvli a5, a4, e32, m1, ta, ma
+	MINU a5, a4, a6
+	vsetvli a5, a5, e32, m1, ta, ma
 	vluxei32.v v14, (a0), v12
 	sub a5, a4, a5
 	vadd.vi v14, v14, 1
@@ -230,14 +231,14 @@ MX(hist_rvv_dup_entries_):
 
 .global MX(hist_rvv_dup_entries_)
 MX(hist_rvv_dup_entries_):
-	vsetvli a5, zero, e32, m1, ta, ma
-	slli    a7, a5, 2
+	vsetvli t1, zero, e32, m1, ta, ma
+	slli    a7, t1, 2
 	beqz    a3, 2f
 	vsetvli zero, a7, e32, m4, ta, ma
 	vmv.v.x v8, a7
 	vid.v   v12
-	addi    a5, a5, -1
-	vand.vx v12, v12, a5
+	addi    a5, t1, -1
+	vand.vx v12, v12, t1
 	vsll.vi v12, v12, 2
 	li      a6, 100
 1:
@@ -250,17 +251,20 @@ MX(hist_rvv_dup_entries_):
 	vfcvt.rtz.xu.f.v        v16, v16
 	vminu.vx        v16, v16, a6
 	vmadd.vv        v16, v8, v12
-	vsetvli a4, a5, e32, m1, ta, ma
+	MINU a4, a5, t1
+	vsetvli a4, a4, e32, m1, ta, ma
 	vluxei32.v      v20, (a0), v16
 	sub     a4, a5, a4
 	vadd.vi v20, v20, 1
 	vsuxei32.v      v20, (a0), v16
-	vsetvli t0, a4, e32, m1, ta, ma
+	MINU t0, a4, t1
+	vsetvli t0, t0, e32, m1, ta, ma
 	vluxei32.v      v16, (a0), v17
 	sub     a4, a4, t0
 	vadd.vi v16, v16, 1
 	vsuxei32.v      v16, (a0), v17
-	vsetvli t0, a4, e32, m1, ta, ma
+	MINU t0, a4, t1
+	vsetvli t0, t0, e32, m1, ta, ma
 	vluxei32.v      v16, (a0), v18
 	sub     a4, a4, t0
 	vadd.vi v16, v16, 1
