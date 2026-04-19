@@ -37,7 +37,7 @@ test(size_t length, size_t bitFlipCount)
 		print("\ntar: ");
 		for (size_t i = 0; i < lenGolden; ++i)
 			print(b8,golden[i])(" ");
-		print_flush();exit(0);
+		print_flush();
 		return;
 	}
 	for (size_t i = 0; i < lenGolden; ++i) {
@@ -52,7 +52,7 @@ test(size_t length, size_t bitFlipCount)
 		print("\ntar: ");
 		for (size_t i = 0; i < lenGolden; ++i)
 			print(b8,golden[i])(" ");
-		print_flush();exit(0);
+		print_flush();
 		}
 	}
 }

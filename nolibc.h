@@ -15,7 +15,7 @@
 long nolibc_perf_event_fd = 0;
 #endif
 
-static void nolibc_init(void);
+static int nolibc_init(void);
 
 #if __riscv_xlen == 32
 typedef uint32_t ux;
@@ -45,8 +45,6 @@ static void print_flush(void);
 #ifdef CUSTOM_HOST
 
 #define IFHOSTED(...)
-#define EXIT_FAILURE 1
-#define EXIT_SUCCESS 0
 
 /* customize me */
 static void
@@ -55,16 +53,13 @@ memwrite(void const *ptr, size_t len) { }
 // static size_t /* only needed for vector-utf/bench.c */
 // memread(void *ptr, size_t len) { }
 
-static void
-exit(int x) { __asm__ volatile("unimp\n"); }
-
 int main(void);
 
 void _start(void) {
-	nolibc_init();
-	int x = main();
+	int x = nolibc_init();
+	if (!x) x = main();
 	print_flush();
-	exit(x);
+	__asm__ volatile("unimp\n");
 }
 
 #elif __STDC_HOSTED__
@@ -88,32 +83,16 @@ memread(void *ptr, size_t len)
 	return fread(ptr, 1, len, stdin);
 }
 int main(void) {
-	nolibc_init();
-	int x = nolibc_main();
+	int x = nolibc_init();
+	if (!x) x = nolibc_main();
 	print_flush();
-	exit(x);
+	return x;
 }
 #define main nolibc_main
 
 #else
 
 #define IFHOSTED(...)
-
-#define EXIT_FAILURE 1
-#define EXIT_SUCCESS 0
-
-static void
-exit(int x)
-{
-	__asm__ (
-		"mv a0, %0\n"
-		"li a7, 93\n"
-		"ecall\n"
-		:
-		: "r"(x)
-		: "a0", SYSCALL_CLOBBERS
-	);
-}
 
 static void
 memwrite(void const *ptr, size_t len)
@@ -151,10 +130,17 @@ memread(void *ptr, size_t len)
 int main(void);
 
 void _start(void) {
-	nolibc_init();
-	int x = main();
+	int x = nolibc_init();
+	if (!x) x = main();
 	print_flush();
-	exit(x);
+	__asm__ (
+		"mv a0, %0\n"
+		"li a7, 93\n"
+		"ecall\n"
+		:
+		: "r"(x)
+		: "a0", SYSCALL_CLOBBERS
+	);
 }
 
 #endif
@@ -186,7 +172,7 @@ nolibc_perf_event_open(void *ptr)
 # include <sys/ioctl.h>
 #endif
 
-static void
+static int
 nolibc_init(void)
 {
 #if defined(USE_PERF_EVENT)
@@ -207,15 +193,21 @@ nolibc_init(void)
 	nolibc_perf_event_fd = nolibc_perf_event_open(&pe);
 	if (nolibc_perf_event_fd <= 0) {
 		memwrite("ERROR: perf_event_open failed", 30);
-		exit(EXIT_FAILURE);
+		return 1;
 	}
 #endif
+	return 0;
 }
 
 
 /* utils */
 
-#ifndef USE_PERF_EVENT_SLOW
+#if defined(__x86_64__)
+#include <x86intrin.h>
+static inline ux rv_cycles(void) { return __rdtsc(); }
+#elif !__riscv
+static inline ux rv_cycles(void) { return 0; }
+#elif !defined(USE_PERF_EVENT_SLOW)
 static inline ux
 rv_cycles(void)
 {

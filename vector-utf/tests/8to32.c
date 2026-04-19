@@ -36,7 +36,7 @@ test(size_t maxlen32, size_t bitFlipCount)
 		print("\ntar: ");
 		for (size_t i = 0; i < len32; ++i)
 			print(b32,utf32[i])(" ");
-		print_flush();exit(0);
+		print_flush();
 		return;
 	}
 	for (size_t i = 0; i < len32; ++i) {

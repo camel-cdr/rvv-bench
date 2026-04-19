@@ -150,7 +150,7 @@ bench_run(Bench *benches, size_t nBenches)
 
 				if (si != s0) {
 					print("ERROR: ")(s,i->name)(" in ")(s,b->name)(" at ")(u,n)(flush,);
-					exit(EXIT_FAILURE);
+					return;
 				}
 #endif
 
