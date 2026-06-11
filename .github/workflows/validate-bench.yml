@@ -15,8 +15,7 @@ jobs:
       run: |
         git submodule update --init --recursive
         sudo apt-get update -y
-        sudo apt-get install -y make qemu-user-static clang-17 lld-17 gcc-riscv64-linux-gnu
-        sed 's/zfh_zvfh//g' -i ./config.mk
+        sudo apt-get install -y make qemu-user-static clang-20 lld-20 gcc-riscv64-linux-gnu
     - name: Validate RV64
       run: |
         cp .github/workflows/rv64-config.mk ./config.mk
