@@ -51,7 +51,7 @@ MX(rvv_f16_p4):
 MX(mandelbrot_rvv_f16_):
 	beqz a0, 9f
 	li a6, 0
-	vsetvli a3, zero, e16, m2, ta, ma
+	vsetvli a3, zero, e16, MX(), ta, ma
 	la a3, MX(rvv_f16_p4)
 	fcvt.s.wu fa5, a0
 	flh fa4, (a3)
@@ -77,14 +77,14 @@ MX(mandelbrot_rvv_f16_):
 2:
 	li a4, 0
 	fcvt.h.wu fa2, a6
-	vsetvli a1, zero, e16, m2, ta, ma
+	vsetvli a1, zero, e16, MX(), ta, ma
 	vfmv.v.f v8, fa2
 	vfmul.vf v8, v8, fa3
 	vfadd.vf v16, v8, fa5
 	mv a5, a0
 	j 4f
 3:
-	vsetvli zero, zero, e32, m4, ta, ma
+	vsetvli zero, zero, e32, MX2(), ta, ma
 	vse32.v v8, (a2)
 	sub a5, a5, t0
 	slli a1, t0, 2
@@ -92,7 +92,7 @@ MX(mandelbrot_rvv_f16_):
 	add a4, a4, t0
 	beqz a5, 1b
 4:
-	vsetvli t0, a5, e16, m2, ta, ma
+	vsetvli t0, a5, e16, MX(), ta, ma
 	vadd.vx v8, v14, a4
 	vfcvt.f.xu.v v8, v8
 	vfmul.vf v8, v8, fa3
@@ -101,18 +101,18 @@ MX(mandelbrot_rvv_f16_):
 	vmv.v.i v22, 0
 	vmv.v.i v24, 0
 	vmv.v.i v26, 0
-	vsetvli zero, zero, e32, m4, ta, ma
+	vsetvli zero, zero, e32, MX2(), ta, ma
 	vmv.v.i v8, 0
 	mv a1, a7
 5:
-	vsetvli zero, zero, e16, m2, ta, ma
+	vsetvli zero, zero, e16, MX(), ta, ma
 	vfadd.vv v28, v24, v20
 	vmflt.vv v0, v28, v12
 	addi a1, a1, -1
-	vsetvli zero, zero, e32, m4, ta, ma
+	vsetvli zero, zero, e32, MX2(), ta, ma
 	vadc.vim v8, v8, 0, v0
 	beqz a1, 3b
-	vsetvli zero, zero, e16, m2, ta, ma
+	vsetvli zero, zero, e16, MX(), ta, ma
 	vfadd.vv v26, v26, v26
 	vfsub.vv v20, v24, v20
 	vfmadd.vv v22, v26, v16
@@ -209,7 +209,7 @@ MX(rvv_f64_p4):
 MX(mandelbrot_rvv_f64_):
 	beqz a0, 9f
 	li a6, 0
-	vsetvli a3, zero, e64, m2, ta, ma
+	vsetvli a3, zero, e64, MX(), ta, ma
 	la a3, MX(rvv_f64_p4)
 	fcvt.s.wu fa5, a0
 	fld fa4, (a3)
@@ -235,14 +235,14 @@ MX(mandelbrot_rvv_f64_):
 2:
 	li a4, 0
 	fcvt.d.wu fa2, a6
-	vsetvli a1, zero, e64, m2, ta, ma
+	vsetvli a1, zero, e64, MX(), ta, ma
 	vfmv.v.f v12, fa2
 	vfmul.vf v12, v12, fa3
 	vfadd.vf v12, v12, fa5
 	mv a5, a0
 	j 4f
 3:
-	vsetvli zero, zero, e32, m1, ta, ma
+	vsetvli zero, zero, e32, MXf2(), ta, ma
 	vse32.v v24, (a2)
 	sub a5, a5, t0
 	slli a1, t0, 2
@@ -250,7 +250,7 @@ MX(mandelbrot_rvv_f64_):
 	add a4, a4, t0
 	beqz a5, 1b
 4:
-	vsetvli t0, a5, e64, m2, ta, ma
+	vsetvli t0, a5, e64, MX(), ta, ma
 	vadd.vx v14, v10, a4
 	vfcvt.f.xu.v v14, v14
 	vfmul.vf v14, v14, fa3
@@ -259,18 +259,18 @@ MX(mandelbrot_rvv_f64_):
 	vmv.v.i v18, 0
 	vmv.v.i v20, 0
 	vmv.v.i v22, 0
-	vsetvli zero, zero, e32, m1, ta, ma
+	vsetvli zero, zero, e32, MXf2(), ta, ma
 	vmv.v.i v24, 0
 	mv a1, a7
 5:
-	vsetvli zero, zero, e64, m2, ta, ma
+	vsetvli zero, zero, e64, MX(), ta, ma
 	vfadd.vv v26, v20, v16
 	vmflt.vv v0, v26, v8
 	addi a1, a1, -1
-	vsetvli zero, zero, e32, m1, ta, ma
+	vsetvli zero, zero, e32, MXf2(), ta, ma
 	vadc.vim v24, v24, 0, v0
 	beqz a1, 3b
-	vsetvli zero, zero, e64, m2, ta, ma
+	vsetvli zero, zero, e64, MX(), ta, ma
 	vfadd.vv v22, v22, v22
 	vfsub.vv v16, v20, v16
 	vfmadd.vv v18, v22, v12
